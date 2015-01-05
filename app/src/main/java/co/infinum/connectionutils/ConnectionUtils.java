@@ -17,6 +17,9 @@ public class ConnectionUtils {
 
     private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
 
+    private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+    private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
+
     /**
      * Register for connectivity events. Must be called separately for each activity/context.
      * @param context
@@ -48,8 +51,8 @@ public class ConnectionUtils {
         }
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        filter.addAction("android.net.wifi.WIFI_STATE_CHANGED");
+        filter.addAction(ACTION_CONNECTIVITY_CHANGE);
+        filter.addAction(ACTION_WIFI_STATE_CHANGE);
 
         NetworkChangeReceiver receiver = new NetworkChangeReceiver(object);
 
