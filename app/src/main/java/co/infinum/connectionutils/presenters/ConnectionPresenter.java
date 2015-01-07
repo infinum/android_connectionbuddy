@@ -2,6 +2,8 @@ package co.infinum.connectionutils.presenters;
 
 import android.content.Context;
 
+import co.infinum.connectionutils.receivers.NetworkChangeReceiver;
+
 /**
  * Created by zeljkoplesac on 06/01/15.
 
@@ -21,4 +23,13 @@ public interface ConnectionPresenter {
      * @param context Activity context
      */
     public void unregisterFromNetworkUpdates(Context context);
+
+    /**
+     * Called when there is a connectivity change.
+     * {@link co.infinum.connectionutils.receivers.NetworkChangeReceiver.ConnectivityEvent} that is passed
+     * notifies if the connection has just been established or broke.
+     *
+     * @param event has the application just gained or lost internet connection
+     */
+    public void onEventMainThread(NetworkChangeReceiver.ConnectivityEvent event);
 }
