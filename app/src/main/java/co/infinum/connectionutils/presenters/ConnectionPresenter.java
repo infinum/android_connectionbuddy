@@ -16,13 +16,13 @@ public interface ConnectionPresenter {
      * Activity or fragment should register for network updates on its onStart() method.
      * @param context Activity context
      */
-    public void registerForNetworkUpdates(Context context);
+    void registerForNetworkUpdates(Context context);
 
     /**
      * Activity or fragment should unregister for network updates on its onStop() method.
      * @param context Activity context
      */
-    public void unregisterFromNetworkUpdates(Context context);
+    void unregisterFromNetworkUpdates(Context context);
 
     /**
      * Called when there is a connectivity change.
@@ -31,5 +31,5 @@ public interface ConnectionPresenter {
      *
      * @param event has the application just gained or lost internet connection
      */
-    public void onEventMainThread(NetworkChangeReceiver.ConnectivityEvent event);
+    void onEventMainThread(NetworkChangeReceiver.ConnectivityEvent event);
 }
