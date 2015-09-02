@@ -23,6 +23,11 @@ public class MainPresenterImpl implements MainPresenter, ConnectivityChangeListe
     }
 
     @Override
+    public void init() {
+        view.initUI();
+    }
+
+    @Override
     public void registerForNetworkUpdates(Context context) {
         ConnectionUtils.registerForConnectivityEvents(context, this, this);
     }

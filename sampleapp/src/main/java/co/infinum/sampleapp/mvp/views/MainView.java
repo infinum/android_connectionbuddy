@@ -5,5 +5,7 @@ package co.infinum.sampleapp.mvp.views;
  */
 public interface MainView {
 
+    void initUI();
+
     void onConnectionChangeEvent(boolean hasConnection);
 }
