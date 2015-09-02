@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import co.infinum.sampleapp.R;
 import co.infinum.sampleapp.dagger.components.DaggerMainComponent;
+import co.infinum.sampleapp.dagger.modules.ContextModule;
 import co.infinum.sampleapp.dagger.modules.MainModule;
 import co.infinum.sampleapp.mvp.presenters.MainPresenter;
 import co.infinum.sampleapp.mvp.views.MainView;
@@ -28,9 +29,9 @@ public class MainActivity extends Activity implements MainView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DaggerMainComponent.builder().mainModule(new MainModule(this)).build().init(this);
+        DaggerMainComponent.builder().mainModule(new MainModule(this)).contextModule(new ContextModule(this)).build().init(this);
 
-        presenter.init();
+        presenter.init(savedInstanceState != null);
     }
 
     @Override
@@ -41,13 +42,13 @@ public class MainActivity extends Activity implements MainView {
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.registerForNetworkUpdates(this);
+        presenter.registerForNetworkUpdates();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        presenter.unregisterFromNetworkUpdates(this);
+        presenter.unregisterFromNetworkUpdates();
     }
 
     @Override

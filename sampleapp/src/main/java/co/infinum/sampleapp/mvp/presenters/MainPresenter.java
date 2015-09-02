@@ -7,5 +7,5 @@ import co.infinum.connectionutils.presenters.ConnectionPresenter;
  */
 public interface MainPresenter extends ConnectionPresenter{
 
-    void init();
+    void init(boolean hasSavedInstanceState);
 }
