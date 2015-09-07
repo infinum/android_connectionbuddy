@@ -1,3 +1,3 @@
-# Android Connection Utils
+# Android Connectify
 
 Utility library for handling connectivity change events.
