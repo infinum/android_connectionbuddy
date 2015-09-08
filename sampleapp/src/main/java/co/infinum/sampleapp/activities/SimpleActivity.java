@@ -32,7 +32,6 @@ public class SimpleActivity extends Activity implements ConnectivityChangeListen
     @Override
     protected void onStart() {
         super.onStart();
-
         ConnectifyUtils.registerForConnectivityEvents(this, this, this);
     }
 
