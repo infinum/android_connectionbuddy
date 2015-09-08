@@ -8,8 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import co.infinum.connectionutils.ConnectionPreferences;
-import co.infinum.connectionutils.ConnectionUtils;
+import co.infinum.connectionutils.ConnectifyPreferences;
+import co.infinum.connectionutils.ConnectifyUtils;
 import co.infinum.connectionutils.interfaces.ConnectivityChangeListener;
 
 
@@ -38,13 +38,13 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        boolean hasConnectivity = ConnectionUtils.hasNetworkConnection(context);
+        boolean hasConnectivity = ConnectifyUtils.hasNetworkConnection(context);
 
-        if (hasConnectivity && ConnectionPreferences.getInternetConnection(context, object) != hasConnectivity) {
-            ConnectionPreferences.setInternetConnection(context, object, hasConnectivity);
+        if (hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
+            ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
             mCallback.onConnectionChange(ConnectivityEvent.CONNECTED);
-        } else if (!hasConnectivity && ConnectionPreferences.getInternetConnection(context, object) != hasConnectivity) {
-            ConnectionPreferences.setInternetConnection(context, object, hasConnectivity);
+        } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
+            ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
             mCallback.onConnectionChange(ConnectivityEvent.DISCONNECTED);
         }
     }

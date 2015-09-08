@@ -5,7 +5,7 @@ package co.infinum.connectionutils.presenters;
  *
  * Default ConnectionPresenter, which must be extended by our application BasePresenter
  */
-public interface ConnectionPresenter {
+public interface ConnectifyPresenter {
 
     /**
      * Activity or fragment should register for network updates on its onStart() method.

@@ -1,11 +1,11 @@
 package co.infinum.sampleapp.mvp.presenters;
 
-import co.infinum.connectionutils.presenters.ConnectionPresenter;
+import co.infinum.connectionutils.presenters.ConnectifyPresenter;
 
 /**
  * Created by Željko Plesac on 02/09/15.
  */
-public interface MainPresenter extends ConnectionPresenter{
+public interface MVPPresenter extends ConnectifyPresenter {
 
     void init(boolean hasSavedInstanceState);
 }

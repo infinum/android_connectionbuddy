@@ -4,24 +4,24 @@ import android.content.Context;
 
 import javax.inject.Inject;
 
-import co.infinum.connectionutils.ConnectionPreferences;
-import co.infinum.connectionutils.ConnectionUtils;
+import co.infinum.connectionutils.ConnectifyPreferences;
+import co.infinum.connectionutils.ConnectifyUtils;
 import co.infinum.connectionutils.interfaces.ConnectivityChangeListener;
 import co.infinum.connectionutils.receivers.NetworkChangeReceiver;
-import co.infinum.sampleapp.mvp.presenters.MainPresenter;
-import co.infinum.sampleapp.mvp.views.MainView;
+import co.infinum.sampleapp.mvp.presenters.MVPPresenter;
+import co.infinum.sampleapp.mvp.views.MVPView;
 
 /**
  * Created by Željko Plesac on 02/09/15.
  */
-public class MainPresenterImpl implements MainPresenter, ConnectivityChangeListener {
+public class MVPPresenterImpl implements MVPPresenter, ConnectivityChangeListener {
 
-    private MainView view;
+    private MVPView view;
 
     private Context context;
 
     @Inject
-    public MainPresenterImpl(MainView view, Context context) {
+    public MVPPresenterImpl(MVPView view, Context context) {
         this.view = view;
         this.context = context;
     }
@@ -29,7 +29,7 @@ public class MainPresenterImpl implements MainPresenter, ConnectivityChangeListe
     @Override
     public void init(boolean hasSavedInstanceState) {
         if (!hasSavedInstanceState) {
-            ConnectionPreferences.clearInternetConnection(context, this);
+            ConnectifyPreferences.clearInternetConnection(context, this);
         }
 
         view.initUI();
@@ -37,12 +37,12 @@ public class MainPresenterImpl implements MainPresenter, ConnectivityChangeListe
 
     @Override
     public void registerForNetworkUpdates() {
-        ConnectionUtils.registerForConnectivityEvents(context, this, this);
+        ConnectifyUtils.registerForConnectivityEvents(context, this, this);
     }
 
     @Override
     public void unregisterFromNetworkUpdates() {
-        ConnectionUtils.unregisterFromConnectivityEvents(context, this);
+        ConnectifyUtils.unregisterFromConnectivityEvents(context, this);
     }
 
     @Override

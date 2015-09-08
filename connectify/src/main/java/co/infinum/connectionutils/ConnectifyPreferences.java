@@ -7,9 +7,9 @@ import android.preference.PreferenceManager;
 /**
  * Created by zeljkoplesac on 06/10/14.
  */
-public class ConnectionPreferences {
+public class ConnectifyPreferences {
 
-    private ConnectionPreferences() {
+    private ConnectifyPreferences() {
         // empty constructor
     }
 

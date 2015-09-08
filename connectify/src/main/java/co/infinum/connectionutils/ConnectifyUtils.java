@@ -13,14 +13,14 @@ import co.infinum.connectionutils.receivers.NetworkChangeReceiver;
 /**
  * Created by zeljkoplesac on 06/10/14.
  */
-public class ConnectionUtils {
+public class ConnectifyUtils {
 
     private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
 
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
 
-    private ConnectionUtils() {
+    private ConnectifyUtils() {
         // empty constructor
     }
 
@@ -30,17 +30,17 @@ public class ConnectionUtils {
     public static void registerForConnectivityEvents(Context context, Object object, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection(context);
 
-        if (ConnectionPreferences.containsInternetConnection(context, object)
-                && ConnectionPreferences.getInternetConnection(context, object) != hasConnection) {
-            ConnectionPreferences.setInternetConnection(context, object, hasConnection);
+        if (ConnectifyPreferences.containsInternetConnection(context, object)
+                && ConnectifyPreferences.getInternetConnection(context, object) != hasConnection) {
+            ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
                 listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.CONNECTED);
             } else {
                 listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.DISCONNECTED);
             }
-        } else if (!ConnectionPreferences.containsInternetConnection(context, object)) {
-            ConnectionPreferences.setInternetConnection(context, object, hasConnection);
+        } else if (!ConnectifyPreferences.containsInternetConnection(context, object)) {
+            ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
                 listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.CONNECTED);
