@@ -11,7 +11,7 @@ import co.infinum.connectify.interfaces.ConnectivityChangeListener;
 import co.infinum.connectify.receivers.NetworkChangeReceiver;
 
 /**
- * Created by zeljkoplesac on 06/10/14.
+ * Created by Željko Plesac on 06/10/14.
  */
 public class ConnectifyUtils {
 

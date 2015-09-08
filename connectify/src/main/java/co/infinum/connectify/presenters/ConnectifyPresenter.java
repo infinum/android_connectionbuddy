@@ -1,7 +1,7 @@
 package co.infinum.connectify.presenters;
 
 /**
- * Created by zeljkoplesac on 06/01/15.
+ * Created by Željko Plesac on 06/01/15.
  *
  * Default ConnectionPresenter, which must be extended by our application BasePresenter
  */

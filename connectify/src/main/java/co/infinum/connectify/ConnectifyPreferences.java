@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 /**
- * Created by zeljkoplesac on 06/10/14.
+ * Created by Željko Plesac on 06/10/14.
  */
 public class ConnectifyPreferences {
 

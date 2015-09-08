@@ -1,7 +1,7 @@
 package co.infinum.connectify.receivers;
 
 /**
- * Created by zeljkoplesac on 06/10/14.
+ * Created by Željko Plesac on 06/10/14.
  */
 
 import android.content.BroadcastReceiver;
