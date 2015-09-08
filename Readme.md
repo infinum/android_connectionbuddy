@@ -47,8 +47,8 @@ if it was restored from saved instance state (in order to always have the latest
 connectivity state). Add to you onCreate() method the  following line of code:
 
 ```java
-@Override
-   protected void onCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
        super.onCreate(savedInstanceState);
 
        ...
