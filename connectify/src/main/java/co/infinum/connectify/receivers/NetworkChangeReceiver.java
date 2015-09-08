@@ -1,4 +1,4 @@
-package co.infinum.connectionutils.receivers;
+package co.infinum.connectify.receivers;
 
 /**
  * Created by zeljkoplesac on 06/10/14.
@@ -8,9 +8,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import co.infinum.connectionutils.ConnectifyPreferences;
-import co.infinum.connectionutils.ConnectifyUtils;
-import co.infinum.connectionutils.interfaces.ConnectivityChangeListener;
+import co.infinum.connectify.ConnectifyPreferences;
+import co.infinum.connectify.interfaces.ConnectivityChangeListener;
+import co.infinum.connectify.ConnectifyUtils;
 
 
 /**

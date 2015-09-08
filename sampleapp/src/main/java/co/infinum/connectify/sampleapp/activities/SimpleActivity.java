@@ -1,14 +1,14 @@
-package co.infinum.sampleapp.activities;
+package co.infinum.connectify.sampleapp.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import co.infinum.connectionutils.ConnectifyPreferences;
-import co.infinum.connectionutils.ConnectifyUtils;
-import co.infinum.connectionutils.interfaces.ConnectivityChangeListener;
-import co.infinum.connectionutils.receivers.NetworkChangeReceiver;
-import co.infinum.sampleapp.R;
+import co.infinum.connectify.ConnectifyPreferences;
+import co.infinum.connectify.ConnectifyUtils;
+import co.infinum.connectify.interfaces.ConnectivityChangeListener;
+import co.infinum.connectify.receivers.NetworkChangeReceiver;
+import co.infinum.connectify.sampleapp.R;
 
 /**
  * Created by Željko Plesac on 08/09/15.

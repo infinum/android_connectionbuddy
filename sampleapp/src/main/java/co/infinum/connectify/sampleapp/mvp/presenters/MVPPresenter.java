@@ -1,6 +1,6 @@
-package co.infinum.sampleapp.mvp.presenters;
+package co.infinum.connectify.sampleapp.mvp.presenters;
 
-import co.infinum.connectionutils.presenters.ConnectifyPresenter;
+import co.infinum.connectify.presenters.ConnectifyPresenter;
 
 /**
  * Created by Željko Plesac on 02/09/15.

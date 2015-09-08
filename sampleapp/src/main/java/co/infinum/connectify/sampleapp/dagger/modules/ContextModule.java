@@ -1,4 +1,4 @@
-package co.infinum.sampleapp.dagger.modules;
+package co.infinum.connectify.sampleapp.dagger.modules;
 
 import android.content.Context;
 import android.content.res.Resources;

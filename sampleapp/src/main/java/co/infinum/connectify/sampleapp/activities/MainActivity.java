@@ -1,4 +1,4 @@
-package co.infinum.sampleapp.activities;
+package co.infinum.connectify.sampleapp.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,7 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import co.infinum.sampleapp.R;
+import co.infinum.connectify.sampleapp.R;
+
 
 /**
  * Created by Željko Plesac on 08/09/15.

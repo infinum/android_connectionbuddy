@@ -1,4 +1,4 @@
-package co.infinum.connectionutils;
+package co.infinum.connectify;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,4 +1,4 @@
-package co.infinum.connectionutils.presenters;
+package co.infinum.connectify.presenters;
 
 /**
  * Created by zeljkoplesac on 06/01/15.

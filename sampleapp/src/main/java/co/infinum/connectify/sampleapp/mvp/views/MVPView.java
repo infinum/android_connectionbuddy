@@ -1,4 +1,4 @@
-package co.infinum.sampleapp.mvp.views;
+package co.infinum.connectify.sampleapp.mvp.views;
 
 /**
  * Created by Željko Plesac on 02/09/15.

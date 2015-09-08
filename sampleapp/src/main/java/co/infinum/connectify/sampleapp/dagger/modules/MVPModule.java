@@ -1,8 +1,8 @@
-package co.infinum.sampleapp.dagger.modules;
+package co.infinum.connectify.sampleapp.dagger.modules;
 
-import co.infinum.sampleapp.mvp.presenters.MVPPresenter;
-import co.infinum.sampleapp.mvp.presenters.impl.MVPPresenterImpl;
-import co.infinum.sampleapp.mvp.views.MVPView;
+import co.infinum.connectify.sampleapp.mvp.presenters.MVPPresenter;
+import co.infinum.connectify.sampleapp.mvp.presenters.impl.MVPPresenterImpl;
+import co.infinum.connectify.sampleapp.mvp.views.MVPView;
 import dagger.Module;
 import dagger.Provides;
 

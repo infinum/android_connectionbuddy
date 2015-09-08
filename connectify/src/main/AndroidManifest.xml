@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.infinum.connectionutils">
+    package="co.infinum.connectify">
 
     <application android:allowBackup="true">
 

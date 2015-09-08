@@ -1,4 +1,4 @@
-package co.infinum.connectionutils;
+package co.infinum.connectify;
 
 import android.content.Context;
 import android.content.IntentFilter;
@@ -7,8 +7,8 @@ import android.net.NetworkInfo;
 
 import java.util.HashMap;
 
-import co.infinum.connectionutils.interfaces.ConnectivityChangeListener;
-import co.infinum.connectionutils.receivers.NetworkChangeReceiver;
+import co.infinum.connectify.interfaces.ConnectivityChangeListener;
+import co.infinum.connectify.receivers.NetworkChangeReceiver;
 
 /**
  * Created by zeljkoplesac on 06/10/14.

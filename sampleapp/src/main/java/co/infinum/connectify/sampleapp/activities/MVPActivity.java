@@ -1,4 +1,4 @@
-package co.infinum.sampleapp.activities;
+package co.infinum.connectify.sampleapp.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -6,12 +6,12 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-import co.infinum.sampleapp.R;
-import co.infinum.sampleapp.dagger.components.DaggerMVPComponent;
-import co.infinum.sampleapp.dagger.modules.ContextModule;
-import co.infinum.sampleapp.dagger.modules.MVPModule;
-import co.infinum.sampleapp.mvp.presenters.MVPPresenter;
-import co.infinum.sampleapp.mvp.views.MVPView;
+import co.infinum.connectify.sampleapp.R;
+import co.infinum.connectify.sampleapp.dagger.components.DaggerMVPComponent;
+import co.infinum.connectify.sampleapp.dagger.modules.ContextModule;
+import co.infinum.connectify.sampleapp.dagger.modules.MVPModule;
+import co.infinum.connectify.sampleapp.mvp.presenters.MVPPresenter;
+import co.infinum.connectify.sampleapp.mvp.views.MVPView;
 
 /**
  * Created by Željko Plesac on 02/09/15.

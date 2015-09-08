@@ -52,7 +52,7 @@ connectivity state). Add to you onCreate() method the  following line of code:
        super.onCreate(savedInstanceState);
 
        ...
-       
+
        if(savedInstanceState != null){
            ConnectifyPreferences.clearInternetConnection(this, this);
        }
@@ -61,9 +61,9 @@ connectivity state). Add to you onCreate() method the  following line of code:
 
 ## Advanced usage with MVP pattern
 
-Connectify also provides [ConnectifyPresenter](app/src/main/co/infinum/connectionutils/presenters/ConnectifyPresenter.jav)
+Connectify also provides [ConnectifyPresenter](https://github.com/zplesac/android_connectify/tree/master/connectify/src/main/java/co/infinum/connectionutils/presenters)
 which can be used as a base presenter for registering to connectivity change events.
-More details example can be found [here](sampleapp/src/main/co/infinum/sampleapp/activities/MVPActivity.java).  
+More detailed example can be found [here](https://github.com/zplesac/android_connectify/blob/master/sampleapp/src/main/java/co/infinum/sampleapp/activities/MVPActivity.java).  
 
 ## Contributing
 

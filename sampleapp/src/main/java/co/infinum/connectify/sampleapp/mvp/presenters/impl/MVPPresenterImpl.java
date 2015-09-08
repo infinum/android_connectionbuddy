@@ -1,15 +1,15 @@
-package co.infinum.sampleapp.mvp.presenters.impl;
+package co.infinum.connectify.sampleapp.mvp.presenters.impl;
 
 import android.content.Context;
 
 import javax.inject.Inject;
 
-import co.infinum.connectionutils.ConnectifyPreferences;
-import co.infinum.connectionutils.ConnectifyUtils;
-import co.infinum.connectionutils.interfaces.ConnectivityChangeListener;
-import co.infinum.connectionutils.receivers.NetworkChangeReceiver;
-import co.infinum.sampleapp.mvp.presenters.MVPPresenter;
-import co.infinum.sampleapp.mvp.views.MVPView;
+import co.infinum.connectify.ConnectifyPreferences;
+import co.infinum.connectify.ConnectifyUtils;
+import co.infinum.connectify.interfaces.ConnectivityChangeListener;
+import co.infinum.connectify.receivers.NetworkChangeReceiver;
+import co.infinum.connectify.sampleapp.mvp.presenters.MVPPresenter;
+import co.infinum.connectify.sampleapp.mvp.views.MVPView;
 
 /**
  * Created by Željko Plesac on 02/09/15.
