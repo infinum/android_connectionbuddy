@@ -1,3 +1,5 @@
+[![JCenter](https://img.shields.io/badge/JCenter-1.0.0-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
+
 # Android Connectify
 
 Provides a simple way for handling connectivity change events.
