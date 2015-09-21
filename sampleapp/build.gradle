@@ -19,7 +19,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "co.infinum.sampleapp"
+        applicationId "com.zplesac.connectify.sampleapp"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
