@@ -31,7 +31,7 @@ repositories {
 }
 
 task coreLibJar(type: Jar) {
-    from fileTree(dir: 'build/classes/release').matching { include 'co/infinum/connectionutils/**' }
+    from fileTree(dir: 'build/classes/release').matching { include 'co/zplesac/connectionutils/**' }
 }
 
 artifacts {
@@ -40,7 +40,7 @@ artifacts {
 
 def siteUrl = 'https://github.com/zplesac/android_connectify'      // Homepage URL of the library
 def gitUrl = 'https://github.com/zplesac/android_connectify.git'   // Git repository URL
-group = "co.infinum"                                        // Maven Group ID for the artifact
+group = "com.zplesac"                                        // Maven Group ID for the artifact
 
 
 install {
