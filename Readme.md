@@ -63,7 +63,7 @@ connectivity state). Add to you onCreate() method the  following line of code:
 
 ## Advanced usage with MVP pattern
 
-Connectify also provides [ConnectifyPresenter](https://github.com/zplesac/android_connectify/blob/master/connectify/src/main/java/com/zplesac/connectify/presenters/ConnectifyPresenter.java)
+Connectify also provides [ConnectifyPresenter](https://github.com/zplesac/android_connectify/blob/master/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2Fpresenters%2FConnectifyPresenter.java)
 which can be used as a base presenter for registering to connectivity change events.
 More detailed example can be found [here](https://github.com/zplesac/android_connectify/blob/master/sampleapp/src/main/java/com/zplesac/connectify/sampleapp/activities/MVPActivity.java).
 
