@@ -6,7 +6,13 @@ Provides a simple way for handling connectivity change events.
 
 # Usage
 
-1) Register to connectivity change events in onStart() method of your activity:
+1) 1) Add the library as a dependency to your ```build.gradle```
+
+```groovy
+compile 'com.zplesac:connectify:version@aar'
+```
+
+2) Register to connectivity change events in onStart() method of your activity:
 
 ```java
 
@@ -18,7 +24,7 @@ Provides a simple way for handling connectivity change events.
 
   ```
 
-2) Unregister from connectivity change events in onStop() method of your activity:
+3) Unregister from connectivity change events in onStop() method of your activity:
 
 ```java
 
@@ -30,7 +36,7 @@ Provides a simple way for handling connectivity change events.
 
   ```
 
-3) React to connectivity change events on onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) callback method:
+4) React to connectivity change events on onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) callback method:
 
 ```java
   @Override
