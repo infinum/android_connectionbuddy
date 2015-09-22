@@ -33,11 +33,6 @@ android {
     }
 }
 
-repositories {
-    maven { url 'https://dl.bintray.com/zplesac/maven' }
-}
-
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.0'
