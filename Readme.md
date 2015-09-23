@@ -6,7 +6,7 @@ Provides a simple way for handling connectivity change events.
 
 # Usage
 
-1) 1) Add the library as a dependency to your ```build.gradle```
+1) Add the library as a dependency to your ```build.gradle```
 
 ```groovy
 compile 'com.zplesac:connectify:version@aar'
