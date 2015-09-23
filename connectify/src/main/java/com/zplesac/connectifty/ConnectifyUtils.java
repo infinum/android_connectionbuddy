@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -95,11 +94,11 @@ public class ConnectifyUtils {
     }
 
     public static ConnectivityEvent buildConnectifyEvent(Context context, ConnectivityState state) {
-        ConnectivityEvent event = new ConnectivityEvent(state, getType(context), new Date());
+        ConnectivityEvent event = new ConnectivityEvent(state, getNetworkType(context));
         return event;
     }
 
-    public static ConnectivityType getType(Context context) {
+    public static ConnectivityType getNetworkType(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 

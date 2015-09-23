@@ -1,7 +1,6 @@
 package com.zplesac.connectifty.models;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Created by Željko Plesac on 23/09/15.
@@ -12,15 +11,12 @@ public class ConnectivityEvent implements Serializable {
 
     private ConnectivityType type;
 
-    private Date dateUpadated;
-
     public ConnectivityEvent() {
     }
 
-    public ConnectivityEvent(ConnectivityState state, ConnectivityType type, Date dateUpadated) {
+    public ConnectivityEvent(ConnectivityState state, ConnectivityType type) {
         this.state = state;
         this.type = type;
-        this.dateUpadated = dateUpadated;
     }
 
     public ConnectivityState getState() {
@@ -37,13 +33,5 @@ public class ConnectivityEvent implements Serializable {
 
     public void setType(ConnectivityType type) {
         this.type = type;
-    }
-
-    public Date getDateUpadated() {
-        return dateUpadated;
-    }
-
-    public void setDateUpadated(Date dateUpadated) {
-        this.dateUpadated = dateUpadated;
     }
 }
