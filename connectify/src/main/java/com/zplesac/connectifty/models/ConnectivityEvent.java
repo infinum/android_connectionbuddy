@@ -1,9 +1,14 @@
 package com.zplesac.connectifty.models;
 
+import com.zplesac.connectifty.ConnectifyUtils;
+
+import android.content.Context;
+
 import java.io.Serializable;
 
 /**
  * Created by Željko Plesac on 23/09/15.
+ * Connectivity event which holds all the necessary data about network connection.
  */
 public class ConnectivityEvent implements Serializable {
 
@@ -12,6 +17,11 @@ public class ConnectivityEvent implements Serializable {
     private ConnectivityType type;
 
     public ConnectivityEvent() {
+    }
+
+    public ConnectivityEvent(Context context, ConnectivityState state) {
+        this.state = state;
+        this.type = ConnectifyUtils.getNetworkType(context);
     }
 
     public ConnectivityEvent(ConnectivityState state, ConnectivityType type) {

@@ -38,17 +38,17 @@ public class ConnectifyUtils {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(buildConnectifyEvent(context, ConnectivityState.CONNECTED));
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.CONNECTED));
             } else {
-                listener.onConnectionChange(buildConnectifyEvent(context, ConnectivityState.DISCONNECTED));
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.DISCONNECTED));
             }
         } else if (!ConnectifyPreferences.containsInternetConnection(context, object)) {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(buildConnectifyEvent(context, ConnectivityState.CONNECTED));
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.CONNECTED));
             } else {
-                listener.onConnectionChange(buildConnectifyEvent(context, ConnectivityState.DISCONNECTED));
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.DISCONNECTED));
             }
         }
 
@@ -93,11 +93,12 @@ public class ConnectifyUtils {
         }
     }
 
-    public static ConnectivityEvent buildConnectifyEvent(Context context, ConnectivityState state) {
-        ConnectivityEvent event = new ConnectivityEvent(state, getNetworkType(context));
-        return event;
-    }
-
+    /**
+     * Get network connection type from ConnectivityManager.
+     *
+     * @param context Context which is used to obtain ConnectivityManager.
+     * @return ConnectivityType which is available on current device.
+     */
     public static ConnectivityType getNetworkType(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -105,7 +106,6 @@ public class ConnectifyUtils {
         if (connectivityManager != null) {
             NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
 
             if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
                 return ConnectivityType.BOTH;
