@@ -4,13 +4,14 @@ package com.zplesac.connectifty.receivers;
  * Created by Željko Plesac on 06/10/14.
  */
 
+import com.zplesac.connectifty.ConnectifyPreferences;
+import com.zplesac.connectifty.ConnectifyUtils;
+import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
+import com.zplesac.connectifty.models.ConnectivityState;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.zplesac.connectifty.ConnectifyPreferences;
-import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
-import com.zplesac.connectifty.ConnectifyUtils;
 
 
 /**
@@ -27,11 +28,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         this.mCallback = mCallback;
     }
 
-    public enum ConnectivityEvent {
-        CONNECTED,
-        DISCONNECTED
-    }
-
     /**
      * Receive network connectivity change event.
      */
@@ -42,10 +38,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
         if (hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
-            mCallback.onConnectionChange(ConnectivityEvent.CONNECTED);
+            mCallback.onConnectionChange(ConnectifyUtils.buildConnectifyEvent(context, ConnectivityState.CONNECTED));
         } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
-            mCallback.onConnectionChange(ConnectivityEvent.DISCONNECTED);
+            mCallback.onConnectionChange(ConnectifyUtils.buildConnectifyEvent(context, ConnectivityState.DISCONNECTED));
         }
     }
 }
