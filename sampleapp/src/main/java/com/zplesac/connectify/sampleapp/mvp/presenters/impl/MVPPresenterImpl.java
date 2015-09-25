@@ -49,6 +49,6 @@ public class MVPPresenterImpl implements MVPPresenter, ConnectivityChangeListene
 
     @Override
     public void onConnectionChange(ConnectivityEvent event) {
-        view.onConnectionChangeEvent(event.getState() == ConnectivityState.CONNECTED);
+        view.onConnectionChangeEvent(event);
     }
 }
