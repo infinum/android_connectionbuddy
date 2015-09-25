@@ -1,14 +1,17 @@
 package com.zplesac.connectifty;
 
+import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
+import com.zplesac.connectifty.models.ConnectivityEvent;
+import com.zplesac.connectifty.models.ConnectivityState;
+import com.zplesac.connectifty.models.ConnectivityType;
+import com.zplesac.connectifty.receivers.NetworkChangeReceiver;
+
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import java.util.HashMap;
-
-import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
-import com.zplesac.connectifty.receivers.NetworkChangeReceiver;
 
 /**
  * Created by Željko Plesac on 06/10/14.
@@ -35,17 +38,17 @@ public class ConnectifyUtils {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.CONNECTED);
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.CONNECTED));
             } else {
-                listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.DISCONNECTED);
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.DISCONNECTED));
             }
         } else if (!ConnectifyPreferences.containsInternetConnection(context, object)) {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.CONNECTED);
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.CONNECTED));
             } else {
-                listener.onConnectionChange(NetworkChangeReceiver.ConnectivityEvent.DISCONNECTED);
+                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.DISCONNECTED));
             }
         }
 
@@ -87,6 +90,32 @@ public class ConnectifyUtils {
             return (networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected());
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Get network connection type from ConnectivityManager.
+     *
+     * @param context Context which is used to obtain ConnectivityManager.
+     * @return ConnectivityType which is available on current device.
+     */
+    public static ConnectivityType getNetworkType(Context context) {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivityManager != null) {
+            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+            if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
+                return ConnectivityType.BOTH;
+            } else if (!networkInfoWiFi.isConnected()) {
+                return ConnectivityType.MOBILE;
+            } else {
+                return ConnectivityType.WIFI;
+            }
+        } else {
+            return ConnectivityType.NONE;
         }
     }
 }

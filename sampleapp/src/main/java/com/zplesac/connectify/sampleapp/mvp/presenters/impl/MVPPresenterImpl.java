@@ -7,6 +7,8 @@ import javax.inject.Inject;
 import com.zplesac.connectifty.ConnectifyPreferences;
 import com.zplesac.connectifty.ConnectifyUtils;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
+import com.zplesac.connectifty.models.ConnectivityEvent;
+import com.zplesac.connectifty.models.ConnectivityState;
 import com.zplesac.connectifty.receivers.NetworkChangeReceiver;
 import com.zplesac.connectify.sampleapp.mvp.presenters.MVPPresenter;
 import com.zplesac.connectify.sampleapp.mvp.views.MVPView;
@@ -46,7 +48,7 @@ public class MVPPresenterImpl implements MVPPresenter, ConnectivityChangeListene
     }
 
     @Override
-    public void onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) {
-        view.onConnectionChangeEvent(event == NetworkChangeReceiver.ConnectivityEvent.CONNECTED);
+    public void onConnectionChange(ConnectivityEvent event) {
+        view.onConnectionChangeEvent(event);
     }
 }
