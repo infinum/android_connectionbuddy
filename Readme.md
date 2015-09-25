@@ -36,12 +36,12 @@ compile 'com.zplesac:connectify:version@aar'
 
   ```
 
-4) React to connectivity change events on onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) callback method:
+4) React to connectivity change events on onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
-  public void onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) {
-      if(event == NetworkChangeReceiver.ConnectivityEvent.CONNECTED){
+  public void onConnectionChange(ConnectivityEvent event) {
+      if(event.getConnectionState() == ConnectionsState.CONNECTED){
           // device has active internet connection
       }
       else{
@@ -49,6 +49,8 @@ compile 'com.zplesac:connectify:version@aar'
       }
   }
   ```
+
+ConnectivityEvent also holds [ConnectivityType](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2Fmodels%2FConnectivityType.java) enum, which defines type of network connection currently available on user's device.
 
 You'll also need to clear stored connectivity state for your activity/fragment
 if it was restored from saved instance state (in order to always have the latest
