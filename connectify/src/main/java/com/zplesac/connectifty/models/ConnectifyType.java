@@ -5,7 +5,7 @@ package com.zplesac.connectifty.models;
  * Enum which defines different network connection type. Device can only have
  * one ConnectivityType at a time.
  */
-public enum ConnectivityType {
+public enum ConnectifyType {
 
     WIFI,
 

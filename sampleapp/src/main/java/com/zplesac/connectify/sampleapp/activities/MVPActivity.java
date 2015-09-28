@@ -6,8 +6,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-import com.zplesac.connectifty.models.ConnectivityEvent;
-import com.zplesac.connectifty.models.ConnectivityState;
+import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectify.sampleapp.R;
 import com.zplesac.connectify.sampleapp.dagger.components.DaggerMVPComponent;
 import com.zplesac.connectify.sampleapp.dagger.modules.ContextModule;
@@ -56,7 +55,7 @@ public class MVPActivity extends Activity implements MVPView {
     }
 
     @Override
-    public void onConnectionChangeEvent(ConnectivityEvent event) {
+    public void onConnectionChangeEvent(ConnectifyEvent event) {
         tvTitle.setText("Connection status: " + event.getState());
         tvConnectionType.setText("Connection type: " + event.getType());
     }

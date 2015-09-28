@@ -3,7 +3,7 @@ package com.zplesac.connectify.sampleapp.activities;
 import com.zplesac.connectifty.ConnectifyPreferences;
 import com.zplesac.connectifty.ConnectifyUtils;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
-import com.zplesac.connectifty.models.ConnectivityEvent;
+import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectify.sampleapp.R;
 
 import android.app.Activity;
@@ -45,7 +45,7 @@ public class SimpleActivity extends Activity implements ConnectivityChangeListen
     }
 
     @Override
-    public void onConnectionChange(ConnectivityEvent event) {
+    public void onConnectionChange(ConnectifyEvent event) {
         tvTitle.setText("Connection status: " + event.getState());
         tvConnectionType.setText("Connection type: " + event.getType());
     }

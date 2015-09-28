@@ -10,38 +10,38 @@ import java.io.Serializable;
  * Created by Željko Plesac on 23/09/15.
  * Connectivity event which holds all the necessary data about network connection.
  */
-public class ConnectivityEvent implements Serializable {
+public class ConnectifyEvent implements Serializable {
 
-    private ConnectivityState state;
+    private ConnectifyState state;
 
-    private ConnectivityType type;
+    private ConnectifyType type;
 
-    public ConnectivityEvent() {
+    public ConnectifyEvent() {
     }
 
-    public ConnectivityEvent(Context context, ConnectivityState state) {
+    public ConnectifyEvent(Context context, ConnectifyState state) {
         this.state = state;
         this.type = ConnectifyUtils.getNetworkType(context);
     }
 
-    public ConnectivityEvent(ConnectivityState state, ConnectivityType type) {
+    public ConnectifyEvent(ConnectifyState state, ConnectifyType type) {
         this.state = state;
         this.type = type;
     }
 
-    public ConnectivityState getState() {
+    public ConnectifyState getState() {
         return state;
     }
 
-    public void setState(ConnectivityState state) {
+    public void setState(ConnectifyState state) {
         this.state = state;
     }
 
-    public ConnectivityType getType() {
+    public ConnectifyType getType() {
         return type;
     }
 
-    public void setType(ConnectivityType type) {
+    public void setType(ConnectifyType type) {
         this.type = type;
     }
 }

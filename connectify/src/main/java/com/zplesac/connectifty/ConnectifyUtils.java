@@ -1,9 +1,9 @@
 package com.zplesac.connectifty;
 
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
-import com.zplesac.connectifty.models.ConnectivityEvent;
-import com.zplesac.connectifty.models.ConnectivityState;
-import com.zplesac.connectifty.models.ConnectivityType;
+import com.zplesac.connectifty.models.ConnectifyEvent;
+import com.zplesac.connectifty.models.ConnectifyState;
+import com.zplesac.connectifty.models.ConnectifyType;
 import com.zplesac.connectifty.receivers.NetworkChangeReceiver;
 
 import android.content.Context;
@@ -38,17 +38,17 @@ public class ConnectifyUtils {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.CONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.CONNECTED));
             } else {
-                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.DISCONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.DISCONNECTED));
             }
         } else if (!ConnectifyPreferences.containsInternetConnection(context, object)) {
             ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.CONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.CONNECTED));
             } else {
-                listener.onConnectionChange(new ConnectivityEvent(context, ConnectivityState.DISCONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.DISCONNECTED));
             }
         }
 
@@ -99,7 +99,7 @@ public class ConnectifyUtils {
      * @param context Context which is used to obtain ConnectivityManager.
      * @return ConnectivityType which is available on current device.
      */
-    public static ConnectivityType getNetworkType(Context context) {
+    public static ConnectifyType getNetworkType(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -108,14 +108,14 @@ public class ConnectifyUtils {
             NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
             if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
-                return ConnectivityType.BOTH;
+                return ConnectifyType.BOTH;
             } else if (!networkInfoWiFi.isConnected()) {
-                return ConnectivityType.MOBILE;
+                return ConnectifyType.MOBILE;
             } else {
-                return ConnectivityType.WIFI;
+                return ConnectifyType.WIFI;
             }
         } else {
-            return ConnectivityType.NONE;
+            return ConnectifyType.NONE;
         }
     }
 }
