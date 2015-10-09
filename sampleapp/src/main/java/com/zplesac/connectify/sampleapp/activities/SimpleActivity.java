@@ -1,7 +1,7 @@
 package com.zplesac.connectify.sampleapp.activities;
 
+import com.zplesac.connectifty.Connectify;
 import com.zplesac.connectifty.ConnectifyPreferences;
-import com.zplesac.connectifty.ConnectifyUtils;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectify.sampleapp.R;
@@ -25,7 +25,7 @@ public class SimpleActivity extends Activity implements ConnectivityChangeListen
         setContentView(R.layout.activity_mvp);
 
         if (savedInstanceState != null) {
-            ConnectifyPreferences.clearInternetConnection(this, this);
+            ConnectifyPreferences.clearInternetConnection(this);
         }
 
         tvTitle = (TextView) findViewById(R.id.tv_title);
@@ -35,13 +35,13 @@ public class SimpleActivity extends Activity implements ConnectivityChangeListen
     @Override
     protected void onStart() {
         super.onStart();
-        ConnectifyUtils.registerForConnectivityEvents(this, this, this);
+        Connectify.getInstance().registerForConnectivityEvents(this, this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        ConnectifyUtils.unregisterFromConnectivityEvents(this, this);
+        Connectify.getInstance().unregisterFromConnectivityEvents(this);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.zplesac.connectifty.models;
 
-import com.zplesac.connectifty.ConnectifyUtils;
-
-import android.content.Context;
+import com.zplesac.connectifty.Connectify;
 
 import java.io.Serializable;
 
@@ -19,9 +17,9 @@ public class ConnectifyEvent implements Serializable {
     public ConnectifyEvent() {
     }
 
-    public ConnectifyEvent(Context context, ConnectifyState state) {
+    public ConnectifyEvent(ConnectifyState state) {
         this.state = state;
-        this.type = ConnectifyUtils.getNetworkType(context);
+        this.type = Connectify.getInstance().getNetworkType();
     }
 
     public ConnectifyEvent(ConnectifyState state, ConnectifyType type) {
