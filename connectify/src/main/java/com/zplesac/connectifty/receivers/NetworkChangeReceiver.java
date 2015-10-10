@@ -4,8 +4,8 @@ package com.zplesac.connectifty.receivers;
  * Created by Željko Plesac on 06/10/14.
  */
 
+import com.zplesac.connectifty.Connectify;
 import com.zplesac.connectifty.ConnectifyPreferences;
-import com.zplesac.connectifty.ConnectifyUtils;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectifty.models.ConnectifyState;
@@ -34,14 +34,14 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        boolean hasConnectivity = ConnectifyUtils.hasNetworkConnection(context);
+        boolean hasConnectivity = Connectify.getInstance().hasNetworkConnection();
 
-        if (hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
-            ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
-            mCallback.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.CONNECTED));
-        } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
-            ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
-            mCallback.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.DISCONNECTED));
+        if (hasConnectivity && ConnectifyPreferences.getInternetConnection(object) != hasConnectivity) {
+            ConnectifyPreferences.setInternetConnection(object, hasConnectivity);
+            mCallback.onConnectionChange(new ConnectifyEvent(ConnectifyState.CONNECTED));
+        } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(object) != hasConnectivity) {
+            ConnectifyPreferences.setInternetConnection(object, hasConnectivity);
+            mCallback.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
         }
     }
 }

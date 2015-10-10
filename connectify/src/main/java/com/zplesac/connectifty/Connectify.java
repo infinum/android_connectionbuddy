@@ -16,39 +16,70 @@ import java.util.HashMap;
 /**
  * Created by Željko Plesac on 06/10/14.
  */
-public class ConnectifyUtils {
-
-    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
+public class Connectify {
 
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
 
-    private ConnectifyUtils() {
+    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
+
+    private static volatile Connectify instance;
+
+    private ConnectifyConfiguration configuration;
+
+    protected Connectify() {
         // empty constructor
+    }
+
+    /**
+     * Returns singleton class instance.
+     */
+    public static Connectify getInstance() {
+        if (instance == null) {
+            synchronized (Connectify.class) {
+                if (instance == null) {
+                    instance = new Connectify();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public synchronized void init(ConnectifyConfiguration configuration) {
+        if (configuration == null) {
+            throw new IllegalArgumentException();
+        }
+        if (this.configuration == null) {
+            this.configuration = configuration;
+        }
+    }
+
+    public ConnectifyConfiguration getConfiguration() {
+        return configuration;
     }
 
     /**
      * Register for connectivity events. Must be called separately for each activity/context.
      */
-    public static void registerForConnectivityEvents(Context context, Object object, ConnectivityChangeListener listener) {
-        boolean hasConnection = hasNetworkConnection(context);
+    public void registerForConnectivityEvents(Object object, ConnectivityChangeListener listener) {
+        boolean hasConnection = hasNetworkConnection();
 
-        if (ConnectifyPreferences.containsInternetConnection(context, object)
-                && ConnectifyPreferences.getInternetConnection(context, object) != hasConnection) {
-            ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
+        if (ConnectifyPreferences.containsInternetConnection(object)
+                && ConnectifyPreferences.getInternetConnection(object) != hasConnection) {
+            ConnectifyPreferences.setInternetConnection(object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.CONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.CONNECTED));
             } else {
-                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.DISCONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
             }
-        } else if (!ConnectifyPreferences.containsInternetConnection(context, object)) {
-            ConnectifyPreferences.setInternetConnection(context, object, hasConnection);
+        } else if (!ConnectifyPreferences.containsInternetConnection(object)) {
+            ConnectifyPreferences.setInternetConnection(object, hasConnection);
 
             if (hasConnection) {
-                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.CONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.CONNECTED));
             } else {
-                listener.onConnectionChange(new ConnectifyEvent(context, ConnectifyState.DISCONNECTED));
+                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
             }
         }
 
@@ -62,15 +93,15 @@ public class ConnectifyUtils {
             receiversHashMap.put(object.toString(), receiver);
         }
 
-        context.registerReceiver(receiver, filter);
+        configuration.getContext().registerReceiver(receiver, filter);
     }
 
     /**
      * Unregister from connectivity events.
      */
-    public static void unregisterFromConnectivityEvents(Context context, Object object) {
+    public void unregisterFromConnectivityEvents(Object object) {
         NetworkChangeReceiver receiver = receiversHashMap.get(object.toString());
-        context.unregisterReceiver(receiver);
+        configuration.getContext().unregisterReceiver(receiver);
 
         receiversHashMap.remove(object.toString());
         receiver = null;
@@ -79,9 +110,9 @@ public class ConnectifyUtils {
     /**
      * Returns true if application has internet connection.
      */
-    public static boolean hasNetworkConnection(Context context) {
+    public boolean hasNetworkConnection() {
         ConnectivityManager connectivityManager =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (connectivityManager != null) {
             NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
@@ -96,12 +127,11 @@ public class ConnectifyUtils {
     /**
      * Get network connection type from ConnectivityManager.
      *
-     * @param context Context which is used to obtain ConnectivityManager.
      * @return ConnectivityType which is available on current device.
      */
-    public static ConnectifyType getNetworkType(Context context) {
+    public ConnectifyType getNetworkType() {
         ConnectivityManager connectivityManager =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (connectivityManager != null) {
             NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
@@ -109,10 +139,12 @@ public class ConnectifyUtils {
 
             if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
                 return ConnectifyType.BOTH;
-            } else if (!networkInfoWiFi.isConnected()) {
+            } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
                 return ConnectifyType.MOBILE;
-            } else {
+            } else if (networkInfoWiFi.isConnected()) {
                 return ConnectifyType.WIFI;
+            } else {
+                return ConnectifyType.NONE;
             }
         } else {
             return ConnectifyType.NONE;
