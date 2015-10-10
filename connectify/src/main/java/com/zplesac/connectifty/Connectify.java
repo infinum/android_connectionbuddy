@@ -18,10 +18,10 @@ import java.util.HashMap;
  */
 public class Connectify {
 
-    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
-
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
+
+    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
 
     private static volatile Connectify instance;
 
@@ -33,7 +33,7 @@ public class Connectify {
 
     /**
      * Returns singleton class instance.
-     * */
+     */
     public static Connectify getInstance() {
         if (instance == null) {
             synchronized (Connectify.class) {
@@ -141,10 +141,9 @@ public class Connectify {
                 return ConnectifyType.BOTH;
             } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
                 return ConnectifyType.MOBILE;
-            } else if(networkInfoWiFi.isConnected()){
+            } else if (networkInfoWiFi.isConnected()) {
                 return ConnectifyType.WIFI;
-            }
-            else{
+            } else {
                 return ConnectifyType.NONE;
             }
         } else {
