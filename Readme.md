@@ -19,7 +19,7 @@ compile 'com.zplesac:connectify:version@aar'
  @Override
  protected void onStart() {
      super.onStart();
-     ConnectifyUtils.registerForConnectifyEvents(this, this, this);
+     ConnectifyUtils.registerForConnectifyEvents(this, this);
  }
 
   ```
@@ -31,7 +31,7 @@ compile 'com.zplesac:connectify:version@aar'
   @Override
   protected void onStop() {
       super.onStop();
-      ConnectifyUtils.unregisterFromConnectifyEvents(this, this);
+      ConnectifyUtils.unregisterFromConnectifyEvents(this);
   }
 
   ```
@@ -64,7 +64,7 @@ connectivity state). Add to you onCreate() method the  following line of code:
        ...
 
        if(savedInstanceState != null){
-           ConnectifyPreferences.clearInternetConnection(this, this);
+           ConnectifyPreferences.clearInternetConnection(this);
        }
    }
   ```
