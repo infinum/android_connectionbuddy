@@ -12,31 +12,49 @@ Provides a simple way for handling connectivity change events.
 compile 'com.zplesac:connectify:version@aar'
 ```
 
-2) Register to connectivity change events in onStart() method of your activity:
+2) Initalize Connectify instance in your Application class. You also need to provide global configuration by defining ConnectifyConfiguration object.
+
+```java
+public class SampleApp extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ConnectifyConfiguration connectifyConfiguration = new ConnectifyConfiguration.Builder(this).build();
+        Connectify.getInstance().init(connectifyConfiguration);
+    }
+}
+ ```
+ 
+All options in ConnectifyConfiguration builder are optional. Use only those you really want to customize.
+
+See all default values for config options [here](https://github.com/zplesac/android_connectify/blob/development/connectify/src/main/java/com/zplesac/connectifty/ConnectifyConfiguration.java).
+
+3) Register to connectivity change events in onStart() method of your activity:
 
 ```java
 
  @Override
  protected void onStart() {
      super.onStart();
-     ConnectifyUtils.registerForConnectifyEvents(this, this);
+     Connectify.getInstance().registerForConnectifyEvents(this, this);
  }
 
   ```
 
-3) Unregister from connectivity change events in onStop() method of your activity:
+4) Unregister from connectivity change events in onStop() method of your activity:
 
 ```java
 
   @Override
   protected void onStop() {
       super.onStop();
-      ConnectifyUtils.unregisterFromConnectifyEvents(this);
+      Connectify.getInstance().unregisterFromConnectifyEvents(this);
   }
 
   ```
 
-4) React to connectivity change events on onConnectionChange(ConnectifyEvent event) callback method:
+5) React to connectivity change events on onConnectionChange(ConnectifyEvent event) callback method:
 
 ```java
   @Override
