@@ -7,8 +7,6 @@ package com.zplesac.connectifty.receivers;
 import com.zplesac.connectifty.Connectify;
 import com.zplesac.connectifty.ConnectifyPreferences;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
-import com.zplesac.connectifty.models.ConnectifyEvent;
-import com.zplesac.connectifty.models.ConnectifyState;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,10 +36,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
         if (hasConnectivity && ConnectifyPreferences.getInternetConnection(object) != hasConnectivity) {
             ConnectifyPreferences.setInternetConnection(object, hasConnectivity);
-            mCallback.onConnectionChange(new ConnectifyEvent(ConnectifyState.CONNECTED));
+            Connectify.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
         } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(object) != hasConnectivity) {
             ConnectifyPreferences.setInternetConnection(object, hasConnectivity);
-            mCallback.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
+            Connectify.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
         }
     }
 }

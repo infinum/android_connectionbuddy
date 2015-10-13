@@ -68,19 +68,10 @@ public class Connectify {
                 && ConnectifyPreferences.getInternetConnection(object) != hasConnection) {
             ConnectifyPreferences.setInternetConnection(object, hasConnection);
 
-            if (hasConnection) {
-                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.CONNECTED));
-            } else {
-                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
-            }
+            notifyConnectionChange(hasConnection, listener);
         } else if (!ConnectifyPreferences.containsInternetConnection(object)) {
             ConnectifyPreferences.setInternetConnection(object, hasConnection);
-
-            if (hasConnection) {
-                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.CONNECTED));
-            } else {
-                listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
-            }
+            notifyConnectionChange(hasConnection, listener);
         }
 
         IntentFilter filter = new IntentFilter();
@@ -94,6 +85,23 @@ public class Connectify {
         }
 
         configuration.getContext().registerReceiver(receiver, filter);
+    }
+
+    public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
+        if (hasConnection) {
+            ConnectifyEvent event = new ConnectifyEvent(ConnectifyState.CONNECTED);
+
+            if (event.getType() == ConnectifyType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
+                    && configuration.isRegisteredForWiFiChanges()) {
+                listener.onConnectionChange(event);
+            } else if (event.getType() == ConnectifyType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
+                listener.onConnectionChange(event);
+            } else if (event.getType() == ConnectifyType.WIFI && configuration.isRegisteredForWiFiChanges()) {
+                listener.onConnectionChange(event);
+            }
+        } else {
+            listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
+        }
     }
 
     /**
