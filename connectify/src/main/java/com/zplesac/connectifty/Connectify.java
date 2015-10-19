@@ -45,6 +45,10 @@ public class Connectify {
         return instance;
     }
 
+    /**
+     * Inintialize this instance with provided configuration.
+     * @param configuration Connectify configuration which is used in instance.
+     */
     public synchronized void init(ConnectifyConfiguration configuration) {
         if (configuration == null) {
             throw new IllegalArgumentException();
@@ -87,6 +91,11 @@ public class Connectify {
         configuration.getContext().registerReceiver(receiver, filter);
     }
 
+    /**
+     * Notify the current state of connection to provided interface listener.
+     * @param hasConnection Current state of internet connection.
+     * @param listener Interface listener which has to be notified about current internet connection state.
+     */
     public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
         if (hasConnection) {
             ConnectifyEvent event = new ConnectifyEvent(ConnectifyState.CONNECTED);

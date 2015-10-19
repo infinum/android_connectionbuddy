@@ -4,6 +4,7 @@ import android.content.Context;
 
 /**
  * Created by Željko Plesac on 09/10/15.
+ * Configuration class for Connectify instance. Use this to customize the library behaviour.
  */
 public class ConnectifyConfiguration {
 
@@ -35,8 +36,16 @@ public class ConnectifyConfiguration {
 
         private Context context;
 
+        /**
+         * Bool value which defines should we register for WiFi network changes.
+         * Default value is set to true.
+         */
         private boolean registerForWiFiChanges = true;
 
+        /**
+         * Bool value which defines should we register for mobile network changes.
+         * Default value is set to true.
+         */
         private boolean registerForMobileNetworkChanges = true;
 
         public Builder(Context context) {
