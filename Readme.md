@@ -1,4 +1,4 @@
-[![JCenter](https://img.shields.io/badge/JCenter-1.0.0-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
+[![JCenter](https://img.shields.io/badge/JCenter-1.0.1-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
 
 # Android Connectify
 
