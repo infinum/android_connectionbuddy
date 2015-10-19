@@ -12,7 +12,7 @@ Provides a simple way for handling connectivity change events.
 compile 'com.zplesac:connectify:version@aar'
 ```
 
-2) Initalize [Connectify](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectify.java) instance in your Application class. You also need to provide global configuration by defining [ConnectifyConfiguration](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) object.
+2) Initalize [Connectify](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectify.java) instance in your Application class. You'll also need to provide global configuration by defining [ConnectifyConfiguration](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) object.
 
 ```java
 public class SampleApp extends Application {
