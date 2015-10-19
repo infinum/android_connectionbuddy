@@ -86,6 +86,8 @@ connectivity state). Add to you onCreate() method the  following line of code:
        }
    }
   ```
+  
+Changelog is available [here.](https://github.com/zplesac/android_connectify/blob/development/CHANGELOG.md)  
 
 ## Advanced usage with MVP pattern
 
