@@ -4,13 +4,13 @@ package com.zplesac.connectifty.receivers;
  * Created by Željko Plesac on 06/10/14.
  */
 
+import com.zplesac.connectifty.Connectify;
+import com.zplesac.connectifty.ConnectifyPreferences;
+import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.zplesac.connectifty.ConnectifyPreferences;
-import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
-import com.zplesac.connectifty.ConnectifyUtils;
 
 
 /**
@@ -27,25 +27,19 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         this.mCallback = mCallback;
     }
 
-    public enum ConnectivityEvent {
-        CONNECTED,
-        DISCONNECTED
-    }
-
     /**
      * Receive network connectivity change event.
      */
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        boolean hasConnectivity = ConnectifyUtils.hasNetworkConnection(context);
+        boolean hasConnectivity = Connectify.getInstance().hasNetworkConnection();
 
-        if (hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
-            ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
-            mCallback.onConnectionChange(ConnectivityEvent.CONNECTED);
-        } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(context, object) != hasConnectivity) {
-            ConnectifyPreferences.setInternetConnection(context, object, hasConnectivity);
-            mCallback.onConnectionChange(ConnectivityEvent.DISCONNECTED);
+        if (hasConnectivity && ConnectifyPreferences.getInternetConnection(object) != hasConnectivity) {
+            ConnectifyPreferences.setInternetConnection(object, hasConnectivity);
+            Connectify.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
+        } else if (!hasConnectivity && ConnectifyPreferences.getInternetConnection(object) != hasConnectivity) {
+            ConnectifyPreferences.setInternetConnection(object, hasConnectivity);
+            Connectify.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
         }
     }
 }
