@@ -1,12 +1,5 @@
 language: android
 
-# use container based buils infrastructure
-sudo: false
-
-jdk:
- - oraclejdk7
- - oraclejdk8
-
 android:
   components:
     - platform-tools
