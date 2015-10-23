@@ -135,7 +135,7 @@ public class Connectify {
             NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-            return (networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected());
+            return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
         } else {
             return false;
         }
