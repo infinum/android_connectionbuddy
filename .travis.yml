@@ -17,7 +17,8 @@ before_install:
   - echo "sdk.dir=$ANDROID_HOME" > local.properties
 
 script:
-  - ./gradlew clean check -PdisablePreDex
+   - ./gradlew assembleDebug -PdisablePreDex
+   - ./gradlew lint checkstyle findbugs pmd -PdisablePreDex
 
 cache:
   directories:
