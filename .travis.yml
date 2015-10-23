@@ -13,6 +13,10 @@ android:
     - extra-google-m2repository
     - extra-android-m2repository
 
+before_install:
+
+  - echo "sdk.dir=$ANDROID_HOME" > local.properties
+
 script:
   - ./gradlew clean check -PdisablePreDex
 
