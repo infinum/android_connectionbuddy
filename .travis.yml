@@ -8,7 +8,7 @@ android:
     - platform-tools
     - tools
     - build-tools-19.1.0
-    - android-22
+    - android-19
     - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
