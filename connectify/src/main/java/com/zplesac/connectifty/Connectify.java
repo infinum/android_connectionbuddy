@@ -3,6 +3,7 @@ package com.zplesac.connectifty;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectifty.models.ConnectifyState;
+import com.zplesac.connectifty.models.ConnectifyStrenght;
 import com.zplesac.connectifty.models.ConnectifyType;
 import com.zplesac.connectifty.receivers.NetworkChangeReceiver;
 
@@ -10,6 +11,9 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.telephony.TelephonyManager;
 
 import java.util.HashMap;
 
@@ -47,6 +51,7 @@ public class Connectify {
 
     /**
      * Inintialize this instance with provided configuration.
+     *
      * @param configuration Connectify configuration which is used in instance.
      */
     public synchronized void init(ConnectifyConfiguration configuration) {
@@ -93,12 +98,17 @@ public class Connectify {
 
     /**
      * Notify the current state of connection to provided interface listener.
+     *
      * @param hasConnection Current state of internet connection.
-     * @param listener Interface listener which has to be notified about current internet connection state.
+     * @param listener      Interface listener which has to be notified about current internet connection state.
      */
     public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
         if (hasConnection) {
-            ConnectifyEvent event = new ConnectifyEvent(ConnectifyState.CONNECTED);
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            ConnectifyEvent event = new ConnectifyEvent(ConnectifyState.CONNECTED, getNetworkType(connectivityManager),
+                    getSignalStrength(connectivityManager));
 
             if (event.getType() == ConnectifyType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
                     && configuration.isRegisteredForWiFiChanges()) {
@@ -109,7 +119,8 @@ public class Connectify {
                 listener.onConnectionChange(event);
             }
         } else {
-            listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED));
+            listener.onConnectionChange(new ConnectifyEvent(ConnectifyState.DISCONNECTED, ConnectifyType.NONE,
+                    ConnectifyStrenght.UNDEFINED));
         }
     }
 
@@ -146,10 +157,7 @@ public class Connectify {
      *
      * @return ConnectivityType which is available on current device.
      */
-    public ConnectifyType getNetworkType() {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
+    public ConnectifyType getNetworkType(ConnectivityManager connectivityManager) {
         if (connectivityManager != null) {
             NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -165,6 +173,83 @@ public class Connectify {
             }
         } else {
             return ConnectifyType.NONE;
+        }
+    }
+
+    public ConnectifyStrenght getSignalStrength(ConnectivityManager connectivityManager) {
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null) {
+            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                return getWifiStrength();
+            } else {
+                return getMobileConnectionStrength(networkInfo);
+            }
+        } else {
+            return ConnectifyStrenght.UNDEFINED;
+        }
+    }
+
+    private ConnectifyStrenght getWifiStrength() {
+        WifiManager wifiManager = (WifiManager) configuration.getContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+
+        if (wifiInfo != null) {
+            int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), ConnectifyConfiguration.SIGNAL_STRENGTH_NUMBER_OF_LEVELS);
+
+            switch (level) {
+                case 0:
+                    return ConnectifyStrenght.POOR;
+                case 1:
+                    return ConnectifyStrenght.GOOD;
+                case 2:
+                    return ConnectifyStrenght.EXCELLENT;
+                default:
+                    return ConnectifyStrenght.UNDEFINED;
+            }
+        } else {
+            return ConnectifyStrenght.UNDEFINED;
+        }
+    }
+
+    private ConnectifyStrenght getMobileConnectionStrength(NetworkInfo info) {
+        if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
+            switch (info.getSubtype()) {
+                case TelephonyManager.NETWORK_TYPE_1xRTT:
+                    return ConnectifyStrenght.POOR;
+                case TelephonyManager.NETWORK_TYPE_CDMA:
+                    return ConnectifyStrenght.POOR;
+                case TelephonyManager.NETWORK_TYPE_EDGE:
+                    return ConnectifyStrenght.POOR;
+                case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                    return ConnectifyStrenght.GOOD;
+                case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                    return ConnectifyStrenght.GOOD;
+                case TelephonyManager.NETWORK_TYPE_GPRS:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_HSDPA:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_HSPA:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_HSUPA:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_UMTS:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_EHRPD:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_HSPAP:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_IDEN:
+                    return ConnectifyStrenght.EXCELLENT;
+                case TelephonyManager.NETWORK_TYPE_LTE:
+                    return ConnectifyStrenght.EXCELLENT;
+                default:
+                    return ConnectifyStrenght.UNDEFINED;
+            }
+        } else {
+            return ConnectifyStrenght.UNDEFINED;
         }
     }
 }
