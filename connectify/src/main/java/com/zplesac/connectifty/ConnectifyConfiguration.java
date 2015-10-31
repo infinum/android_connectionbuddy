@@ -1,5 +1,7 @@
 package com.zplesac.connectifty;
 
+import com.zplesac.connectifty.models.ConnectifyStrenght;
+
 import android.content.Context;
 
 /**
@@ -16,10 +18,13 @@ public class ConnectifyConfiguration {
 
     private boolean registeredForMobileNetworkChanges;
 
+    private ConnectifyStrenght minimumSignalStrength;
+
     private ConnectifyConfiguration(Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
         this.registeredForWiFiChanges = builder.registerForWiFiChanges;
+        this.minimumSignalStrength = builder.minimumlSignalStrength;
     }
 
     public Context getContext() {
@@ -32,6 +37,10 @@ public class ConnectifyConfiguration {
 
     public boolean isRegisteredForMobileNetworkChanges() {
         return registeredForMobileNetworkChanges;
+    }
+
+    public ConnectifyStrenght getMinimumSignalStrength() {
+        return minimumSignalStrength;
     }
 
     public static class Builder {
@@ -50,6 +59,12 @@ public class ConnectifyConfiguration {
          */
         private boolean registerForMobileNetworkChanges = true;
 
+        /**
+         * Define minimum signal strength for which we should call callback listener.
+         * Default is set to ConnectifyStrenght.POOR.
+         */
+        private ConnectifyStrenght minimumlSignalStrength = ConnectifyStrenght.POOR;
+
         public Builder(Context context) {
             this.context = context.getApplicationContext();
         }
@@ -61,6 +76,11 @@ public class ConnectifyConfiguration {
 
         public Builder registerForMobileNetworkChanges(boolean shouldRegister) {
             this.registerForMobileNetworkChanges = shouldRegister;
+            return this;
+        }
+
+        public Builder setMinimumSignalStrength(ConnectifyStrenght connectifyStrenght) {
+            this.minimumlSignalStrength = connectifyStrenght;
             return this;
         }
 

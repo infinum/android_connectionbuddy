@@ -5,11 +5,11 @@ package com.zplesac.connectifty.models;
  */
 public enum ConnectifyStrenght {
 
-    EXCELLENT,
-
-    GOOD,
+    UNDEFINED,
 
     POOR,
 
-    UNDEFINED
+    GOOD,
+
+    EXCELLENT,
 }

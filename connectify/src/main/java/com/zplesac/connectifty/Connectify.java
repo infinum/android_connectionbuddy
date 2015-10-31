@@ -110,7 +110,10 @@ public class Connectify {
             ConnectifyEvent event = new ConnectifyEvent(ConnectifyState.CONNECTED, getNetworkType(connectivityManager),
                     getSignalStrength(connectivityManager));
 
-            if (event.getType() == ConnectifyType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
+            // check if signal strength is bellow minimum defined strength
+            if (event.getStrenght().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
+                return;
+            } else if (event.getType() == ConnectifyType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
                     && configuration.isRegisteredForWiFiChanges()) {
                 listener.onConnectionChange(event);
             } else if (event.getType() == ConnectifyType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {

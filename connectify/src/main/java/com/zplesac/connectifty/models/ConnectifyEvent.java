@@ -38,4 +38,12 @@ public class ConnectifyEvent implements Serializable {
     public void setType(ConnectifyType type) {
         this.type = type;
     }
+
+    public ConnectifyStrenght getStrenght() {
+        return strenght;
+    }
+
+    public void setStrenght(ConnectifyStrenght strenght) {
+        this.strenght = strenght;
+    }
 }
