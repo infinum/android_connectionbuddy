@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Version 1.0.2.
+_2015-10-31_
+
+* New: added information about signal strength to ConnectifyEvent object
+* Update: events can now also be filtered by signal strength
+
 ## Version 1.0.1.
 
 _2015-10-19_
