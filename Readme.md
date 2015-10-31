@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/zplesac/android_connectify.svg?branch=development)](https://travis-ci.org/zplesac/android_connectify)
-[![JCenter](https://img.shields.io/badge/JCenter-1.0.1-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
+[![JCenter](https://img.shields.io/badge/JCenter-1.0.2-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
 
 # Android Connectify
 

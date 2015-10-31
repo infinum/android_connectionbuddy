@@ -14,6 +14,8 @@ public class ConnectifyEvent implements Serializable {
 
     private ConnectifyType type;
 
+    private ConnectifyStrenght strenght;
+
     public ConnectifyEvent() {
     }
 
@@ -41,5 +43,13 @@ public class ConnectifyEvent implements Serializable {
 
     public void setType(ConnectifyType type) {
         this.type = type;
+    }
+
+    public ConnectifyStrenght getStrenght() {
+        return strenght;
+    }
+
+    public void setStrenght(ConnectifyStrenght strenght) {
+        this.strenght = strenght;
     }
 }
