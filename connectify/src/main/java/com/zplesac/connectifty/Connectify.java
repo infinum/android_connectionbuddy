@@ -1,5 +1,6 @@
 package com.zplesac.connectifty;
 
+import com.zplesac.connectifty.cache.ConnectifyCache;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectifty.models.ConnectifyState;
@@ -47,6 +48,7 @@ public class Connectify {
 
     /**
      * Inintialize this instance with provided configuration.
+     *
      * @param configuration Connectify configuration which is used in instance.
      */
     public synchronized void init(ConnectifyConfiguration configuration) {
@@ -68,13 +70,13 @@ public class Connectify {
     public void registerForConnectivityEvents(Object object, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection();
 
-        if (ConnectifyPreferences.containsInternetConnection(object)
-                && ConnectifyPreferences.getInternetConnection(object) != hasConnection) {
-            ConnectifyPreferences.setInternetConnection(object, hasConnection);
+        if (ConnectifyCache.containsInternetConnection(object)
+                && ConnectifyCache.getInternetConnection(object) != hasConnection) {
+            ConnectifyCache.setInternetConnection(object, hasConnection);
 
             notifyConnectionChange(hasConnection, listener);
-        } else if (!ConnectifyPreferences.containsInternetConnection(object)) {
-            ConnectifyPreferences.setInternetConnection(object, hasConnection);
+        } else if (!ConnectifyCache.containsInternetConnection(object)) {
+            ConnectifyCache.setInternetConnection(object, hasConnection);
             notifyConnectionChange(hasConnection, listener);
         }
 
@@ -93,8 +95,9 @@ public class Connectify {
 
     /**
      * Notify the current state of connection to provided interface listener.
+     *
      * @param hasConnection Current state of internet connection.
-     * @param listener Interface listener which has to be notified about current internet connection state.
+     * @param listener      Interface listener which has to be notified about current internet connection state.
      */
     public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
         if (hasConnection) {

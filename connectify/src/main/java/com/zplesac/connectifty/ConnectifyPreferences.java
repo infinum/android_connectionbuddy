@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 /**
  * Created by Željko Plesac on 06/10/14.
  */
+@Deprecated
 public class ConnectifyPreferences {
 
     private ConnectifyPreferences() {
