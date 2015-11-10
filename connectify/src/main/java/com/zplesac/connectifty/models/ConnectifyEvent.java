@@ -1,7 +1,5 @@
 package com.zplesac.connectifty.models;
 
-import com.zplesac.connectifty.Connectify;
-
 import java.io.Serializable;
 
 /**
@@ -19,14 +17,10 @@ public class ConnectifyEvent implements Serializable {
     public ConnectifyEvent() {
     }
 
-    public ConnectifyEvent(ConnectifyState state) {
-        this.state = state;
-        this.type = Connectify.getInstance().getNetworkType();
-    }
-
-    public ConnectifyEvent(ConnectifyState state, ConnectifyType type) {
+    public ConnectifyEvent(ConnectifyState state, ConnectifyType type, ConnectifyStrenght strenght) {
         this.state = state;
         this.type = type;
+        this.strenght = strenght;
     }
 
     public ConnectifyState getState() {
