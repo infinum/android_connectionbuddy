@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.3"
     }
     buildTypes {
         release {
@@ -80,7 +80,7 @@ install {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.0.2"
+version = "1.0.3"
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
