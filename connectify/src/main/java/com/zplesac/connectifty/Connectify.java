@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Željko Plesac on 06/10/14.
@@ -79,6 +80,11 @@ public class Connectify {
             ConnectifyCache.setInternetConnection(object, hasConnection);
             notifyConnectionChange(hasConnection, listener);
         }
+
+
+        Map<String, Boolean> test = Connectify.getInstance().getConfiguration().getInMemoryCache().snapshot();
+
+
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_CONNECTIVITY_CHANGE);

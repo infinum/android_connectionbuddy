@@ -28,7 +28,6 @@ public class ConnectifyCache {
     }
 
     public static boolean containsInternetConnection(Object object) {
-        boolean contains = Connectify.getInstance().getConfiguration().getInMemoryCache().snapshot().containsKey(object.toString());
-        return contains;
+        return Connectify.getInstance().getConfiguration().getInMemoryCache().snapshot().containsKey(object.toString());
     }
 }
