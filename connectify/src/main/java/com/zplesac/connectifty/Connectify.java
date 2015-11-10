@@ -17,7 +17,6 @@ import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Željko Plesac on 06/10/14.
@@ -183,7 +182,7 @@ public class Connectify {
 
     /**
      * Get signal strength of current network connection.
-     * @param connectivityManager
+     *
      * @return ConnectifyStrenght for current network connection.
      */
     public ConnectifyStrenght getSignalStrength(ConnectivityManager connectivityManager) {
@@ -202,7 +201,6 @@ public class Connectify {
 
     /**
      * Get WiFi signal strength.
-     * @return
      */
     private ConnectifyStrenght getWifiStrength() {
         WifiManager wifiManager = (WifiManager) configuration.getContext().getSystemService(Context.WIFI_SERVICE);
@@ -228,8 +226,6 @@ public class Connectify {
 
     /**
      * Get mobile network signal strength.
-     * @param info
-     * @return
      */
     private ConnectifyStrenght getMobileConnectionStrength(NetworkInfo info) {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
