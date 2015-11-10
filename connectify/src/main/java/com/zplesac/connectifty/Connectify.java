@@ -85,11 +85,6 @@ public class Connectify {
             notifyConnectionChange(hasConnection, listener);
         }
 
-
-        Map<String, Boolean> test = Connectify.getInstance().getConfiguration().getInMemoryCache().snapshot();
-
-
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_CONNECTIVITY_CHANGE);
         filter.addAction(ACTION_WIFI_STATE_CHANGE);
@@ -186,7 +181,11 @@ public class Connectify {
         }
     }
 
-
+    /**
+     * Get signal strength of current network connection.
+     * @param connectivityManager
+     * @return ConnectifyStrenght for current network connection.
+     */
     public ConnectifyStrenght getSignalStrength(ConnectivityManager connectivityManager) {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
@@ -201,6 +200,10 @@ public class Connectify {
         }
     }
 
+    /**
+     * Get WiFi signal strength.
+     * @return
+     */
     private ConnectifyStrenght getWifiStrength() {
         WifiManager wifiManager = (WifiManager) configuration.getContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -223,6 +226,11 @@ public class Connectify {
         }
     }
 
+    /**
+     * Get mobile network signal strength.
+     * @param info
+     * @return
+     */
     private ConnectifyStrenght getMobileConnectionStrength(NetworkInfo info) {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
             switch (info.getSubtype()) {

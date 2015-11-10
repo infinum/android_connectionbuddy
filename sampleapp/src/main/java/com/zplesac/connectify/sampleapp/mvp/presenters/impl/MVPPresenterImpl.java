@@ -1,7 +1,6 @@
 package com.zplesac.connectify.sampleapp.mvp.presenters.impl;
 
 import com.zplesac.connectifty.Connectify;
-import com.zplesac.connectifty.ConnectifyPreferences;
 import com.zplesac.connectifty.cache.ConnectifyCache;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectifty.models.ConnectifyEvent;
