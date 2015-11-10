@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Version 1.0.3.
+
+_2015-10-11_
+
+* Bug fixes - fixed bug with signal strength
+
 ## Version 1.0.2.
 _2015-10-31_
 
