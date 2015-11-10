@@ -10,6 +10,8 @@ import android.content.Context;
  */
 public class ConnectifyConfiguration {
 
+    public static final int SIGNAL_STRENGTH_NUMBER_OF_LEVELS = 3;
+
     private Context context;
 
     private boolean registeredForWiFiChanges;

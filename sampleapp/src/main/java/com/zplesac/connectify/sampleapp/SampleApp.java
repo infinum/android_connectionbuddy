@@ -2,6 +2,7 @@ package com.zplesac.connectify.sampleapp;
 
 import com.zplesac.connectifty.Connectify;
 import com.zplesac.connectifty.ConnectifyConfiguration;
+import com.zplesac.connectifty.models.ConnectifyStrenght;
 
 import android.app.Application;
 
