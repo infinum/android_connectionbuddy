@@ -1,5 +1,6 @@
 package com.zplesac.connectifty;
 
+import com.zplesac.connectifty.cache.ConnectifyCache;
 import com.zplesac.connectifty.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectifty.models.ConnectifyState;
@@ -73,13 +74,13 @@ public class Connectify {
     public void registerForConnectivityEvents(Object object, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection();
 
-        if (ConnectifyPreferences.containsInternetConnection(object)
-                && ConnectifyPreferences.getInternetConnection(object) != hasConnection) {
-            ConnectifyPreferences.setInternetConnection(object, hasConnection);
+        if (ConnectifyCache.containsInternetConnection(object)
+                && ConnectifyCache.getInternetConnection(object) != hasConnection) {
+            ConnectifyCache.setInternetConnection(object, hasConnection);
 
             notifyConnectionChange(hasConnection, listener);
-        } else if (!ConnectifyPreferences.containsInternetConnection(object)) {
-            ConnectifyPreferences.setInternetConnection(object, hasConnection);
+        } else if (!ConnectifyCache.containsInternetConnection(object)) {
+            ConnectifyCache.setInternetConnection(object, hasConnection);
             notifyConnectionChange(hasConnection, listener);
         }
 
@@ -179,7 +180,11 @@ public class Connectify {
         }
     }
 
-
+    /**
+     * Get signal strength of current network connection.
+     *
+     * @return ConnectifyStrenght for current network connection.
+     */
     public ConnectifyStrenght getSignalStrength(ConnectivityManager connectivityManager) {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
@@ -194,6 +199,9 @@ public class Connectify {
         }
     }
 
+    /**
+     * Get WiFi signal strength.
+     */
     private ConnectifyStrenght getWifiStrength() {
         WifiManager wifiManager = (WifiManager) configuration.getContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -216,6 +224,9 @@ public class Connectify {
         }
     }
 
+    /**
+     * Get mobile network signal strength.
+     */
     private ConnectifyStrenght getMobileConnectionStrength(NetworkInfo info) {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
             switch (info.getSubtype()) {

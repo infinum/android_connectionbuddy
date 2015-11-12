@@ -3,6 +3,7 @@ package com.zplesac.connectifty;
 import com.zplesac.connectifty.models.ConnectifyStrenght;
 
 import android.content.Context;
+import android.util.LruCache;
 
 /**
  * Created by Željko Plesac on 09/10/15.
@@ -20,11 +21,17 @@ public class ConnectifyConfiguration {
 
     private ConnectifyStrenght minimumSignalStrength;
 
+    private int cacheSize;
+
+    private LruCache<String, Boolean> inMemoryCache;
+
     private ConnectifyConfiguration(Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
         this.registeredForWiFiChanges = builder.registerForWiFiChanges;
         this.minimumSignalStrength = builder.minimumlSignalStrength;
+        this.cacheSize = builder.cacheSize;
+        this.inMemoryCache = new LruCache<>(cacheSize);
     }
 
     public Context getContext() {
@@ -41,6 +48,14 @@ public class ConnectifyConfiguration {
 
     public ConnectifyStrenght getMinimumSignalStrength() {
         return minimumSignalStrength;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public LruCache<String, Boolean> getInMemoryCache() {
+        return inMemoryCache;
     }
 
     public static class Builder {
@@ -65,6 +80,18 @@ public class ConnectifyConfiguration {
          */
         private ConnectifyStrenght minimumlSignalStrength = ConnectifyStrenght.POOR;
 
+        private final int kbSize = 1024;
+
+        private final int memoryPart = 10;
+
+        // Get max available VM memory, exceeding this amount will throw an
+        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+        // int in its constructor.
+        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
+
+        // Use 1/10th of the available memory for this memory cache.
+        private int cacheSize = maxMemory / memoryPart;
+
         public Builder(Context context) {
             this.context = context.getApplicationContext();
         }
@@ -81,6 +108,11 @@ public class ConnectifyConfiguration {
 
         public Builder setMinimumSignalStrength(ConnectifyStrenght connectifyStrenght) {
             this.minimumlSignalStrength = connectifyStrenght;
+            return this;
+        }
+
+        public Builder setCacheSize(int size) {
+            this.cacheSize = size;
             return this;
         }
 
