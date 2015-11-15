@@ -25,7 +25,7 @@ public class ConnectifyCache {
             return Connectify.getInstance().getConfiguration().getInMemoryCache().get(object.toString());
         }
 
-        return true;
+        return false;
     }
 
     /**
