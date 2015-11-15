@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Version 1.0.4
+
+_2015-11-15_
+
+* Update: refactored caching mechanism to use LruCache instead of SharedPreferences
+
 ## Version 1.0.3.
 
 _2015-10-11_
