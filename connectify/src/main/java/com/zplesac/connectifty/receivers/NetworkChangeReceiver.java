@@ -34,11 +34,11 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         boolean hasConnectivity = Connectify.getInstance().hasNetworkConnection();
 
-        if (hasConnectivity && ConnectifyCache.getInternetConnection(object) != hasConnectivity) {
-            ConnectifyCache.setInternetConnection(object, hasConnectivity);
+        if (hasConnectivity && ConnectifyCache.getLastNetworkState(object) != hasConnectivity) {
+            ConnectifyCache.setLastNetworkState(object, hasConnectivity);
             Connectify.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
-        } else if (!hasConnectivity && ConnectifyCache.getInternetConnection(object) != hasConnectivity) {
-            ConnectifyCache.setInternetConnection(object, hasConnectivity);
+        } else if (!hasConnectivity && ConnectifyCache.getLastNetworkState(object) != hasConnectivity) {
+            ConnectifyCache.setLastNetworkState(object, hasConnectivity);
             Connectify.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
         }
     }

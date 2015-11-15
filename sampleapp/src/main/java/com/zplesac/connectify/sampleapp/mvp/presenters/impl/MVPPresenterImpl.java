@@ -24,7 +24,7 @@ public class MVPPresenterImpl implements MVPPresenter, ConnectivityChangeListene
     @Override
     public void init(boolean hasSavedInstanceState) {
         if (!hasSavedInstanceState) {
-            ConnectifyCache.clearInternetConnection(this);
+            ConnectifyCache.clearLastNetworkState(this);
         }
 
         view.initUI();

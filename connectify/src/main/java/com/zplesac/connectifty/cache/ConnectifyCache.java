@@ -20,8 +20,8 @@ public class ConnectifyCache {
      * @return Boolean property which indicates whether provided object had network connection when
      *         it was stored in cache.
      */
-    public static boolean getInternetConnection(Object object) {
-        if (containsInternetConnection(object)) {
+    public static boolean getLastNetworkState(Object object) {
+        if (isLastNetworkStateStored(object)) {
             return Connectify.getInstance().getConfiguration().getInMemoryCache().get(object.toString());
         }
 
@@ -33,7 +33,7 @@ public class ConnectifyCache {
      * @param object Activity or fragment for which we want to cache network connectivity state.
      * @param isActive Does provided object has active network connection.
      */
-    public static void setInternetConnection(Object object, boolean isActive) {
+    public static void setLastNetworkState(Object object, boolean isActive) {
         Connectify.getInstance().getConfiguration().getInMemoryCache().put(object.toString(), isActive);
     }
 
@@ -41,7 +41,7 @@ public class ConnectifyCache {
      * Clear stored network connectivity state for provided object.
      * @param object Activity or fragment for which we want to delete last stored state.
      */
-    public static void clearInternetConnection(Object object) {
+    public static void clearLastNetworkState(Object object) {
         Connectify.getInstance().getConfiguration().getInMemoryCache().remove(object.toString());
     }
 
@@ -50,7 +50,7 @@ public class ConnectifyCache {
      * @param object Activity or fragment for which we want to check if we have stored last network connectivity state.
      * @return Boolean property which indicates do we have stored last network state for provided object.
      */
-    public static boolean containsInternetConnection(Object object) {
+    public static boolean isLastNetworkStateStored(Object object) {
         return Connectify.getInstance().getConfiguration().getInMemoryCache().snapshot().containsKey(object.toString());
     }
 }

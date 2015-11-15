@@ -74,13 +74,13 @@ public class Connectify {
     public void registerForConnectivityEvents(Object object, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection();
 
-        if (ConnectifyCache.containsInternetConnection(object)
-                && ConnectifyCache.getInternetConnection(object) != hasConnection) {
-            ConnectifyCache.setInternetConnection(object, hasConnection);
+        if (ConnectifyCache.isLastNetworkStateStored(object)
+                && ConnectifyCache.getLastNetworkState(object) != hasConnection) {
+            ConnectifyCache.setLastNetworkState(object, hasConnection);
 
             notifyConnectionChange(hasConnection, listener);
-        } else if (!ConnectifyCache.containsInternetConnection(object)) {
-            ConnectifyCache.setInternetConnection(object, hasConnection);
+        } else if (!ConnectifyCache.isLastNetworkStateStored(object)) {
+            ConnectifyCache.setLastNetworkState(object, hasConnection);
             notifyConnectionChange(hasConnection, listener);
         }
 

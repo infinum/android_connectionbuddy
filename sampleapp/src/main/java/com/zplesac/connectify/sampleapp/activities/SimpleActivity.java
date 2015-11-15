@@ -25,7 +25,7 @@ public class SimpleActivity extends Activity implements ConnectivityChangeListen
         setContentView(R.layout.activity_mvp);
 
         if (savedInstanceState != null) {
-            ConnectifyCache.clearInternetConnection(this);
+            ConnectifyCache.clearLastNetworkState(this);
         }
 
         tvTitle = (TextView) findViewById(R.id.tv_title);
