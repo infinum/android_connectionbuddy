@@ -1,4 +1,6 @@
-[![JCenter](https://img.shields.io/badge/JCenter-1.0.0-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
+[![Build Status](https://travis-ci.org/zplesac/android_connectify.svg?branch=development)](https://travis-ci.org/zplesac/android_connectify)
+[![JCenter](https://img.shields.io/badge/JCenter-1.0.4-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20Connectify-green.svg?style=true)](https://android-arsenal.com/details/1/2788)
 
 # Android Connectify
 
@@ -6,36 +8,60 @@ Provides a simple way for handling connectivity change events.
 
 # Usage
 
-1) Register to connectivity change events in onStart() method of your activity:
+1) Add the library as a dependency to your ```build.gradle```
+
+```groovy
+compile 'com.zplesac:connectify:version@aar'
+```
+
+2) Initialize [Connectify](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectify.java) instance in your Application class. You'll also need to provide a global configuration by defining [ConnectifyConfiguration](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) object.
+
+```java
+public class SampleApp extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ConnectifyConfiguration connectifyConfiguration = new ConnectifyConfiguration.Builder(this).build();
+        Connectify.getInstance().init(connectifyConfiguration);
+    }
+}
+ ```
+ 
+All options in [ConnectifyConfiguration.Builder](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) are optional. Use only those you really want to customize.
+
+See all default values for config options [here](https://github.com/zplesac/android_connectify/blob/development/connectify/src/main/java/com/zplesac/connectifty/ConnectifyConfiguration.java).
+
+3) Register to connectivity change events in onStart() method of your activity:
 
 ```java
 
  @Override
  protected void onStart() {
      super.onStart();
-     ConnectifyUtils.registerForConnectivityEvents(this, this, this);
+     Connectify.getInstance().registerForConnectifyEvents(this, this);
  }
 
   ```
 
-2) Unregister from connectivity change events in onStop() method of your activity:
+4) Unregister from connectivity change events in onStop() method of your activity:
 
 ```java
 
   @Override
   protected void onStop() {
       super.onStop();
-      ConnectifyUtils.unregisterFromConnectivityEvents(this, this);
+      Connectify.getInstance().unregisterFromConnectifyEvents(this);
   }
 
   ```
 
-3) React to connectivity change events on onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) callback method:
+5) React to connectivity change events on onConnectionChange(ConnectifyEvent event) callback method:
 
 ```java
   @Override
-  public void onConnectionChange(NetworkChangeReceiver.ConnectivityEvent event) {
-      if(event == NetworkChangeReceiver.ConnectivityEvent.CONNECTED){
+  public void onConnectionChange(ConnectifyEvent event) {
+      if(event.getConnectionState() == ConnectionsState.CONNECTED){
           // device has active internet connection
       }
       else{
@@ -43,6 +69,8 @@ Provides a simple way for handling connectivity change events.
       }
   }
   ```
+
+ConnectifyEvent also holds [ConnectifyType](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2Fmodels%2FConnectifyType.java) enum, which defines network connection type currently available on user's device.
 
 You'll also need to clear stored connectivity state for your activity/fragment
 if it was restored from saved instance state (in order to always have the latest
@@ -56,10 +84,12 @@ connectivity state). Add to you onCreate() method the  following line of code:
        ...
 
        if(savedInstanceState != null){
-           ConnectifyPreferences.clearInternetConnection(this, this);
+           ConnectifyPreferences.clearInternetConnection(this);
        }
    }
   ```
+  
+Changelog is available [here.](https://github.com/zplesac/android_connectify/blob/development/CHANGELOG.md)  
 
 ## Advanced usage with MVP pattern
 

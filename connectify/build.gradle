@@ -5,14 +5,14 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 22
+        versionCode 5
+        versionName "1.0.4"
     }
     buildTypes {
         release {
@@ -80,7 +80,7 @@ install {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.0.0"
+version = "1.0.4"
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())

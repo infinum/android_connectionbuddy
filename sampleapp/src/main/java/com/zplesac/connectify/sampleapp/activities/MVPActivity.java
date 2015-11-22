@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
+import com.zplesac.connectifty.models.ConnectifyEvent;
 import com.zplesac.connectify.sampleapp.R;
 import com.zplesac.connectify.sampleapp.dagger.components.DaggerMVPComponent;
 import com.zplesac.connectify.sampleapp.dagger.modules.ContextModule;
@@ -19,6 +20,8 @@ import com.zplesac.connectify.sampleapp.mvp.views.MVPView;
 public class MVPActivity extends Activity implements MVPView {
 
     private TextView tvTitle;
+
+    private TextView tvConnectionType;
 
     @Inject
     MVPPresenter presenter;
@@ -36,6 +39,7 @@ public class MVPActivity extends Activity implements MVPView {
     @Override
     public void initUI() {
         tvTitle = (TextView) findViewById(R.id.tv_title);
+        tvConnectionType = (TextView) findViewById(R.id.tv_connection_type);
     }
 
     @Override
@@ -51,12 +55,8 @@ public class MVPActivity extends Activity implements MVPView {
     }
 
     @Override
-    public void onConnectionChangeEvent(boolean hasConnection) {
-        if(hasConnection){
-            tvTitle.setText("Connection active");
-        }
-        else{
-            tvTitle.setText("Connection inactive");
-        }
+    public void onConnectionChangeEvent(ConnectifyEvent event) {
+        tvTitle.setText("Connection status: " + event.getState());
+        tvConnectionType.setText("Connection type: " + event.getType());
     }
 }
