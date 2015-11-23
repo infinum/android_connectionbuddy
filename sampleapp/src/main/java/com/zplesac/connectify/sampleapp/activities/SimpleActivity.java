@@ -35,6 +35,8 @@ public class SimpleActivity extends Activity implements ConnectivityChangeListen
     @Override
     protected void onStart() {
         super.onStart();
+        // Omit the default configuration - we want to obtain the current network connection state
+        // after we register for network connectivity events.
         Connectify.getInstance().registerForConnectivityEvents(this, true,  this);
     }
 
