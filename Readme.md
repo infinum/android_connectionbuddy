@@ -32,7 +32,7 @@ All options in [ConnectifyConfiguration.Builder](https://github.com/zplesac/andr
 
 Following values can be overriden:
 ```java
-  /**
+ 		 /**
          * Boolean value which defines should we register for WiFi network changes.
          * Default value is set to true.
          */
