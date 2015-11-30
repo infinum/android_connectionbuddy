@@ -32,7 +32,14 @@ All options in [ConnectifyConfiguration.Builder](https://github.com/zplesac/andr
 
 Following values can be overriden:
 ```java
- 		 /**
+ 		/**
+         * Get max available VM memory, exceeding this amount will throw an
+         * OutOfMemory exception. Stored in kilobytes as LruCache takes an
+         * int in its constructor.
+         */
+        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
+
+        /**
          * Boolean value which defines should we register for WiFi network changes.
          * Default value is set to true.
          */
@@ -56,18 +63,7 @@ Following values can be overriden:
          * Default is set to true.
          */
         private boolean notifyImmediately = true;
-
-        private final int kbSize = 1024;
-
-        private final int memoryPart = 10;
-
-        /**
-         * Get max available VM memory, exceeding this amount will throw an
-         * OutOfMemory exception. Stored in kilobytes as LruCache takes an
-         * int in its constructor.
-         */
-        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
-
+       
         /**
          * Use 1/10th of the available memory for this memory cache.
          */
