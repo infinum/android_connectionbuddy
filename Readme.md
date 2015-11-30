@@ -30,47 +30,7 @@ public class SampleApp extends Application {
  
 All options in [ConnectifyConfiguration.Builder](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) are optional. Use only those you really want to customize.
 
-Following values can be overriden:
-```java
- 		/**
-         * Get max available VM memory, exceeding this amount will throw an
-         * OutOfMemory exception. Stored in kilobytes as LruCache takes an
-         * int in its constructor.
-         */
-        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
-
-        /**
-         * Boolean value which defines should we register for WiFi network changes.
-         * Default value is set to true.
-         */
-        private boolean registerForWiFiChanges = true;
-
-        /**
-         * Boolean value which defines should we register for mobile network changes.
-         * Default value is set to true.
-         */
-        private boolean registerForMobileNetworkChanges = true;
-
-        /**
-         * Define minimum signal strength for which we should call callback listener.
-         * Default is set to ConnectifyStrenght.POOR.
-         */
-        private ConnectifyStrenght minimumlSignalStrength = ConnectifyStrenght.POOR;
-
-        /**
-         * Boolean value which defines do we want to notify the listener about current network connection state
-         * immediately after the listener has been registered.
-         * Default is set to true.
-         */
-        private boolean notifyImmediately = true;
-       
-        /**
-         * Use 1/10th of the available memory for this memory cache.
-         */
-        private int cacheSize = maxMemory / memoryPart;
-```
- 
-
+See all default values for config options [here](https://github.com/zplesac/android_connectify/blob/development/connectify/src/main/java/com/zplesac/connectifty/ConnectifyConfiguration.java).
 
 3) Register to connectivity change events in onStart() method of your activity:
 
