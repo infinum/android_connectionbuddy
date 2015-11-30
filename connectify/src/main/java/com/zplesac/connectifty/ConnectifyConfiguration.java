@@ -88,7 +88,7 @@ public class ConnectifyConfiguration {
         private ConnectifyStrenght minimumlSignalStrength = ConnectifyStrenght.POOR;
 
         /**
-         * Boolean value which defines do want to notify the listener about current network connection state
+         * Boolean value which defines do we want to notify the listener about current network connection state
          * immediately after the listener has been registered.
          * Default is set to true.
          */
