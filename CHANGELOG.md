@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## Version 1.0.5
+
+_2015_12_01
+
+* New : added new configuration options - you can now decide do you want to be notified about current network connection state
+        immediately after the listener has been registered
+
 ## Version 1.0.4
 
 _2015-11-15_
