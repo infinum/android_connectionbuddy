@@ -69,19 +69,39 @@ public class Connectify {
     }
 
     /**
-     * Register for connectivity events. Must be called separately for each activity/context.
+     * Register for network connectivity events. Must be called separately for each activity/context, and will use
+     * global configuration to determine if we should notify the callback immediately about current network connection
+     * state.
+     *
+     * @param object   Object which is registered to network change receiver.
+     * @param listener Callback listener.
      */
     public void registerForConnectivityEvents(Object object, ConnectivityChangeListener listener) {
+        registerForConnectivityEvents(object, configuration.isNotifyImmediately(), listener);
+    }
+
+    /**
+     * Register for network connectivity events. Must be called separately for each activity/context.
+     *
+     * @param object            Object which is registered to network change receiver.
+     * @param notifyImmediately Indicates should we immediately notify the callback about current network connection state.
+     * @param listener          Callback listener.
+     */
+    public void registerForConnectivityEvents(Object object, boolean notifyImmediately, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection();
 
         if (ConnectifyCache.isLastNetworkStateStored(object)
                 && ConnectifyCache.getLastNetworkState(object) != hasConnection) {
             ConnectifyCache.setLastNetworkState(object, hasConnection);
 
-            notifyConnectionChange(hasConnection, listener);
+            if (notifyImmediately) {
+                notifyConnectionChange(hasConnection, listener);
+            }
         } else if (!ConnectifyCache.isLastNetworkStateStored(object)) {
             ConnectifyCache.setLastNetworkState(object, hasConnection);
-            notifyConnectionChange(hasConnection, listener);
+            if (notifyImmediately) {
+                notifyConnectionChange(hasConnection, listener);
+            }
         }
 
         IntentFilter filter = new IntentFilter();

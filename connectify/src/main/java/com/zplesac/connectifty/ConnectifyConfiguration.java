@@ -25,6 +25,8 @@ public class ConnectifyConfiguration {
 
     private LruCache<String, Boolean> inMemoryCache;
 
+    private boolean notifyImmediately;
+
     private ConnectifyConfiguration(Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
@@ -32,6 +34,7 @@ public class ConnectifyConfiguration {
         this.minimumSignalStrength = builder.minimumlSignalStrength;
         this.cacheSize = builder.cacheSize;
         this.inMemoryCache = new LruCache<>(cacheSize);
+        this.notifyImmediately = builder.notifyImmediately;
     }
 
     public Context getContext() {
@@ -58,18 +61,33 @@ public class ConnectifyConfiguration {
         return inMemoryCache;
     }
 
+    public boolean isNotifyImmediately() {
+        return notifyImmediately;
+    }
+
     public static class Builder {
 
         private Context context;
 
+        private final int kbSize = 1024;
+
+        private final int memoryPart = 10;
+
         /**
-         * Bool value which defines should we register for WiFi network changes.
+         * Get max available VM memory, exceeding this amount will throw an
+         * OutOfMemory exception. Stored in kilobytes as LruCache takes an
+         * int in its constructor.
+         */
+        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
+
+        /**
+         * Boolean value which defines should we register for WiFi network changes.
          * Default value is set to true.
          */
         private boolean registerForWiFiChanges = true;
 
         /**
-         * Bool value which defines should we register for mobile network changes.
+         * Boolean value which defines should we register for mobile network changes.
          * Default value is set to true.
          */
         private boolean registerForMobileNetworkChanges = true;
@@ -80,16 +98,16 @@ public class ConnectifyConfiguration {
          */
         private ConnectifyStrenght minimumlSignalStrength = ConnectifyStrenght.POOR;
 
-        private final int kbSize = 1024;
+        /**
+         * Boolean value which defines do we want to notify the listener about current network connection state
+         * immediately after the listener has been registered.
+         * Default is set to true.
+         */
+        private boolean notifyImmediately = true;
 
-        private final int memoryPart = 10;
-
-        // Get max available VM memory, exceeding this amount will throw an
-        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
-        // int in its constructor.
-        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
-
-        // Use 1/10th of the available memory for this memory cache.
+        /**
+         * Use 1/10th of the available memory for this memory cache.
+         */
         private int cacheSize = maxMemory / memoryPart;
 
         public Builder(Context context) {
@@ -113,6 +131,11 @@ public class ConnectifyConfiguration {
 
         public Builder setCacheSize(int size) {
             this.cacheSize = size;
+            return this;
+        }
+
+        public Builder setNotifyImmediately(boolean shouldNotify) {
+            this.notifyImmediately = shouldNotify;
             return this;
         }
 

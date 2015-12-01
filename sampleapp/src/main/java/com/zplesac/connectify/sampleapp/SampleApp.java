@@ -14,7 +14,13 @@ public class SampleApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ConnectifyConfiguration connectifyConfiguration = new ConnectifyConfiguration.Builder(this).build();
+
+        // Define global configuration. We'll customize the default behaviour by defining
+        // that we don't want to be notified about current network connection state after
+        // we register for network connectivity events.
+        ConnectifyConfiguration connectifyConfiguration = new ConnectifyConfiguration.Builder(this)
+                .setNotifyImmediately(false)
+                .build();
         Connectify.getInstance().init(connectifyConfiguration);
     }
 }
