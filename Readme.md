@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/zplesac/android_connectionbuddy.svg?branch=development)](https://travis-ci.org/zplesac/android_connectionbuddy)
 [![JCenter](https://img.shields.io/badge/JCenter-1.0.6-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20ConnectionBuddy-green.svg?style=true)](https://android-arsenal.com/details/1/2788)
 
 # Android ConnectionBuddy
 
@@ -13,7 +14,7 @@ Provides a simple way for handling connectivity change events.
 compile 'com.zplesac:connectionbuddy:version@aar'
 ```
 
-Versions prior than 1.0.5 were hosted on older jCenter repository, and are not available anymore due to trademark issues.
+Versions prior to 1.0.5 were hosted on older jCenter repository, and are not available anymore due to trademark issues.
 
 2) Initialize [ConnectionBuddy](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddy.java) instance in your Application class. You'll also need to provide a global configuration by defining [ConnectionBuddyConfiguration](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java) object.
 
