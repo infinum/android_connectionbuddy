@@ -1,4 +1,4 @@
-# Android NetworkInspector
+# Android ConnectionBuddy
 
 Provides a simple way for handling connectivity change events.
 

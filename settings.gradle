@@ -1,1 +1,1 @@
-include ':sampleapp', ':networkinspector'
+include ':sampleapp', ':connectionbuddy'
