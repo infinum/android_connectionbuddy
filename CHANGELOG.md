@@ -3,14 +3,14 @@ Changelog
 
 ## Version 1.0.6
 
-_2015_12_01
+_2015_12_01_
 
 * New : library has undergone rebranding process and the name has changed - it's ConnectionBuddy now. This also means that library has
         migrated to a new jCenter repository, and old one has been deleted.
 
 ## Version 1.0.5
 
-_2015_12_01
+_2015_12_01_
 
 * New : added new configuration options - you can now decide do you want to be notified about current network connection state
         immediately after the listener has been registered
