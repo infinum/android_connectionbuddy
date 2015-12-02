@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## Version 1.0.6
+
+_2015_12_01
+
+* New : library has undergone rebranding process and the name has changed - it's ConnectionBuddy now. This also means that library has
+        migrated to new jCenter repository, and old one has been deleted.
+
 ## Version 1.0.5
 
 _2015_12_01

@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 7
+        versionName "1.0.6"
     }
     buildTypes {
         release {
@@ -38,8 +38,8 @@ artifacts {
     archives coreLibJar
 }
 
-def siteUrl = 'TO-DO Update this'      // Homepage URL of the library
-def gitUrl = 'TO-DO Update this'   // Git repository URL
+def siteUrl = 'https://github.com/zplesac/android_connectionbuddy'      // Homepage URL of the library
+def gitUrl = 'https://github.com/zplesac/android_connectionbuddy.git'   // Git repository URL
 group = "com.zplesac"                                        // Maven Group ID for the artifact
 
 
@@ -80,7 +80,7 @@ install {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.0.5"
+version = "1.0.6"
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -92,7 +92,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven"
-        name = "TO-DO Update this"
+        name = "android-connectionbuddy"
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
