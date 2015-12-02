@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         jcenter()
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.0'
@@ -19,7 +20,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.zplesac.connectify.sampleapp"
+        applicationId "com.zplesac.connectionbuddy.sampleapp"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
@@ -39,5 +40,6 @@ dependencies {
     compile 'com.google.dagger:dagger:2.0'
     apt 'com.google.dagger:dagger-compiler:2.0'
     compile 'org.glassfish:javax.annotation:10.0-b28'
-    compile 'com.zplesac:connectify:1.0.4@aar'
+    compile 'com.zplesac:connectionbuddy:1.0.6@aar'
+
 }
