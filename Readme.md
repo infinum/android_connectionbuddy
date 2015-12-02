@@ -1,8 +1,4 @@
-[![Build Status](https://travis-ci.org/zplesac/android_connectify.svg?branch=development)](https://travis-ci.org/zplesac/android_connectify)
-[![JCenter](https://img.shields.io/badge/JCenter-1.0.4-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectify/view)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20Connectify-green.svg?style=true)](https://android-arsenal.com/details/1/2788)
-
-# Android Connectify
+# Android NetworkInspector
 
 Provides a simple way for handling connectivity change events.
 
@@ -11,10 +7,10 @@ Provides a simple way for handling connectivity change events.
 1) Add the library as a dependency to your ```build.gradle```
 
 ```groovy
-compile 'com.zplesac:connectify:version@aar'
+compile 'com.zplesac:networkinspector:version@aar'
 ```
 
-2) Initialize [Connectify](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectify.java) instance in your Application class. You'll also need to provide a global configuration by defining [ConnectifyConfiguration](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) object.
+2) Initialize [NetworkInspector](https://github.com/zplesac/android_networkinspector/blob/master/networkinspector/src/main/java/com/zplesac/networkinspector/NetworkInspector.java) instance in your Application class. You'll also need to provide a global configuration by defining [NetworkInspectorConfiguration](https://github.com/zplesac/android_networkinspector/blob/master/networkinspector/src/main/java/com/zplesac/networkinspector/NetworkInspectorConfiguration.java) object.
 
 ```java
 public class SampleApp extends Application {
@@ -22,15 +18,15 @@ public class SampleApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ConnectifyConfiguration connectifyConfiguration = new ConnectifyConfiguration.Builder(this).build();
-        Connectify.getInstance().init(connectifyConfiguration);
+         NetworkInspectorConfiguration networkInspectorConfiguration = new NetworkInspectorConfiguration.Builder(this).build();
+         NetworkInspector.getInstance().init(networkInspectorConfiguration);
     }
 }
- ```
+```
  
-All options in [ConnectifyConfiguration.Builder](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2FConnectifyConfiguration.java) are optional. Use only those you really want to customize.
+All options in [NetworkInspectorConfiguration.Builder](https://github.com/zplesac/android_networkinspector/blob/master/networkinspector/src/main/java/com/zplesac/networkinspector/NetworkInspectorConfiguration.java) are optional. Use only those you really want to customize.
 
-See all default values for config options [here](https://github.com/zplesac/android_connectify/blob/development/connectify/src/main/java/com/zplesac/connectifty/ConnectifyConfiguration.java).
+See all default values for config options [here](https://github.com/zplesac/android_networkinspector/blob/master/networkinspector/src/main/java/com/zplesac/networkinspector/NetworkInspectorConfiguration.java).
 
 3) Register to connectivity change events in onStart() method of your activity:
 
@@ -39,8 +35,8 @@ See all default values for config options [here](https://github.com/zplesac/andr
  @Override
  protected void onStart() {
      super.onStart();
-     Connectify.getInstance().registerForConnectifyEvents(this, this);
- }
+     NetworkInspector.getInstance().registerForConnectivityEvents(this, this);
+}
 
   ```
 
@@ -51,16 +47,16 @@ See all default values for config options [here](https://github.com/zplesac/andr
   @Override
   protected void onStop() {
       super.onStop();
-      Connectify.getInstance().unregisterFromConnectifyEvents(this);
+      NetworkInspector.getInstance().unregisterFromConnectivityEvents(this);
   }
 
   ```
 
-5) React to connectivity change events on onConnectionChange(ConnectifyEvent event) callback method:
+5) React to connectivity change events on onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
-  public void onConnectionChange(ConnectifyEvent event) {
+  public void onConnectionChange(ConnectivityEvent event) {
       if(event.getConnectionState() == ConnectionsState.CONNECTED){
           // device has active internet connection
       }
@@ -70,7 +66,7 @@ See all default values for config options [here](https://github.com/zplesac/andr
   }
   ```
 
-ConnectifyEvent also holds [ConnectifyType](https://github.com/zplesac/android_connectify/blob/development/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2Fmodels%2FConnectifyType.java) enum, which defines network connection type currently available on user's device.
+ConnectivityEvent also holds [ConnectivityType](https://github.com/zplesac/android_networkinspector/blob/master/networkinspector/src/main/java/com/zplesac/networkinspector/models/ConnectivityType.java) enum, which defines network connection type currently available on user's device.
 
 You'll also need to clear stored connectivity state for your activity/fragment
 if it was restored from saved instance state (in order to always have the latest
@@ -84,18 +80,18 @@ connectivity state). Add to you onCreate() method the  following line of code:
        ...
 
        if(savedInstanceState != null){
-           ConnectifyPreferences.clearInternetConnection(this);
+           NetworkInspectorCache.clearInternetConnection(this);
        }
    }
   ```
   
-Changelog is available [here.](https://github.com/zplesac/android_connectify/blob/development/CHANGELOG.md)  
+Changelog is available [here.](https://github.com/zplesac/android_networkinspector/blob/master/CHANGELOG.md)  
 
 ## Advanced usage with MVP pattern
 
-Connectify also provides [ConnectifyPresenter](https://github.com/zplesac/android_connectify/blob/master/connectify%2Fsrc%2Fmain%2Fjava%2Fcom%2Fzplesac%2Fconnectifty%2Fpresenters%2FConnectifyPresenter.java)
+NetworkInspector also provides [NetworkInspectorPresenter](https://github.com/zplesac/android_networkinspector/blob/master/networkinspector/src/main/java/com/zplesac/networkinspector/presenters/NetworkInspectorPresenter.java)
 which can be used as a base presenter for registering to connectivity change events.
-More detailed example can be found [here](https://github.com/zplesac/android_connectify/blob/master/sampleapp/src/main/java/com/zplesac/connectify/sampleapp/activities/MVPActivity.java).
+More detailed example can be found [here](https://github.com/zplesac/android_networkinspector/blob/master/sampleapp/src/main/java/com/zplesac/networkinspector/sampleapp/activities/MVPActivity.java).
 
 ## Contributing
 

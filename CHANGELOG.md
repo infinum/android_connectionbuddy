@@ -23,7 +23,7 @@ _2015-10-11_
 ## Version 1.0.2.
 _2015-10-31_
 
-* New: added information about signal strength to ConnectifyEvent object
+* New: added information about signal strength to ConnectivityEvent object
 * Update: events can now also be filtered by signal strength
 
 ## Version 1.0.1.

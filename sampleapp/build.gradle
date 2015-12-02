@@ -19,7 +19,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.zplesac.connectify.sampleapp"
+        applicationId "com.zplesac.networkinspector.sampleapp"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
@@ -39,6 +39,6 @@ dependencies {
     compile 'com.google.dagger:dagger:2.0'
     apt 'com.google.dagger:dagger-compiler:2.0'
     compile 'org.glassfish:javax.annotation:10.0-b28'
-    compile project(':connectify')
+    compile project(':networkinspector')
 
 }
