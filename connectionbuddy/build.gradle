@@ -1,0 +1,104 @@
+apply plugin: 'android-library'
+apply plugin: 'maven'
+apply from: '../config/quality.gradle'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 6
+        versionName "1.0.5"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+repositories {
+    mavenCentral()
+}
+
+task coreLibJar(type: Jar) {
+    from fileTree(dir: 'build/classes/release').matching { include 'co/zplesac/connectionbuddy/**' }
+}
+
+artifacts {
+    archives coreLibJar
+}
+
+def siteUrl = 'TO-DO Update this'      // Homepage URL of the library
+def gitUrl = 'TO-DO Update this'   // Git repository URL
+group = "com.zplesac"                                        // Maven Group ID for the artifact
+
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                name 'Utility library for handling connectivity change events.'
+                url siteUrl
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'zplesac'
+                        name 'Zeljko Plesac'
+                        email 'zeljko.plesac@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+// This is the library version used when deploying the artifact
+version = "1.0.5"
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "TO-DO Update this"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
+
+
+
