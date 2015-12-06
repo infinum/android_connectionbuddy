@@ -38,7 +38,8 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Returns singleton class instance.
+     * Get current library instace.
+     * @return Current library instance.
      */
     public static ConnectionBuddy getInstance() {
         if (instance == null) {
@@ -150,7 +151,8 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Unregister from connectivity events.
+     * Unregister from network connectivity events.
+     * @param object Object which we want to unregister from connectivity changes.
      */
     public void unregisterFromConnectivityEvents(Object object) {
         NetworkChangeReceiver receiver = receiversHashMap.get(object.toString());
@@ -161,7 +163,8 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Returns true if application has internet connection.
+     * Utility method which check current network connection state.
+     * @return True if we have active network connection, false otherwise.
      */
     public boolean hasNetworkConnection() {
         ConnectivityManager connectivityManager =
@@ -179,7 +182,7 @@ public class ConnectionBuddy {
 
     /**
      * Get network connection type from ConnectivityManager.
-     *
+     * @param connectivityManager Manager which is used to access current network state.
      * @return ConnectivityType which is available on current device.
      */
     public ConnectivityType getNetworkType(ConnectivityManager connectivityManager) {
@@ -203,8 +206,8 @@ public class ConnectionBuddy {
 
     /**
      * Get signal strength of current network connection.
-     *
-     * @return ConnectivityStrength for current network connection.
+     * @param connectivityManager Manager which is used to access network state.
+     * @return ConnectivityStrength object for current network connection.
      */
     public ConnectivityStrength getSignalStrength(ConnectivityManager connectivityManager) {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
