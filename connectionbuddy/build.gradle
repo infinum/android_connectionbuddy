@@ -22,20 +22,8 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-}
-
 repositories {
     mavenCentral()
-}
-
-task coreLibJar(type: Jar) {
-    from fileTree(dir: 'build/classes/release').matching { include 'co/zplesac/connectionbuddy/**' }
-}
-
-artifacts {
-    archives coreLibJar
 }
 
 def siteUrl = 'https://github.com/zplesac/android_connectionbuddy'      // Homepage URL of the library
@@ -77,6 +65,25 @@ install {
             }
         }
     }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
 }
 
 // This is the library version used when deploying the artifact
