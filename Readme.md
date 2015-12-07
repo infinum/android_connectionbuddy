@@ -95,7 +95,7 @@ Changelog is available [here.](https://github.com/zplesac/android_connectionbudd
 
 ## Advanced usage with MVP pattern
 
-ConnectionBuddy also provides [ConnectivityPresenter](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/presenters/NetworkInspectorPresenter.java)
+ConnectionBuddy also provides [ConnectivityPresenter](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/presenters/ConnectivityPresenter.java)
 which can be used as a base presenter for registering to connectivity change events.
 More detailed example can be found [here](https://github.com/zplesac/android_connectionbuddy/blob/master/sampleapp/src/main/java/com/zplesac/connectionbuddy/sampleapp/activities/MVPActivity.java).
 
