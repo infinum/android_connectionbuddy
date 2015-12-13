@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/zplesac/android_connectionbuddy.svg?branch=development)](https://travis-ci.org/zplesac/android_connectionbuddy)
-[![JCenter](https://img.shields.io/badge/JCenter-1.0.6-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
+[![JCenter](https://img.shields.io/badge/JCenter-1.0.7-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20ConnectionBuddy-green.svg?style=true)](https://android-arsenal.com/details/1/2788)
 
 # Android ConnectionBuddy
