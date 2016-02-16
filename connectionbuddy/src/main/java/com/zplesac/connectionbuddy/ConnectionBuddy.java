@@ -25,9 +25,10 @@ import java.util.HashMap;
 public class ConnectionBuddy {
 
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
 
-    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
+    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
 
     private static volatile ConnectionBuddy instance;
 
@@ -39,6 +40,7 @@ public class ConnectionBuddy {
 
     /**
      * Get current library instace.
+     *
      * @return Current library instance.
      */
     public static ConnectionBuddy getInstance() {
@@ -152,6 +154,7 @@ public class ConnectionBuddy {
 
     /**
      * Unregister from network connectivity events.
+     *
      * @param object Object which we want to unregister from connectivity changes.
      */
     public void unregisterFromConnectivityEvents(Object object) {
@@ -164,6 +167,7 @@ public class ConnectionBuddy {
 
     /**
      * Utility method which check current network connection state.
+     *
      * @return True if we have active network connection, false otherwise.
      */
     public boolean hasNetworkConnection() {
@@ -182,6 +186,7 @@ public class ConnectionBuddy {
 
     /**
      * Get network connection type from ConnectivityManager.
+     *
      * @param connectivityManager Manager which is used to access current network state.
      * @return ConnectivityType which is available on current device.
      */
@@ -206,6 +211,7 @@ public class ConnectionBuddy {
 
     /**
      * Get signal strength of current network connection.
+     *
      * @param connectivityManager Manager which is used to access network state.
      * @return ConnectivityStrength object for current network connection.
      */
@@ -291,5 +297,13 @@ public class ConnectionBuddy {
         } else {
             return ConnectivityStrength.UNDEFINED;
         }
+    }
+
+    /**
+     * Check if user is in roaming.
+     */
+    public boolean isOnRoaming() {
+        TelephonyManager telephonyManager = (TelephonyManager) configuration.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager.isNetworkRoaming();
     }
 }
