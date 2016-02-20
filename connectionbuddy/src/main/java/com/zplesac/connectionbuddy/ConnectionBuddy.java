@@ -7,7 +7,6 @@ import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import com.zplesac.connectionbuddy.models.ConnectivityType;
 import com.zplesac.connectionbuddy.receivers.NetworkChangeReceiver;
-
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -15,9 +14,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
-
 import java.util.HashMap;
-
 
 /**
  * Created by Željko Plesac on 06/10/14.
@@ -33,8 +30,6 @@ public class ConnectionBuddy {
     private static volatile ConnectionBuddy instance;
 
     private ConnectionBuddyConfiguration configuration;
-
-    private ConnectivityManager connectivityManager;
 
     protected ConnectionBuddy() {
         // empty constructor
@@ -67,8 +62,6 @@ public class ConnectionBuddy {
         }
         if (this.configuration == null) {
             this.configuration = configuration;
-            this.connectivityManager =
-                    (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         }
     }
 
@@ -172,9 +165,9 @@ public class ConnectionBuddy {
      * @return True if we have active network connection, false otherwise.
      */
     public boolean hasNetworkConnection() {
-        if (connectivityManager != null) {
-            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (configuration.getConnectivityManager() != null) {
+            NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
             return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
         } else {
@@ -188,9 +181,9 @@ public class ConnectionBuddy {
      * @return ConnectivityType which is available on current device.
      */
     public ConnectivityType getNetworkType() {
-        if (connectivityManager != null) {
-            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (configuration.getConnectivityManager() != null) {
+            NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
             if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
                 return ConnectivityType.BOTH;
@@ -212,8 +205,8 @@ public class ConnectionBuddy {
      * @return ConnectivityStrength object for current network connection.
      */
     public ConnectivityStrength getSignalStrength() {
-        if (connectivityManager != null) {
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (configuration.getConnectivityManager() != null) {
+            NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
 
             if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                 return getWifiStrength();
