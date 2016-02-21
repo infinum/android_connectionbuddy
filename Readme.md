@@ -61,7 +61,7 @@ See all default values for configuration options [here](https://github.com/zples
 
   ```
 
-5) Implement ConnectivityChangeListener interface and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
+5) Implement [ConnectivityChangeListener](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/interfaces/ConnectivityChangeListener.java) interface and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
