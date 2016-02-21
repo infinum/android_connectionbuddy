@@ -35,7 +35,7 @@ public class SampleApp extends Application {
  
 All options in [ConnectionBuddyConfiguration.Builder](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java) are optional. Use only those you really want to customize.
 
-See all default values for config options [here](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java).
+See all default values for configuration options [here](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java).
 
 3) Register to connectivity change events in onStart() method of your activity:
 
