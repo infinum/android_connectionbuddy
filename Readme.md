@@ -61,12 +61,12 @@ See all default values for config options [here](https://github.com/zplesac/andr
 
   ```
 
-5) React to connectivity change events on onConnectionChange(ConnectivityEvent event) callback method:
+5) Implement ConnectivityChangeListener interface, react to connectivity change events on onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
   public void onConnectionChange(ConnectivityEvent event) {
-      if(event.getConnectionState() == ConnectionsState.CONNECTED){
+      if(event.getState() == ConnectivityState.CONNECTED){
           // device has active internet connection
       }
       else{
@@ -75,7 +75,9 @@ See all default values for config options [here](https://github.com/zplesac/andr
   }
   ```
 
-ConnectivityEvent also holds [ConnectivityType](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityType.java) enum, which defines network connection type currently available on user's device.
+ConnectivityEvent also holds some additional information:
+* [ConnectivityType](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityType.java) enum, which defines network connection type currently available on user's device
+* [ConnectivityStrength](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityStrength.java) enum, which describes network connection signal strength
 
 You'll also need to clear stored connectivity state for your activity/fragment
 if it was restored from saved instance state (in order to always have the latest
