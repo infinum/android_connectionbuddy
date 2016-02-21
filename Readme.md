@@ -61,7 +61,7 @@ See all default values for config options [here](https://github.com/zplesac/andr
 
   ```
 
-5) Implement ConnectivityChangeListener interface, react to connectivity change events on onConnectionChange(ConnectivityEvent event) callback method:
+5) Implement ConnectivityChangeListener interface and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
