@@ -22,6 +22,11 @@
         </activity>
 
         <activity
+                android:name=".activities.ManualConfigurationActivity"
+                android:screenOrientation="portrait">
+        </activity>
+
+        <activity
                 android:name=".activities.SimpleActivity"
                 android:screenOrientation="portrait">
         </activity>
