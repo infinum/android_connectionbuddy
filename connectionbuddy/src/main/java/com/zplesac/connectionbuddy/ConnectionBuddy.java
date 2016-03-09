@@ -18,13 +18,13 @@ import android.telephony.TelephonyManager;
 
 import java.util.HashMap;
 
-
 /**
  * Created by Željko Plesac on 06/10/14.
  */
 public class ConnectionBuddy {
 
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
 
     private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
@@ -39,6 +39,7 @@ public class ConnectionBuddy {
 
     /**
      * Get current library instace.
+     *
      * @return Current library instance.
      */
     public static ConnectionBuddy getInstance() {
@@ -127,11 +128,8 @@ public class ConnectionBuddy {
      */
     public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
         if (hasConnection) {
-            ConnectivityManager connectivityManager =
-                    (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-            ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(connectivityManager),
-                    getSignalStrength(connectivityManager));
+            ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(),
+                    getSignalStrength());
 
             // check if signal strength is bellow minimum defined strength
             if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
@@ -152,6 +150,7 @@ public class ConnectionBuddy {
 
     /**
      * Unregister from network connectivity events.
+     *
      * @param object Object which we want to unregister from connectivity changes.
      */
     public void unregisterFromConnectivityEvents(Object object) {
@@ -164,41 +163,39 @@ public class ConnectionBuddy {
 
     /**
      * Utility method which check current network connection state.
+     *
      * @return True if we have active network connection, false otherwise.
      */
     public boolean hasNetworkConnection() {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if (connectivityManager != null) {
-            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-            return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
-        } else {
-            return false;
+        if (configuration.getConnectivityManager() == null) {
+            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
         }
+
+        NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
     }
 
     /**
      * Get network connection type from ConnectivityManager.
-     * @param connectivityManager Manager which is used to access current network state.
+     *
      * @return ConnectivityType which is available on current device.
      */
-    public ConnectivityType getNetworkType(ConnectivityManager connectivityManager) {
-        if (connectivityManager != null) {
-            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    public ConnectivityType getNetworkType() {
+        if (configuration.getConnectivityManager() == null) {
+            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
+        }
 
-            if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
-                return ConnectivityType.BOTH;
-            } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
-                return ConnectivityType.MOBILE;
-            } else if (networkInfoWiFi.isConnected()) {
-                return ConnectivityType.WIFI;
-            } else {
-                return ConnectivityType.NONE;
-            }
+        NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
+            return ConnectivityType.BOTH;
+        } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
+            return ConnectivityType.MOBILE;
+        } else if (networkInfoWiFi.isConnected()) {
+            return ConnectivityType.WIFI;
         } else {
             return ConnectivityType.NONE;
         }
@@ -206,20 +203,20 @@ public class ConnectionBuddy {
 
     /**
      * Get signal strength of current network connection.
-     * @param connectivityManager Manager which is used to access network state.
+     *
      * @return ConnectivityStrength object for current network connection.
      */
-    public ConnectivityStrength getSignalStrength(ConnectivityManager connectivityManager) {
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+    public ConnectivityStrength getSignalStrength() {
+        if (configuration.getConnectivityManager() == null) {
+            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
+        }
 
-        if (networkInfo != null) {
-            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                return getWifiStrength();
-            } else {
-                return getMobileConnectionStrength(networkInfo);
-            }
+        NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
+
+        if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            return getWifiStrength();
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return getMobileConnectionStrength(networkInfo);
         }
     }
 
