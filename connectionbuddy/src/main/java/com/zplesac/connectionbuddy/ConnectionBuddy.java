@@ -2,6 +2,7 @@ package com.zplesac.connectionbuddy;
 
 import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
+import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
@@ -16,6 +17,9 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 
 
@@ -27,6 +31,8 @@ public class ConnectionBuddy {
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
 
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
+
+    private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
 
     private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
 
@@ -182,6 +188,44 @@ public class ConnectionBuddy {
         } else {
             return false;
         }
+    }
+
+    public void hasNetworkConnection(NetworkRequestCheckListener listener) {
+        if(hasNetworkConnection()){
+            testNetworkRequest(listener);
+        }
+        else {
+            listener.onResponseObtained();
+        }
+    }
+
+    private void testNetworkRequest(final NetworkRequestCheckListener listener) {
+        // Send this to background thread
+        Thread bgThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    HttpURLConnection httpURLConnection = (HttpURLConnection)
+                            (new URL(NETWORK_CHECK_URL).openConnection());
+                    httpURLConnection.setRequestProperty("User-Agent", "Android");
+                    httpURLConnection.setRequestProperty("Connection", "close");
+                    httpURLConnection.setConnectTimeout(1500);
+                    httpURLConnection.connect();
+
+                    if (httpURLConnection.getResponseCode() == 204 && httpURLConnection.getContentLength() == 0) {
+                        listener.onResponseObtained();
+                    } else {
+                        listener.onNoResponse();
+                    }
+                } catch (IOException e) {
+                    listener.onNoResponse();
+                }
+            }
+        };
+
+        // by default, the new thread inherits the priority of the thread that started it
+        bgThread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        bgThread.start();
     }
 
     /**
