@@ -27,7 +27,7 @@ public class ConnectionBuddy {
 
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
 
-    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
+    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
 
     private static volatile ConnectionBuddy instance;
 
@@ -288,5 +288,13 @@ public class ConnectionBuddy {
         } else {
             return ConnectivityStrength.UNDEFINED;
         }
+    }
+
+    /**
+     * Check if user is in roaming.
+     */
+    public boolean isOnRoaming() {
+        TelephonyManager telephonyManager = (TelephonyManager) configuration.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager.isNetworkRoaming();
     }
 }
