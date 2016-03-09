@@ -3,6 +3,7 @@ package com.zplesac.connectionbuddy;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.util.LruCache;
 
 /**
@@ -27,6 +28,8 @@ public class ConnectionBuddyConfiguration {
 
     private boolean notifyImmediately;
 
+    private ConnectivityManager connectivityManager;
+
     private ConnectionBuddyConfiguration(Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
@@ -35,6 +38,7 @@ public class ConnectionBuddyConfiguration {
         this.cacheSize = builder.cacheSize;
         this.inMemoryCache = new LruCache<>(cacheSize);
         this.notifyImmediately = builder.notifyImmediately;
+        this.connectivityManager =  (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public Context getContext() {
@@ -63,6 +67,10 @@ public class ConnectionBuddyConfiguration {
 
     public boolean isNotifyImmediately() {
         return notifyImmediately;
+    }
+
+    public ConnectivityManager getConnectivityManager() {
+        return connectivityManager;
     }
 
     public static class Builder {
