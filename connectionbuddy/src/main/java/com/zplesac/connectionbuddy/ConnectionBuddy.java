@@ -15,6 +15,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.TelephonyManager;
 
 import java.io.IOException;
@@ -33,11 +35,15 @@ public class ConnectionBuddy {
 
     private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
 
+    private static final int CONNECTION_TIMEOUT = 1500;
+
     private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
 
     private static volatile ConnectionBuddy instance;
 
     private ConnectionBuddyConfiguration configuration;
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     protected ConnectionBuddy() {
         // empty constructor
@@ -60,7 +66,7 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Inintialize this instance with provided configuration.
+     * Initialize this instance with provided configuration.
      *
      * @param configuration ConnectionBuddy configuration which is used in instance.
      */
@@ -132,25 +138,45 @@ public class ConnectionBuddy {
      * @param hasConnection Current state of internet connection.
      * @param listener      Interface listener which has to be notified about current internet connection state.
      */
-    public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
+    public void notifyConnectionChange(boolean hasConnection, final ConnectivityChangeListener listener) {
         if (hasConnection) {
-            ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(),
+            final ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(),
                     getSignalStrength());
 
-            // check if signal strength is bellow minimum defined strength
-            if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
-                return;
-            } else if (event.getType() == ConnectivityType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
-                    && configuration.isRegisteredForWiFiChanges()) {
-                listener.onConnectionChange(event);
-            } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
-                listener.onConnectionChange(event);
-            } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
-                listener.onConnectionChange(event);
+            if (configuration.isNotifyOnlyReliableEvents()) {
+                testNetworkRequest(new NetworkRequestCheckListener() {
+                    @Override
+                    public void onResponseObtained() {
+                        handleActiveInternetConnection(event, listener);
+                    }
+
+                    @Override
+                    public void onNoResponse() {
+                        // No response was obtained from test network request, which means that we have active internet connection,
+                        // but user can't perform network requests (I.E. he uses mobile network and doesn't have enough credit.
+                        // Don't notify about this connection event.
+                    }
+                });
+            } else {
+                handleActiveInternetConnection(event, listener);
             }
         } else {
             listener.onConnectionChange(new ConnectivityEvent(ConnectivityState.DISCONNECTED, ConnectivityType.NONE,
                     ConnectivityStrength.UNDEFINED));
+        }
+    }
+
+    private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
+        // check if signal strength is bellow minimum defined strength
+        if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
+            return;
+        } else if (event.getType() == ConnectivityType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
+                && configuration.isRegisteredForWiFiChanges()) {
+            listener.onConnectionChange(event);
+        } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
+            listener.onConnectionChange(event);
+        } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
+            listener.onConnectionChange(event);
         }
     }
 
@@ -168,7 +194,7 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Utility method which check current network connection state.
+     * Utility method which checks current network connection state.
      *
      * @return True if we have active network connection, false otherwise.
      */
@@ -183,15 +209,26 @@ public class ConnectionBuddy {
         return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
     }
 
+    /**
+     * Utility method which checks current network connection state, but will also try to perform test network request, in order
+     * to determine if user can actually perform any network operation.
+     *
+     * @param listener Callback listener.
+     */
     public void hasNetworkConnection(NetworkRequestCheckListener listener) {
-        if(hasNetworkConnection()){
+        if (hasNetworkConnection()) {
             testNetworkRequest(listener);
-        }
-        else {
+        } else {
             listener.onResponseObtained();
         }
     }
 
+    /**
+     * Try to perform test network request to NETWORK_CHECK_URL. This way, we can determine if use is in fact capable of performing
+     * any network operations when he has active internet connection.
+     *
+     * @param listener Callback listener.
+     */
     private void testNetworkRequest(final NetworkRequestCheckListener listener) {
         // Send this to background thread
         Thread bgThread = new Thread() {
@@ -202,16 +239,32 @@ public class ConnectionBuddy {
                             (new URL(NETWORK_CHECK_URL).openConnection());
                     httpURLConnection.setRequestProperty("User-Agent", "Android");
                     httpURLConnection.setRequestProperty("Connection", "close");
-                    httpURLConnection.setConnectTimeout(1500);
+                    httpURLConnection.setConnectTimeout(CONNECTION_TIMEOUT);
                     httpURLConnection.connect();
 
-                    if (httpURLConnection.getResponseCode() == 204 && httpURLConnection.getContentLength() == 0) {
-                        listener.onResponseObtained();
+                    if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT
+                            && httpURLConnection.getContentLength() == 0) {
+                        postDataOnMainThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onResponseObtained();
+                            }
+                        });
                     } else {
-                        listener.onNoResponse();
+                        postDataOnMainThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onNoResponse();
+                            }
+                        });
                     }
                 } catch (IOException e) {
-                    listener.onNoResponse();
+                    postDataOnMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onNoResponse();
+                        }
+                    });
                 }
             }
         };
@@ -340,5 +393,14 @@ public class ConnectionBuddy {
     public boolean isOnRoaming() {
         TelephonyManager telephonyManager = (TelephonyManager) configuration.getContext().getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.isNetworkRoaming();
+    }
+
+    /**
+     * Utility method, which will post the runnable on main thread.
+     *
+     * @param runnable Runnable which is to be posted on handler.
+     */
+    private void postDataOnMainThread(Runnable runnable) {
+        handler.post(runnable);
     }
 }

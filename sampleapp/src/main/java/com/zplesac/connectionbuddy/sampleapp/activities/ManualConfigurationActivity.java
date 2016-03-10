@@ -4,12 +4,16 @@ package com.zplesac.connectionbuddy.sampleapp.activities;
 import com.zplesac.connectionbuddy.ConnectionBuddy;
 import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
+import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.sampleapp.R;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by Željko Plesac on 08/09/15.
@@ -19,6 +23,8 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
     private TextView tvTitle;
 
     private TextView tvConnectionType;
+
+    private Button buttonTestNetworkRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,10 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
 
         tvTitle = (TextView) findViewById(R.id.tv_title);
         tvConnectionType = (TextView) findViewById(R.id.tv_connection_type);
+        buttonTestNetworkRequest = (Button) findViewById(R.id.button_test_network_request);
+
+        buttonTestNetworkRequest.setVisibility(View.VISIBLE);
+        buttonTestNetworkRequest.setOnClickListener(testNetworkRequestButtonClickListener);
     }
 
     @Override
@@ -52,4 +62,21 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
         tvTitle.setText("Connection status: " + event.getState());
         tvConnectionType.setText("Connection type: " + event.getType());
     }
+
+    private View.OnClickListener testNetworkRequestButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ConnectionBuddy.getInstance().hasNetworkConnection(new NetworkRequestCheckListener() {
+                @Override
+                public void onResponseObtained() {
+                    Toast.makeText(ManualConfigurationActivity.this, "Response obtained!", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onNoResponse() {
+                    Toast.makeText(ManualConfigurationActivity.this, "No response obtained!", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    };
 }
