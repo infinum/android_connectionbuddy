@@ -166,6 +166,11 @@ public class ConnectionBuddy {
         }
     }
 
+    /**
+     * Determine if we should notify the listener about active internet connection, based on configuration values.
+     * @param event ConnectivityEvent which will be posted to listener.
+     * @param listener ConnectivityChangeListener which will receive ConnectivityEvent.
+     */
     private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
         // check if signal strength is bellow minimum defined strength
         if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
