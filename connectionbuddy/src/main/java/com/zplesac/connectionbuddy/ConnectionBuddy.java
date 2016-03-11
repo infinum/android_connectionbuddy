@@ -29,6 +29,14 @@ import java.util.HashMap;
  */
 public class ConnectionBuddy {
 
+    private static final String HEADER_KEY_USER_AGENT = "User-Agent";
+
+    private static final String HEADER_VALUE_USER_AGENT = "Android";
+
+    private static final String HEADER_KEY_CONNECTION = "Connection";
+
+    private static final String HEADER_VALUE_CONNECTION = "close";
+
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
 
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
@@ -168,7 +176,8 @@ public class ConnectionBuddy {
 
     /**
      * Determine if we should notify the listener about active internet connection, based on configuration values.
-     * @param event ConnectivityEvent which will be posted to listener.
+     *
+     * @param event    ConnectivityEvent which will be posted to listener.
      * @param listener ConnectivityChangeListener which will receive ConnectivityEvent.
      */
     private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
@@ -224,7 +233,7 @@ public class ConnectionBuddy {
         if (hasNetworkConnection()) {
             testNetworkRequest(listener);
         } else {
-            listener.onResponseObtained();
+            listener.onNoResponse();
         }
     }
 
@@ -242,8 +251,8 @@ public class ConnectionBuddy {
                 try {
                     HttpURLConnection httpURLConnection = (HttpURLConnection)
                             (new URL(NETWORK_CHECK_URL).openConnection());
-                    httpURLConnection.setRequestProperty("User-Agent", "Android");
-                    httpURLConnection.setRequestProperty("Connection", "close");
+                    httpURLConnection.setRequestProperty(HEADER_KEY_USER_AGENT, HEADER_VALUE_USER_AGENT);
+                    httpURLConnection.setRequestProperty(HEADER_KEY_CONNECTION, HEADER_VALUE_CONNECTION);
                     httpURLConnection.setConnectTimeout(CONNECTION_TIMEOUT);
                     httpURLConnection.connect();
 
