@@ -30,6 +30,8 @@ public class ConnectionBuddyConfiguration {
 
     private ConnectivityManager connectivityManager;
 
+    private boolean notifyOnlyReliableEvents;
+
     private ConnectionBuddyConfiguration(Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
@@ -38,6 +40,7 @@ public class ConnectionBuddyConfiguration {
         this.cacheSize = builder.cacheSize;
         this.inMemoryCache = new LruCache<>(cacheSize);
         this.notifyImmediately = builder.notifyImmediately;
+        this.notifyOnlyReliableEvents = builder.notifyOnlyReliableEvents;
         this.connectivityManager =  (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
@@ -71,6 +74,10 @@ public class ConnectionBuddyConfiguration {
 
     public ConnectivityManager getConnectivityManager() {
         return connectivityManager;
+    }
+
+    public boolean isNotifyOnlyReliableEvents() {
+        return notifyOnlyReliableEvents;
     }
 
     public static class Builder {
@@ -114,6 +121,13 @@ public class ConnectionBuddyConfiguration {
         private boolean notifyImmediately = true;
 
         /**
+         * Boolean value which defines do we want to use reliable network events. This means that if we have active internet connection,
+         * it will try to execute test network request to determine if user is capable of any network operation.
+         * Default is set to false.
+         */
+        private boolean notifyOnlyReliableEvents = false;
+
+        /**
          * Use 1/10th of the available memory for this memory cache.
          */
         private int cacheSize = maxMemory / memoryPart;
@@ -146,6 +160,12 @@ public class ConnectionBuddyConfiguration {
             this.notifyImmediately = shouldNotify;
             return this;
         }
+
+        public Builder notifyOnlyReliableEvents(boolean shouldNotify) {
+            this.notifyOnlyReliableEvents = shouldNotify;
+            return this;
+        }
+
 
         public ConnectionBuddyConfiguration build() {
             return new ConnectionBuddyConfiguration(this);
