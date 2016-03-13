@@ -410,8 +410,7 @@ public class ConnectionBuddy {
 
     /**
      * Callback executor,  which will post the runnable on main thread.
-     *
-     * */
+     */
     private Executor callbackExecutor = new Executor() {
 
         Handler mainHandler = new Handler(Looper.getMainLooper());
