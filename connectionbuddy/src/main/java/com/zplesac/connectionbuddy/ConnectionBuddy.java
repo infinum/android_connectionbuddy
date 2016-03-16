@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.concurrent.Executor;
 
 /**
  * Created by Željko Plesac on 06/10/14.
@@ -50,8 +51,6 @@ public class ConnectionBuddy {
     private static volatile ConnectionBuddy instance;
 
     private ConnectionBuddyConfiguration configuration;
-
-    private Handler handler = new Handler(Looper.getMainLooper());
 
     protected ConnectionBuddy() {
         // empty constructor
@@ -258,14 +257,14 @@ public class ConnectionBuddy {
 
                     if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT
                             && httpURLConnection.getContentLength() == 0) {
-                        postDataOnMainThread(new Runnable() {
+                        callbackExecutor.execute(new Runnable() {
                             @Override
                             public void run() {
                                 listener.onResponseObtained();
                             }
                         });
                     } else {
-                        postDataOnMainThread(new Runnable() {
+                        callbackExecutor.execute(new Runnable() {
                             @Override
                             public void run() {
                                 listener.onNoResponse();
@@ -273,7 +272,7 @@ public class ConnectionBuddy {
                         });
                     }
                 } catch (IOException e) {
-                    postDataOnMainThread(new Runnable() {
+                    callbackExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
                             listener.onNoResponse();
@@ -410,11 +409,15 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Utility method, which will post the runnable on main thread.
-     *
-     * @param runnable Runnable which is to be posted on handler.
+     * Callback executor,  which will post the runnable on main thread.
      */
-    private void postDataOnMainThread(Runnable runnable) {
-        handler.post(runnable);
-    }
+    private Executor callbackExecutor = new Executor() {
+
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void execute(Runnable command) {
+            mainHandler.post(command);
+        }
+    };
 }
