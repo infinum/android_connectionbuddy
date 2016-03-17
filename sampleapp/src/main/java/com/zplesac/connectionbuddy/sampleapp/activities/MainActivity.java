@@ -17,6 +17,8 @@ public class MainActivity extends Activity{
 
     private Button buttonMVPExample;
 
+    private Button buttonManualConfiguration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +26,15 @@ public class MainActivity extends Activity{
 
         buttonMVPExample = (Button) findViewById(R.id.button_mvp);
         buttonSimpleExample = (Button) findViewById(R.id.button_simple);
+        buttonManualConfiguration = (Button) findViewById(R.id.button_manual_configuration);
+
+        buttonManualConfiguration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ManualConfigurationActivity.class);
+                startActivity(intent);
+            }
+        });
 
         buttonMVPExample.setOnClickListener(new View.OnClickListener() {
             @Override

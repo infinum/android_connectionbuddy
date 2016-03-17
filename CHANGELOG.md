@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## Version 1.1.0
+
+_2016_03_17_
+
+* New: introduced ConnectionBuddyActivity for simpler configuration
+* New: added option to be notified only about reliable events
+* Update: code hygiene and refactor
+
 ## Version 1.0.6
 
 _2015_12_01_

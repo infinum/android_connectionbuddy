@@ -2,6 +2,7 @@ package com.zplesac.connectionbuddy;
 
 import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
+import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
@@ -14,20 +15,38 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.TelephonyManager;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
-
+import java.util.concurrent.Executor;
 
 /**
  * Created by Željko Plesac on 06/10/14.
  */
 public class ConnectionBuddy {
 
+    private static final String HEADER_KEY_USER_AGENT = "User-Agent";
+
+    private static final String HEADER_VALUE_USER_AGENT = "Android";
+
+    private static final String HEADER_KEY_CONNECTION = "Connection";
+
+    private static final String HEADER_VALUE_CONNECTION = "close";
+
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+
     private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
 
-    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<String, NetworkChangeReceiver>();
+    private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
+
+    private static final int CONNECTION_TIMEOUT = 1500;
+
+    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
 
     private static volatile ConnectionBuddy instance;
 
@@ -39,6 +58,7 @@ public class ConnectionBuddy {
 
     /**
      * Get current library instace.
+     *
      * @return Current library instance.
      */
     public static ConnectionBuddy getInstance() {
@@ -53,7 +73,7 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Inintialize this instance with provided configuration.
+     * Initialize this instance with provided configuration.
      *
      * @param configuration ConnectionBuddy configuration which is used in instance.
      */
@@ -125,24 +145,27 @@ public class ConnectionBuddy {
      * @param hasConnection Current state of internet connection.
      * @param listener      Interface listener which has to be notified about current internet connection state.
      */
-    public void notifyConnectionChange(boolean hasConnection, ConnectivityChangeListener listener) {
+    public void notifyConnectionChange(boolean hasConnection, final ConnectivityChangeListener listener) {
         if (hasConnection) {
-            ConnectivityManager connectivityManager =
-                    (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            final ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(),
+                    getSignalStrength());
 
-            ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(connectivityManager),
-                    getSignalStrength(connectivityManager));
+            if (configuration.isNotifyOnlyReliableEvents()) {
+                testNetworkRequest(new NetworkRequestCheckListener() {
+                    @Override
+                    public void onResponseObtained() {
+                        handleActiveInternetConnection(event, listener);
+                    }
 
-            // check if signal strength is bellow minimum defined strength
-            if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
-                return;
-            } else if (event.getType() == ConnectivityType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
-                    && configuration.isRegisteredForWiFiChanges()) {
-                listener.onConnectionChange(event);
-            } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
-                listener.onConnectionChange(event);
-            } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
-                listener.onConnectionChange(event);
+                    @Override
+                    public void onNoResponse() {
+                        // No response was obtained from test network request, which means that we have active internet connection,
+                        // but user can't perform network requests (I.E. he uses mobile network and doesn't have enough credit.
+                        // Don't notify about this connection event.
+                    }
+                });
+            } else {
+                handleActiveInternetConnection(event, listener);
             }
         } else {
             listener.onConnectionChange(new ConnectivityEvent(ConnectivityState.DISCONNECTED, ConnectivityType.NONE,
@@ -151,7 +174,28 @@ public class ConnectionBuddy {
     }
 
     /**
+     * Determine if we should notify the listener about active internet connection, based on configuration values.
+     *
+     * @param event    ConnectivityEvent which will be posted to listener.
+     * @param listener ConnectivityChangeListener which will receive ConnectivityEvent.
+     */
+    private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
+        // check if signal strength is bellow minimum defined strength
+        if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
+            return;
+        } else if (event.getType() == ConnectivityType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
+                && configuration.isRegisteredForWiFiChanges()) {
+            listener.onConnectionChange(event);
+        } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
+            listener.onConnectionChange(event);
+        } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
+            listener.onConnectionChange(event);
+        }
+    }
+
+    /**
      * Unregister from network connectivity events.
+     *
      * @param object Object which we want to unregister from connectivity changes.
      */
     public void unregisterFromConnectivityEvents(Object object) {
@@ -163,42 +207,105 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Utility method which check current network connection state.
+     * Utility method which checks current network connection state.
+     *
      * @return True if we have active network connection, false otherwise.
      */
     public boolean hasNetworkConnection() {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) configuration.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (configuration.getConnectivityManager() == null) {
+            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
+        }
 
-        if (connectivityManager != null) {
-            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-            return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
+        return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
+    }
+
+    /**
+     * Utility method which checks current network connection state, but will also try to perform test network request, in order
+     * to determine if user can actually perform any network operation.
+     *
+     * @param listener Callback listener.
+     */
+    public void hasNetworkConnection(NetworkRequestCheckListener listener) {
+        if (hasNetworkConnection()) {
+            testNetworkRequest(listener);
         } else {
-            return false;
+            listener.onNoResponse();
         }
     }
 
     /**
+     * Try to perform test network request to NETWORK_CHECK_URL. This way, we can determine if use is in fact capable of performing
+     * any network operations when he has active internet connection.
+     *
+     * @param listener Callback listener.
+     */
+    private void testNetworkRequest(final NetworkRequestCheckListener listener) {
+        // Send this to background thread
+        Thread bgThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    HttpURLConnection httpURLConnection = (HttpURLConnection)
+                            (new URL(NETWORK_CHECK_URL).openConnection());
+                    httpURLConnection.setRequestProperty(HEADER_KEY_USER_AGENT, HEADER_VALUE_USER_AGENT);
+                    httpURLConnection.setRequestProperty(HEADER_KEY_CONNECTION, HEADER_VALUE_CONNECTION);
+                    httpURLConnection.setConnectTimeout(CONNECTION_TIMEOUT);
+                    httpURLConnection.connect();
+
+                    if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT
+                            && httpURLConnection.getContentLength() == 0) {
+                        callbackExecutor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onResponseObtained();
+                            }
+                        });
+                    } else {
+                        callbackExecutor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onNoResponse();
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    callbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onNoResponse();
+                        }
+                    });
+                }
+            }
+        };
+
+        // by default, the new thread inherits the priority of the thread that started it
+        bgThread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        bgThread.start();
+    }
+
+    /**
      * Get network connection type from ConnectivityManager.
-     * @param connectivityManager Manager which is used to access current network state.
+     *
      * @return ConnectivityType which is available on current device.
      */
-    public ConnectivityType getNetworkType(ConnectivityManager connectivityManager) {
-        if (connectivityManager != null) {
-            NetworkInfo networkInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo networkInfoWiFi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    public ConnectivityType getNetworkType() {
+        if (configuration.getConnectivityManager() == null) {
+            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
+        }
 
-            if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
-                return ConnectivityType.BOTH;
-            } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
-                return ConnectivityType.MOBILE;
-            } else if (networkInfoWiFi.isConnected()) {
-                return ConnectivityType.WIFI;
-            } else {
-                return ConnectivityType.NONE;
-            }
+        NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
+            return ConnectivityType.BOTH;
+        } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
+            return ConnectivityType.MOBILE;
+        } else if (networkInfoWiFi.isConnected()) {
+            return ConnectivityType.WIFI;
         } else {
             return ConnectivityType.NONE;
         }
@@ -206,20 +313,20 @@ public class ConnectionBuddy {
 
     /**
      * Get signal strength of current network connection.
-     * @param connectivityManager Manager which is used to access network state.
+     *
      * @return ConnectivityStrength object for current network connection.
      */
-    public ConnectivityStrength getSignalStrength(ConnectivityManager connectivityManager) {
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+    public ConnectivityStrength getSignalStrength() {
+        if (configuration.getConnectivityManager() == null) {
+            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
+        }
 
-        if (networkInfo != null) {
-            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                return getWifiStrength();
-            } else {
-                return getMobileConnectionStrength(networkInfo);
-            }
+        NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
+
+        if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            return getWifiStrength();
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return getMobileConnectionStrength(networkInfo);
         }
     }
 
@@ -292,4 +399,25 @@ public class ConnectionBuddy {
             return ConnectivityStrength.UNDEFINED;
         }
     }
+
+    /**
+     * Check if user is in roaming.
+     */
+    public boolean isOnRoaming() {
+        TelephonyManager telephonyManager = (TelephonyManager) configuration.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager.isNetworkRoaming();
+    }
+
+    /**
+     * Callback executor,  which will post the runnable on main thread.
+     */
+    private Executor callbackExecutor = new Executor() {
+
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void execute(Runnable command) {
+            mainHandler.post(command);
+        }
+    };
 }
