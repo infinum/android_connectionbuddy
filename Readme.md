@@ -36,7 +36,7 @@ public class SampleApp extends Application {
 All options in [ConnectionBuddyConfiguration.Builder](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java) are optional. Use only those you really want to customize.
 
 
-3) Your activites (or BaseActivity) should extend [ConnectionBuddyActivity](https://github.com/zplesac/android_connectionbuddy/blob/development/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/activities/ConnectionBuddyActivity.java), and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
+3) Make your activites (or BaseActivity) extend [ConnectionBuddyActivity](https://github.com/zplesac/android_connectionbuddy/blob/development/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/activities/ConnectionBuddyActivity.java), and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
@@ -111,7 +111,7 @@ Boolean value which defines should we register for mobile network changes. Defau
 
 #### 3. setMinimumSignalStrength(ConnectivityStrength minimumSignalStrength)
 
-Define minimum signal strength for which we should call callback listener. Default is set to ConnectivityStrength.POOR.
+Define minimum signal strength for which callback listener should be notified. Default is set to ConnectivityStrength.POOR.
 
 #### 4. setNotifyImmediately(boolean shouldNotify)
 
@@ -119,7 +119,7 @@ Boolean value which defines do we want to notify the listener about current netw
 
 #### 5. notifyOnlyReliableEvents(boolean shouldNotify)
 
-Boolean value which defines do we want to use reliable network events. This means that if we have active internet connection, it will try to execute test network request to determine if user is capable of any network operation. Default is set to false.
+Boolean value which defines do we want to use reliable network events. This means that if we have active internet connection, it will try to execute test network request to determine if a user is capable of any network operation. Default is set to false.
   
 ## Advanced usage with MVP pattern
 
