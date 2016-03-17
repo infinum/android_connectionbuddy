@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply from: '../config/quality.gradle'
 apply plugin: 'com.github.dcendents.android-maven'
@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 8
-        versionName "1.0.7"
+        versionCode 9
+        versionName "1.1.0"
     }
     buildTypes {
         release {
@@ -87,7 +87,7 @@ artifacts {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.0.7"
+version = "1.1.0"
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
