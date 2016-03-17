@@ -35,33 +35,8 @@ public class SampleApp extends Application {
  
 All options in [ConnectionBuddyConfiguration.Builder](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java) are optional. Use only those you really want to customize.
 
-See all default values for configuration options [here](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/ConnectionBuddyConfiguration.java).
 
-3) Register to connectivity change events in onStart() method of your activity:
-
-```java
-
- @Override
- protected void onStart() {
-     super.onStart();
-     ConnectionBuddy.getInstance().registerForConnectivityEvents(this, this);
-}
-
-  ```
-
-4) Unregister from connectivity change events in onStop() method of your activity:
-
-```java
-
-  @Override
-  protected void onStop() {
-      super.onStop();
-      ConnectionBuddy.getInstance().unregisterFromConnectivityEvents(this);
-  }
-
-  ```
-
-5) Implement [ConnectivityChangeListener](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/interfaces/ConnectivityChangeListener.java) interface and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
+3) Your activites (or BaseActivity) should extend [ConnectionBuddyActivity](https://github.com/zplesac/android_connectionbuddy/blob/development/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/activities/ConnectionBuddyActivity.java), and react to connectivity change events in onConnectionChange(ConnectivityEvent event) callback method:
 
 ```java
   @Override
@@ -73,15 +48,35 @@ See all default values for configuration options [here](https://github.com/zples
          // there is no active internet connection on this device
       }
   }
-  ```
+```
 
-ConnectivityEvent also holds some additional information:
-* [ConnectivityType](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityType.java) enum, which defines network connection type currently available on user's device
-* [ConnectivityStrength](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityStrength.java) enum, which describes network connection signal strength
+If you don't want to extend [ConnectionBuddyActivity](https://github.com/zplesac/android_connectionbuddy/blob/development/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/activities/ConnectionBuddyActivity.java), you can use manual configuration:
 
-You'll also need to clear stored connectivity state for your activity/fragment
-if it was restored from saved instance state (in order to always have the latest
-connectivity state). Add to you onCreate() method the  following line of code:
+* Register to connectivity change events in onStart() method of your activity:
+
+```java
+
+ @Override
+ protected void onStart() {
+     super.onStart();
+     ConnectionBuddy.getInstance().registerForConnectivityEvents(this, this);
+}
+
+```
+
+* Unregister from connectivity change events in onStop() method of your activity:
+
+```java
+
+  @Override
+  protected void onStop() {
+      super.onStop();
+      ConnectionBuddy.getInstance().unregisterFromConnectivityEvents(this);
+  }
+
+```
+
+*  Clear stored connectivity state for your activity/fragment if it was restored from saved instance state (in order to always have the latestconnectivity state). Add to you onCreate() method the  following line of code:
 
 ```java
   @Override
@@ -94,15 +89,47 @@ connectivity state). Add to you onCreate() method the  following line of code:
            ConnectionBuddyCache.clearInternetConnection(this);
        }
    }
-  ```
-  
-Changelog is available [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)  
+```
 
+* Implement [ConnectivityChangeListener](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/interfaces/ConnectivityChangeListener.java) interface and react to connectivity change events.
+
+ConnectivityEvent also holds some additional information:
+* [ConnectivityType](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityType.java) enum, which defines network connection type currently available on user's device
+* [ConnectivityStrength](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityStrength.java) enum, which describes network connection signal strength
+
+## ConnectionBuddy configuration
+
+You can customize default ConnectionBuddy configuration, by providing your own configuration. Following values can be changed:
+
+#### 1. registerForWiFiChanges(boolean shouldRegister)
+
+Boolean value which defines should we register for WiFi network changes. Default value is set to true.
+
+#### 2. registerForMobileNetworkChanges(boolean shouldRegister)
+
+Boolean value which defines should we register for mobile network changes. Default value is set to true.
+
+#### 3. setMinimumSignalStrength(ConnectivityStrength minimumSignalStrength)
+
+Define minimum signal strength for which we should call callback listener. Default is set to ConnectivityStrength.POOR.
+
+#### 4. setNotifyImmediately(boolean shouldNotify)
+
+Boolean value which defines do we want to notify the listener about current network connection state immediately after the listener has been registered. Default is set to true.
+
+#### 5. notifyOnlyReliableEvents(boolean shouldNotify)
+
+Boolean value which defines do we want to use reliable network events. This means that if we have active internet connection, it will try to execute test network request to determine if user is capable of any network operation. Default is set to false.
+  
 ## Advanced usage with MVP pattern
 
 ConnectionBuddy also provides [ConnectivityPresenter](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/presenters/ConnectivityPresenter.java)
 which can be used as a base presenter for registering to connectivity change events.
 More detailed example can be found [here](https://github.com/zplesac/android_connectionbuddy/blob/master/sampleapp/src/main/java/com/zplesac/connectionbuddy/sampleapp/activities/MVPActivity.java).
+
+## Changelog
+
+Changelog is available [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)  
 
 ## Contributing
 
