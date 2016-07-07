@@ -183,9 +183,6 @@ public class ConnectionBuddy {
         // check if signal strength is bellow minimum defined strength
         if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
             return;
-        } else if (event.getType() == ConnectivityType.BOTH && configuration.isRegisteredForMobileNetworkChanges()
-                && configuration.isRegisteredForWiFiChanges()) {
-            listener.onConnectionChange(event);
         } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
             listener.onConnectionChange(event);
         } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
@@ -297,15 +294,17 @@ public class ConnectionBuddy {
             throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
         }
 
-        NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
 
-        if (networkInfoMobile != null && networkInfoMobile.isConnected() && networkInfoWiFi.isConnected()) {
-            return ConnectivityType.BOTH;
-        } else if (networkInfoMobile != null && networkInfoMobile.isConnected()) {
-            return ConnectivityType.MOBILE;
-        } else if (networkInfoWiFi.isConnected()) {
-            return ConnectivityType.WIFI;
+        if (networkInfo != null && networkInfo.isConnected()) {
+            switch (networkInfo.getType()) {
+                case ConnectivityManager.TYPE_WIFI:
+                    return ConnectivityType.WIFI;
+                case ConnectivityManager.TYPE_MOBILE:
+                    return ConnectivityType.MOBILE;
+                default:
+                    return ConnectivityType.UNDEFINED;
+            }
         } else {
             return ConnectivityType.NONE;
         }
