@@ -15,7 +15,8 @@ android:
     - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
-
+  licenses:
+      - '.+'
 script:
    - ./gradlew assembleDebug -PdisablePreDex
    - ./gradlew lint checkstyle findbugs pmd -PdisablePreDex
