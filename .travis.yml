@@ -1,19 +1,20 @@
 language: android
 
+# use container based build infrastructure
+sudo: false
+
 jdk:
  - oraclejdk8
 
 android:
-    components:
-        - platform-tools
-        - tools
-        - build-tools-23.0.3
-        - android-23
-        - extra-android-m2repository
-        - extra-google-m2repository
-before_install:
-
-  - echo "sdk.dir=$ANDROID_HOME" > local.properties
+  components:
+    - platform-tools
+    - tools
+    - build-tools-23.0.3
+    - android-24
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - extra-android-m2repository
 
 script:
    - ./gradlew assembleDebug -PdisablePreDex
