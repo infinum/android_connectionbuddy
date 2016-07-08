@@ -89,10 +89,10 @@ artifacts {
 // This is the library version used when deploying the artifact
 version = "1.1.0"
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
 bintray {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
 
