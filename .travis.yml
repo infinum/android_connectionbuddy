@@ -7,11 +7,13 @@ android:
   components:
     - platform-tools
     - tools
-    - android-22
-    - build-tools-22.0.1
+    - android-23
+    - build-tools-23.0.1
     - extra-google-m2repository
     - extra-android-m2repository
-
+ licenses:
+    - 'android-sdk-preview-license-52d11cd2'
+    - 'android-sdk-license-.+'
 before_install:
 
   - echo "sdk.dir=$ANDROID_HOME" > local.properties
