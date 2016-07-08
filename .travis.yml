@@ -4,16 +4,13 @@ jdk:
  - oraclejdk8
 
 android:
-  components:
-    - platform-tools
-    - tools
-    - android-23
-    - build-tools-23.0.1
-    - extra-google-m2repository
-    - extra-android-m2repository
- licenses:
-    - 'android-sdk-preview-license-52d11cd2'
-    - 'android-sdk-license-.+'
+    components:
+        - platform-tools
+        - tools
+        - build-tools-23.0.3
+        - android-23
+        - extra-android-m2repository
+        - extra-google-m2repository
 before_install:
 
   - echo "sdk.dir=$ANDROID_HOME" > local.properties
