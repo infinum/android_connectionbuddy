@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -46,7 +47,7 @@ public class ConnectionBuddy {
 
     private static final int CONNECTION_TIMEOUT = 1500;
 
-    private static HashMap<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
+    private static Map<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
 
     private static volatile ConnectionBuddy instance;
 
