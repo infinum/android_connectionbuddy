@@ -3,7 +3,7 @@ Changelog
 
 ## Version 1.1.0
 
-_2016_03_17_
+_2016-03-17_
 
 * New: introduced ConnectionBuddyActivity for simpler configuration
 * New: added option to be notified only about reliable events
@@ -11,14 +11,14 @@ _2016_03_17_
 
 ## Version 1.0.6
 
-_2015_12_01_
+_2015-12-01_
 
 * New: library has undergone rebranding process and the name has changed - it's ConnectionBuddy now. This also means that library has
         migrated to a new jCenter repository, and the old one has been deleted.
 
 ## Version 1.0.5
 
-_2015_12_01_
+_2015-12-01_
 
 * New: added new configuration options - you can now decide do you want to be notified about current network connection state
         immediately after the listener has been registered
