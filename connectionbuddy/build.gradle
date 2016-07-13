@@ -86,7 +86,7 @@ artifacts {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.1.0"
+version = "1.1.1"
 
 bintray {
     Properties properties = new Properties()
