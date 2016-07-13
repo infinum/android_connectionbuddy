@@ -11,7 +11,7 @@ public enum ConnectivityType {
 
     MOBILE,
 
-    BOTH,
+    NONE,
 
-    NONE
+    UNDEFINED
 }
