@@ -5,14 +5,14 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 22
-        versionCode 9
-        versionName "1.1.0"
+        targetSdkVersion 23
+        versionCode 10
+        versionName "1.1.1"
     }
     buildTypes {
         release {
@@ -29,7 +29,6 @@ repositories {
 def siteUrl = 'https://github.com/zplesac/android_connectionbuddy'      // Homepage URL of the library
 def gitUrl = 'https://github.com/zplesac/android_connectionbuddy.git'   // Git repository URL
 group = "com.zplesac"                                        // Maven Group ID for the artifact
-
 
 install {
     repositories.mavenInstaller {
@@ -87,23 +86,24 @@ artifacts {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.1.0"
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+version = "1.1.1"
 
 bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
+    Properties properties = new Properties()
+    if (file('local.properties').exists()) {
+        properties.load(new FileInputStream(file('local.properties')))
+        user = properties['bintray.user']
+        key = properties['bintray.apikey']
 
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "android-connectionbuddy"
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
+        configurations = ['archives']
+        pkg {
+            repo = "maven"
+            name = "android-connectionbuddy"
+            websiteUrl = siteUrl
+            vcsUrl = gitUrl
+            licenses = ["Apache-2.0"]
+            publish = true
+        }
     }
 }
 

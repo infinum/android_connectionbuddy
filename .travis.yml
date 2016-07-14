@@ -1,21 +1,22 @@
 language: android
 
+# use container based build infrastructure
+sudo: false
+
 jdk:
- - oraclejdk7
+ - oraclejdk8
 
 android:
   components:
     - platform-tools
     - tools
-    - android-22
-    - build-tools-22.0.1
+    - build-tools-23.0.3
+    - android-23
+    - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
-
-before_install:
-
-  - echo "sdk.dir=$ANDROID_HOME" > local.properties
-
+  licenses:
+      - '.+'
 script:
    - ./gradlew assembleDebug -PdisablePreDex
    - ./gradlew lint checkstyle findbugs pmd -PdisablePreDex
