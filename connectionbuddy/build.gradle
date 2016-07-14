@@ -88,22 +88,21 @@ artifacts {
 // This is the library version used when deploying the artifact
 version = "1.1.1"
 
-bintray {
-    Properties properties = new Properties()
-    if (file('local.properties').exists()) {
-        properties.load(new FileInputStream(file('local.properties')))
-        user = properties['bintray.user']
-        key = properties['bintray.apikey']
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-        configurations = ['archives']
-        pkg {
-            repo = "maven"
-            name = "android-connectionbuddy"
-            websiteUrl = siteUrl
-            vcsUrl = gitUrl
-            licenses = ["Apache-2.0"]
-            publish = true
-        }
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "android-connectionbuddy"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
     }
 }
 
