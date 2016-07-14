@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## Version 1.1.1
+
+_2016-07-14_
+
+* Update: bumped SDK version to 23
+* Update: removed ConnectivityType.BOTH, as device can have only one ConnectivityType at the moment
+* Update: code hygiene and refactor
+
 ## Version 1.1.0
 
 _2016-03-17_
