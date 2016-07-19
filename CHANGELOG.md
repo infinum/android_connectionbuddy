@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Version 1.1.2
+
+_2016-07-19_
+
+* Fixes: fixed null pointer exceptions in getting signal strength
+
 ## Version 1.1.1
 
 _2016-07-14_
