@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 10
-        versionName "1.1.1"
+        versionCode 11
+        versionName "1.1.2"
     }
     buildTypes {
         release {
@@ -86,23 +86,26 @@ artifacts {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.1.1"
+version = "1.1.2"
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
+    if (project.rootProject.file('local.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        user = properties.getProperty("bintray.user")
+        key = properties.getProperty("bintray.apikey")
 
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "android-connectionbuddy"
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
+        configurations = ['archives']
+        pkg {
+            repo = "maven"
+            name = "android-connectionbuddy"
+            websiteUrl = siteUrl
+            vcsUrl = gitUrl
+            licenses = ["Apache-2.0"]
+            publish = true
+        }
+
     }
 }
 

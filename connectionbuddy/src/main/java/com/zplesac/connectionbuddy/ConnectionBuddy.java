@@ -323,10 +323,14 @@ public class ConnectionBuddy {
 
         NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
 
-        if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-            return getWifiStrength();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                return getWifiStrength();
+            } else {
+                return getMobileConnectionStrength(networkInfo);
+            }
         } else {
-            return getMobileConnectionStrength(networkInfo);
+            return ConnectivityStrength.UNDEFINED;
         }
     }
 
