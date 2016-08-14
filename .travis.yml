@@ -19,7 +19,7 @@ android:
       - '.+'
 script:
    - ./gradlew assembleDebug -PdisablePreDex
-   - ./gradlew lint checkstyle findbugs pmd -PdisablePreDex
+   - ./gradlew --stacktrace lint checkstyle findbugs pmd -PdisablePreDex
 
 cache:
   directories:
