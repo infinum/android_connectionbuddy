@@ -214,10 +214,9 @@ public class ConnectionBuddy {
             throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
         }
 
-        NetworkInfo networkInfoMobile = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        NetworkInfo networkInfoWiFi = configuration.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
 
-        return networkInfoMobile != null && networkInfoMobile.isConnected() || networkInfoWiFi.isConnected();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     /**
@@ -405,11 +404,12 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Check if user is in roaming.
+     * Checks if user is on is in roaming.
+     * @return boolean variable, which describes if user is in roaming.
      */
     public boolean isOnRoaming() {
-        TelephonyManager telephonyManager = (TelephonyManager) configuration.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-        return telephonyManager.isNetworkRoaming();
+        NetworkInfo networkInfo = getConfiguration().getConnectivityManager().getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isRoaming();
     }
 
     /**
