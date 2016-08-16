@@ -10,7 +10,7 @@ android:
   components:
     - platform-tools
     - tools
-    - build-tools-24.0.0
+    - build-tools-24.0.1
     - android-24
     - extra-google-google_play_services
     - extra-google-m2repository
@@ -19,7 +19,7 @@ android:
       - '.+'
 script:
    - ./gradlew assembleDebug -PdisablePreDex
-   - ./gradlew --stacktrace lint checkstyle findbugs pmd -PdisablePreDex
+   - ./gradlew lint checkstyle findbugs pmd -PdisablePreDex
 
 cache:
   directories:
