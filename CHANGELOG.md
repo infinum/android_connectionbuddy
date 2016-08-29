@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Version 1.2.0
+
+_2016-09-30
+
+* Update: Library is now backported to API level 8.
+
 ## Version 1.1.2
 
 _2016-07-19_

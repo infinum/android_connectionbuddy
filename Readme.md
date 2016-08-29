@@ -127,6 +127,10 @@ ConnectionBuddy also provides [ConnectivityPresenter](https://github.com/zplesac
 which can be used as a base presenter for registering to connectivity change events.
 A more detailed example can be found [here](https://github.com/zplesac/android_connectionbuddy/blob/master/sampleapp/src/main/java/com/zplesac/connectionbuddy/sampleapp/activities/MVPActivity.java).
 
+## Backward compatibility
+
+As of version 1.2.0, ConnectionBuddy can be used with your apps on devices all the way back to Android 2.3 (API 10). It should also work on devices with API 8-9, but that's not tested.
+
 ## Changelog
 
 Changelog is available [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)  
