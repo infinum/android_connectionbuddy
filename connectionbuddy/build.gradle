@@ -9,16 +9,29 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 8
         targetSdkVersion 23
-        versionCode 11
-        versionName "1.1.2"
+        versionCode 12
+        versionName "1.2.0"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    dependencies {
+        compile "com.android.support:support-v4:23.2.1"
+    }
+
+    lintOptions {
+        // if true, stop the gradle build if errors are found
+        abortOnError true
+        // if true, don't include source code lines in the error output
+        noLines false
+        // if true, show all locations for an error, do not truncate lists, etc.
+        showAll true
     }
 }
 
@@ -86,7 +99,7 @@ artifacts {
 }
 
 // This is the library version used when deploying the artifact
-version = "1.1.2"
+version = "1.2.0"
 
 
 bintray {

@@ -4,7 +4,7 @@ import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.util.LruCache;
+import android.support.v4.util.LruCache;
 
 /**
  * Created by Željko Plesac on 09/10/15.
