@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/zplesac/android_connectionbuddy.svg?branch=development)](https://travis-ci.org/zplesac/android_connectionbuddy)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![JCenter](https://img.shields.io/badge/JCenter-1.1.2-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
-[![Method count](https://img.shields.io/badge/Methods count-155-e91e63.svg)](http://www.methodscount.com/?lib=com.zplesac%3Aconnectionbuddy%3A1.1.1)
+[![JCenter](https://img.shields.io/badge/JCenter-1.2.0-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
+[![Method count](https://img.shields.io/badge/Methods count-155-e91e63.svg)](http://www.methodscount.com/?lib=com.zplesac%3Aconnectionbuddy%3A1.2.0)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20ConnectionBuddy-green.svg?style=true)](https://android-arsenal.com/details/1/2788)
 
 
