@@ -6,7 +6,7 @@ apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.0"
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
         minSdkVersion 8
@@ -22,7 +22,7 @@ android {
     }
 
     dependencies {
-        compile "com.android.support:support-v4:24.0.0"
+        compile "com.android.support:support-v4:24.2.1"
     }
 
     lintOptions {

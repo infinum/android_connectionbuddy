@@ -17,6 +17,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Get current library instace.
+     * Get current library instance.
      *
      * @return Current library instance.
      */
@@ -421,7 +422,7 @@ public class ConnectionBuddy {
         Handler mainHandler = new Handler(Looper.getMainLooper());
 
         @Override
-        public void execute(Runnable command) {
+        public void execute(@NonNull Runnable command) {
             mainHandler.post(command);
         }
     };

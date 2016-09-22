@@ -7,15 +7,15 @@
 
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:id="@+id/button_simple"
-            android:text="Simple example"/>
+            android:text="@string/simple_example"/>
 
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:id="@+id/button_manual_configuration"
-            android:text="Manual configuration"/>
+            android:text="@string/manual_configuration"/>
 
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:id="@+id/button_mvp"
-            android:text="MVP example"/>
+            android:text="@string/mvp_example"/>
 </LinearLayout>

@@ -18,6 +18,6 @@
             android:id="@+id/button_test_network_request"
             android:layout_marginTop="10dp"
             android:visibility="gone"
-            android:text="Test network request"/>
+            android:text="@string/test_network_request"/>
 
 </LinearLayout>
