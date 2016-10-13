@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SampleApp</string>
+    <string name="simple_example">Simple example</string>
+    <string name="manual_configuration">Manual configuration</string>
+    <string name="mvp_example">MVP example</string>
+    <string name="test_network_request">Test network reques</string>
 </resources>
