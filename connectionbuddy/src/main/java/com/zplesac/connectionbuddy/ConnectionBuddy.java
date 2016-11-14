@@ -3,27 +3,33 @@ package com.zplesac.connectionbuddy;
 import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
+import com.zplesac.connectionbuddy.interfaces.WifiConnectivityListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import com.zplesac.connectionbuddy.models.ConnectivityType;
 import com.zplesac.connectionbuddy.receivers.NetworkChangeReceiver;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresPermission;
 import android.telephony.TelephonyManager;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -412,6 +418,60 @@ public class ConnectionBuddy {
     public boolean isOnRoaming() {
         NetworkInfo networkInfo = getConfiguration().getConnectivityManager().getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isRoaming();
+    }
+
+    /**
+     * Connects to the WiFi configuration with given {@param networkSsid} as network configuration's SSID and {@param networkPassword} as
+     * network configurations's password.
+     * {@link android.Manifest.permission#CHANGE_WIFI_STATE} permission is required in order to change WiFiManager state.
+     *
+     * @param networkSsid     WifiConfiguration network SSID.
+     * @param networkPassword WifiConfiguration network password.
+     */
+    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
+    public void connectToWifiConfiguration(String networkSsid, String networkPassword) {
+        connectToWifiConfiguration(networkSsid, networkPassword, null);
+    }
+
+    /**
+     * Connects to the WiFi configuration with given {@param networkSsid} as network configuration's SSID and {@param networkPassword} as
+     * network configurations's password and optionaly notifies about the result if {@param listener} has defined value.
+     * {@link android.Manifest.permission#CHANGE_WIFI_STATE} permission is required in order to change WiFiManager state.
+     *
+     * @param networkSsid     WifiConfiguration network SSID.
+     * @param networkPassword WifiConfiguration network password.
+     * @param listener        Callback listener.
+     */
+    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
+    public void connectToWifiConfiguration(String networkSsid, String networkPassword, @Nullable WifiConnectivityListener listener) {
+        WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getSystemService(Context.WIFI_SERVICE);
+        if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
+        }
+
+        WifiConfiguration wifiConfiguration = new WifiConfiguration();
+        wifiConfiguration.SSID = "\"" + networkSsid + "\"";
+        wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
+
+        wifiManager.addNetwork(wifiConfiguration);
+        List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
+
+        for (WifiConfiguration configuration : configuredNetworks) {
+            if (configuration.SSID != null && configuration.SSID.equals("\"" + networkSsid + "\"")) {
+                wifiManager.disconnect();
+                wifiManager.enableNetwork(configuration.networkId, true);
+                wifiManager.reconnect();
+                if (listener != null) {
+                    listener.onConnected();
+                    return;
+                }
+            }
+        }
+
+        // there is no wifi configuration with given data in list of configured networks.
+        if (listener != null) {
+            listener.onNotFound();
+        }
     }
 
     /**
