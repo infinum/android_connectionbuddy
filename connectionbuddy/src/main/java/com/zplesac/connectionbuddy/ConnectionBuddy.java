@@ -10,18 +10,18 @@ import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import com.zplesac.connectionbuddy.models.ConnectivityType;
 import com.zplesac.connectionbuddy.receivers.NetworkChangeReceiver;
 
-import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.telephony.TelephonyManager;
 
@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 /**
  * Created by Željko Plesac on 06/10/14.
@@ -54,7 +57,9 @@ public class ConnectionBuddy {
 
     private static final int CONNECTION_TIMEOUT = 1500;
 
-    private static Map<String, NetworkChangeReceiver> receiversHashMap = new HashMap<>();
+    private static Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
+
+    private Map<String, WifiScanResultReceiver> wifiScanResultReceiverMap = new HashMap<>();
 
     private static volatile ConnectionBuddy instance;
 
@@ -140,8 +145,8 @@ public class ConnectionBuddy {
 
         NetworkChangeReceiver receiver = new NetworkChangeReceiver(object, listener);
 
-        if (!receiversHashMap.containsKey(object.toString())) {
-            receiversHashMap.put(object.toString(), receiver);
+        if (!networkReceiversHashMap.containsKey(object.toString())) {
+            networkReceiversHashMap.put(object.toString(), receiver);
         }
 
         configuration.getContext().registerReceiver(receiver, filter);
@@ -204,11 +209,16 @@ public class ConnectionBuddy {
      * @param object Object which we want to unregister from connectivity changes.
      */
     public void unregisterFromConnectivityEvents(Object object) {
-        NetworkChangeReceiver receiver = receiversHashMap.get(object.toString());
-        configuration.getContext().unregisterReceiver(receiver);
+        NetworkChangeReceiver networkChangeReceiver = networkReceiversHashMap.get(object.toString());
+        configuration.getContext().unregisterReceiver(networkChangeReceiver);
+        networkReceiversHashMap.remove(object.toString());
 
-        receiversHashMap.remove(object.toString());
-        receiver = null;
+        WifiScanResultReceiver wifiScanResultReceiver = wifiScanResultReceiverMap.get(object.toString());
+        configuration.getContext().unregisterReceiver(wifiScanResultReceiver);
+        wifiScanResultReceiverMap.remove(object.toString());
+
+        networkChangeReceiver = null;
+        wifiScanResultReceiver = null;
     }
 
     /**
@@ -344,7 +354,7 @@ public class ConnectionBuddy {
      * Get WiFi signal strength.
      */
     private ConnectivityStrength getWifiStrength() {
-        WifiManager wifiManager = (WifiManager) configuration.getContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) configuration.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 
         if (wifiInfo != null) {
@@ -423,28 +433,32 @@ public class ConnectionBuddy {
     /**
      * Connects to the WiFi configuration with given {@param networkSsid} as network configuration's SSID and {@param networkPassword} as
      * network configurations's password.
-     * {@link android.Manifest.permission#CHANGE_WIFI_STATE} permission is required in order to change WiFiManager state.
+     * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION} and {@link android.Manifest.permission#ACCESS_FINE_LOCATION} permissions
+     * are required in order to initiate new access point scan.
      *
      * @param networkSsid     WifiConfiguration network SSID.
      * @param networkPassword WifiConfiguration network password.
      */
-    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
-    public void connectToWifiConfiguration(String networkSsid, String networkPassword) {
-        connectToWifiConfiguration(networkSsid, networkPassword, null);
+    @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    public void connectToWifiConfiguration(Object object, String networkSsid, String networkPassword) {
+        connectToWifiConfiguration(object, networkSsid, networkPassword, null);
     }
 
     /**
      * Connects to the WiFi configuration with given {@param networkSsid} as network configuration's SSID and {@param networkPassword} as
      * network configurations's password and optionaly notifies about the result if {@param listener} has defined value.
-     * {@link android.Manifest.permission#CHANGE_WIFI_STATE} permission is required in order to change WiFiManager state.
+     * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION} and {@link android.Manifest.permission#ACCESS_FINE_LOCATION} permissions
+     * are required in order to initiate new access point scan.
      *
      * @param networkSsid     WifiConfiguration network SSID.
      * @param networkPassword WifiConfiguration network password.
      * @param listener        Callback listener.
      */
-    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
-    public void connectToWifiConfiguration(String networkSsid, String networkPassword, @Nullable WifiConnectivityListener listener) {
-        WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getSystemService(Context.WIFI_SERVICE);
+    @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    public void connectToWifiConfiguration(Object object, String networkSsid, String networkPassword,
+            WifiConnectivityListener listener) {
+        WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
+                .getSystemService(Context.WIFI_SERVICE);
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
         }
@@ -456,21 +470,93 @@ public class ConnectionBuddy {
         wifiManager.addNetwork(wifiConfiguration);
         List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
 
+        boolean wasFound = false;
+
         for (WifiConfiguration configuration : configuredNetworks) {
             if (configuration.SSID != null && configuration.SSID.equals("\"" + networkSsid + "\"")) {
                 wifiManager.disconnect();
                 wifiManager.enableNetwork(configuration.networkId, true);
-                wifiManager.reconnect();
+                boolean result = wifiManager.reconnect();
                 if (listener != null) {
-                    listener.onConnected();
-                    return;
+                    if (result) {
+                        listener.onConnected();
+                    } else {
+                        listener.onError();
+                    }
+
+                    wasFound = true;
+                    break;
                 }
             }
         }
 
-        // there is no wifi configuration with given data in list of configured networks.
-        if (listener != null) {
+        if (!wasFound) {
+            // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
+            WifiScanResultReceiver receiver = new WifiScanResultReceiver(wifiManager, wifiConfiguration, listener);
+
+            if (!wifiScanResultReceiverMap.containsKey(object.toString())) {
+                wifiScanResultReceiverMap.put(object.toString(), receiver);
+            }
+
+            configuration.getContext().registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            wifiManager.startScan();
+        }
+    }
+
+    /**
+     * Called from WifiScanResultReceiver, when {@param wifiManager} has finished scanning for active access points.
+     *
+     * @param wifiManager       WiFiManager system service.
+     * @param wifiConfiguration WiFiConfiguration which holds configuration data for wanted access point.
+     * @param listener          Callback listener.
+     */
+    private void notifyWifiScanResults(WifiManager wifiManager, WifiConfiguration wifiConfiguration, WifiConnectivityListener listener) {
+
+        boolean wasFound = false;
+
+        if (wifiManager != null && wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
+            for (ScanResult scanResult : wifiManager.getScanResults()) {
+                if (scanResult.SSID != null && scanResult.SSID.equals("\"" + wifiConfiguration.SSID + "\"")) {
+                    wifiManager.disconnect();
+                    wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+                    boolean result = wifiManager.reconnect();
+
+                    if (listener != null) {
+                        if (result) {
+                            listener.onConnected();
+                        } else {
+                            listener.onError();
+                        }
+
+                        wasFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!wasFound && listener != null) {
             listener.onNotFound();
+        }
+    }
+
+    private class WifiScanResultReceiver extends BroadcastReceiver {
+
+        private WifiManager wifiManager;
+
+        private WifiConnectivityListener listener;
+
+        private WifiConfiguration wifiConfiguration;
+
+        public WifiScanResultReceiver(WifiManager wifiManager, WifiConfiguration wifiConfiguration, WifiConnectivityListener listener) {
+            this.wifiManager = wifiManager;
+            this.listener = listener;
+            this.wifiConfiguration = wifiConfiguration;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            notifyWifiScanResults(wifiManager, wifiConfiguration, listener);
         }
     }
 
@@ -482,7 +568,7 @@ public class ConnectionBuddy {
         Handler mainHandler = new Handler(Looper.getMainLooper());
 
         @Override
-        public void execute(@NonNull Runnable command) {
+        public void execute(Runnable command) {
             mainHandler.post(command);
         }
     };

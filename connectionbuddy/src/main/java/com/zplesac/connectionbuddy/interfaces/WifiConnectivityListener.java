@@ -7,5 +7,7 @@ public interface WifiConnectivityListener {
 
     void onConnected();
 
+    void onError();
+
     void onNotFound();
 }
