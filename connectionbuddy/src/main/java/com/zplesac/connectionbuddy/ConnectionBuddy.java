@@ -504,42 +504,8 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Called from WifiScanResultReceiver, when {@param wifiManager} has finished scanning for active access points.
-     *
-     * @param wifiManager       WiFiManager system service.
-     * @param wifiConfiguration WiFiConfiguration which holds configuration data for wanted access point.
-     * @param listener          Callback listener.
+     * Called from WifiScanResultReceiver, when WiFiManager has finished scanning for active access points.
      */
-    private void notifyWifiScanResults(WifiManager wifiManager, WifiConfiguration wifiConfiguration, WifiConnectivityListener listener) {
-
-        boolean wasFound = false;
-
-        if (wifiManager != null && wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
-            for (ScanResult scanResult : wifiManager.getScanResults()) {
-                if (scanResult.SSID != null && scanResult.SSID.equals("\"" + wifiConfiguration.SSID + "\"")) {
-                    wifiManager.disconnect();
-                    wifiManager.enableNetwork(wifiConfiguration.networkId, true);
-                    boolean result = wifiManager.reconnect();
-
-                    if (listener != null) {
-                        if (result) {
-                            listener.onConnected();
-                        } else {
-                            listener.onError();
-                        }
-
-                        wasFound = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!wasFound && listener != null) {
-            listener.onNotFound();
-        }
-    }
-
     private class WifiScanResultReceiver extends BroadcastReceiver {
 
         private WifiManager wifiManager;
@@ -556,7 +522,32 @@ public class ConnectionBuddy {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            notifyWifiScanResults(wifiManager, wifiConfiguration, listener);
+            boolean wasFound = false;
+
+            if (wifiManager != null && wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
+                for (ScanResult scanResult : wifiManager.getScanResults()) {
+                    if (scanResult.SSID != null && scanResult.SSID.equals("\"" + wifiConfiguration.SSID + "\"")) {
+                        wifiManager.disconnect();
+                        wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+                        boolean result = wifiManager.reconnect();
+
+                        if (listener != null) {
+                            if (result) {
+                                listener.onConnected();
+                            } else {
+                                listener.onError();
+                            }
+
+                            wasFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!wasFound && listener != null) {
+                listener.onNotFound();
+            }
         }
     }
 
