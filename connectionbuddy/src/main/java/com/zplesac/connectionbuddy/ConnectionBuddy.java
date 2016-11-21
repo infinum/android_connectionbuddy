@@ -550,6 +550,7 @@ public class ConnectionBuddy {
         }
     }
 
+    // TODO check how does this work if there is no internet connection
     private class WifiConnectionStateChangedReceiver extends BroadcastReceiver {
 
         private WifiConnectivityListener listener;
