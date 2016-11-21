@@ -60,8 +60,7 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
         String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         if (EasyPermissions.hasPermissions(this, perms)) {
             ConnectionBuddy.getInstance()
-                    .connectToWifiConfiguration(WiFiActivity.this, etSsid.getText().toString(), etPassword.getText().toString(),
-                            WiFiActivity.this);
+                    .connectToWifiConfiguration(etSsid.getText().toString(), etPassword.getText().toString(), true, WiFiActivity.this);
         } else {
             // Do not have permissions, request them now
             EasyPermissions.requestPermissions(this, getString(R.string.change_wifi_state_rationale),

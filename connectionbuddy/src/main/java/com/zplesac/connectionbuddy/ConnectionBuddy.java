@@ -22,6 +22,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresPermission;
 import android.telephony.TelephonyManager;
 
@@ -59,7 +60,9 @@ public class ConnectionBuddy {
 
     private static Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
 
-    private Map<String, WifiScanResultReceiver> wifiScanResultReceiverMap = new HashMap<>();
+    private WifiScanResultReceiver wifiScanResultReceiver;
+
+    private WifiConnectionStateChangedReceiver wifiConnectionStateChangedReceiver;
 
     private static volatile ConnectionBuddy instance;
 
@@ -213,12 +216,12 @@ public class ConnectionBuddy {
         configuration.getContext().unregisterReceiver(networkChangeReceiver);
         networkReceiversHashMap.remove(object.toString());
 
-        WifiScanResultReceiver wifiScanResultReceiver = wifiScanResultReceiverMap.get(object.toString());
-        configuration.getContext().unregisterReceiver(wifiScanResultReceiver);
-        wifiScanResultReceiverMap.remove(object.toString());
+        if (wifiScanResultReceiver != null) {
+            configuration.getContext().unregisterReceiver(wifiScanResultReceiver);
+            wifiScanResultReceiver = null;
+        }
 
         networkChangeReceiver = null;
-        wifiScanResultReceiver = null;
     }
 
     /**
@@ -440,8 +443,8 @@ public class ConnectionBuddy {
      * @param networkPassword WifiConfiguration network password.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(Object object, String networkSsid, String networkPassword) {
-        connectToWifiConfiguration(object, networkSsid, networkPassword, null);
+    public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound) {
+        connectToWifiConfiguration(networkSsid, networkPassword, disconnectIfNotFound, null);
     }
 
     /**
@@ -455,7 +458,7 @@ public class ConnectionBuddy {
      * @param listener        Callback listener.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(Object object, String networkSsid, String networkPassword,
+    public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound,
             WifiConnectivityListener listener) {
         WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
                 .getSystemService(Context.WIFI_SERVICE);
@@ -463,48 +466,16 @@ public class ConnectionBuddy {
             wifiManager.setWifiEnabled(true);
         }
 
-        WifiConfiguration wifiConfiguration = new WifiConfiguration();
-        wifiConfiguration.SSID = "\"" + networkSsid + "\"";
-        wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
-
-        wifiManager.addNetwork(wifiConfiguration);
-        List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
-
-        boolean wasFound = false;
-
-        for (WifiConfiguration configuration : configuredNetworks) {
-            if (configuration.SSID != null && configuration.SSID.equals("\"" + networkSsid + "\"")) {
-                wifiManager.disconnect();
-                wifiManager.enableNetwork(configuration.networkId, true);
-                boolean result = wifiManager.reconnect();
-                if (listener != null) {
-                    if (result) {
-                        listener.onConnected();
-                    } else {
-                        listener.onError();
-                    }
-
-                    wasFound = true;
-                    break;
-                }
-            }
-        }
-
-        if (!wasFound) {
-            // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
-            WifiScanResultReceiver receiver = new WifiScanResultReceiver(wifiManager, wifiConfiguration, listener);
-
-            if (!wifiScanResultReceiverMap.containsKey(object.toString())) {
-                wifiScanResultReceiverMap.put(object.toString(), receiver);
-            }
-
-            configuration.getContext().registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-            wifiManager.startScan();
-        }
+        // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
+        wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
+        configuration.getContext()
+                .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        wifiManager.startScan();
     }
 
     /**
-     * Called from WifiScanResultReceiver, when WiFiManager has finished scanning for active access points.
+     * Called from WifiScanResultReceiver, when WiFiManager has finished scanning for active access points. Note that SSIDs of the
+     * configured networks are enclosed in double quotes, whilst the SSIDs returned in ScanResults are not.
      */
     private class WifiScanResultReceiver extends BroadcastReceiver {
 
@@ -512,41 +483,108 @@ public class ConnectionBuddy {
 
         private WifiConnectivityListener listener;
 
-        private WifiConfiguration wifiConfiguration;
+        private String networkSsid;
 
-        public WifiScanResultReceiver(WifiManager wifiManager, WifiConfiguration wifiConfiguration, WifiConnectivityListener listener) {
+        private String networkPassword;
+
+        private boolean disconnectIfNotFound;
+
+        public WifiScanResultReceiver(WifiManager wifiManager, String networkSsid,
+                String networkPassword, boolean disconnectIfNotFound, WifiConnectivityListener listener) {
             this.wifiManager = wifiManager;
             this.listener = listener;
-            this.wifiConfiguration = wifiConfiguration;
+            this.networkSsid = networkSsid;
+            this.networkPassword = networkPassword;
+            this.disconnectIfNotFound = disconnectIfNotFound;
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            boolean wasFound = false;
+            // unregister receiver, so that we are only notified once about the results
+            context.unregisterReceiver(this);
 
             if (wifiManager != null && wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
                 for (ScanResult scanResult : wifiManager.getScanResults()) {
-                    if (scanResult.SSID != null && scanResult.SSID.equals("\"" + wifiConfiguration.SSID + "\"")) {
-                        wifiManager.disconnect();
-                        wifiManager.enableNetwork(wifiConfiguration.networkId, true);
-                        boolean result = wifiManager.reconnect();
+                    if (scanResult.SSID != null && scanResult.SSID.equals(networkSsid)) {
 
-                        if (listener != null) {
-                            if (result) {
-                                listener.onConnected();
-                            } else {
-                                listener.onError();
-                            }
+                        int networkId;
+                        WifiConfiguration wifiConfiguration = checkIfWifiAlreadyConfigured(wifiManager.getConfiguredNetworks());
 
-                            wasFound = true;
-                            break;
+                        if (wifiConfiguration == null) {
+                            wifiConfiguration = new WifiConfiguration();
+                            wifiConfiguration.SSID = "\"" + networkSsid + "\"";
+                            wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
+                            networkId = wifiManager.addNetwork(wifiConfiguration);
+                        } else {
+                            // Set new password
+                            wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
+                            networkId = wifiConfiguration.networkId;
                         }
+
+                        // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
+                        wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(networkSsid, wifiManager,
+                                disconnectIfNotFound, listener);
+                        configuration.getContext()
+                                .registerReceiver(wifiConnectionStateChangedReceiver,
+                                        new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+                        wifiManager.enableNetwork(networkId, true);
+                        return;
                     }
                 }
             }
 
-            if (!wasFound && listener != null) {
+            if (listener != null) {
                 listener.onNotFound();
+            }
+        }
+
+        private WifiConfiguration checkIfWifiAlreadyConfigured(List<WifiConfiguration> wifiConfigurationList) {
+            if (wifiConfigurationList != null && !wifiConfigurationList.isEmpty()) {
+                for (WifiConfiguration configuration : wifiConfigurationList) {
+                    if (configuration.SSID != null && configuration.SSID.equals("\"" + networkSsid + "\"")) {
+                        return configuration;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    private class WifiConnectionStateChangedReceiver extends BroadcastReceiver {
+
+        private WifiConnectivityListener listener;
+
+        private String networkSsid;
+
+        private WifiManager wifiManager;
+
+        private boolean disconnectIfNotFound;
+
+        public WifiConnectionStateChangedReceiver(String networkSsid, @NonNull WifiManager wifiManager, boolean disconnectIfNotFound,
+                WifiConnectivityListener listener) {
+            this.listener = listener;
+            this.networkSsid = networkSsid;
+            this.wifiManager = wifiManager;
+            this.disconnectIfNotFound = disconnectIfNotFound;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // unregister receiver, so that we are only notified once about the results
+            context.unregisterReceiver(this);
+
+            NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+
+            if (listener != null) {
+                if (networkInfo.isConnected() && wifiManager.getConnectionInfo().getSSID().replace("\"", "").equals(networkSsid)) {
+                    listener.onConnected();
+                } else {
+                    if (disconnectIfNotFound) {
+                        wifiManager.disconnect();
+                    }
+
+                    listener.onNotFound();
+                }
             }
         }
     }
