@@ -221,6 +221,11 @@ public class ConnectionBuddy {
             wifiScanResultReceiver = null;
         }
 
+        if (wifiConnectionStateChangedReceiver != null) {
+            configuration.getContext().unregisterReceiver(wifiConnectionStateChangedReceiver);
+            wifiConnectionStateChangedReceiver = null;
+        }
+
         networkChangeReceiver = null;
     }
 
