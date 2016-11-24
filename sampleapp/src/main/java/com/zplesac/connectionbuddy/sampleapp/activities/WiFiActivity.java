@@ -74,11 +74,6 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
     }
 
     @Override
-    public void onError() {
-        Toast.makeText(this, getString(R.string.wifi_connection_error), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
     public void onNotFound() {
         Toast.makeText(this, getString(R.string.wifi_not_found), Toast.LENGTH_LONG).show();
     }

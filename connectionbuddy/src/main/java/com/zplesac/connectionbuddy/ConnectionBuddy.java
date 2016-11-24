@@ -465,6 +465,7 @@ public class ConnectionBuddy {
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
     public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound,
             WifiConnectivityListener listener) {
+
         WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
                 .getSystemService(Context.WIFI_SERVICE);
         if (!wifiManager.isWifiEnabled()) {
