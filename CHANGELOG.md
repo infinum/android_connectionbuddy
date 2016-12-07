@@ -1,11 +1,17 @@
 Changelog
 =========
 
+## Version 1.4.0
+_2016-12_07_
+
+* Update: compileSdkVersion to API version 25
+* New: connect to WiFi signal by providing network SSID and network password
+
 ## Version 1.3.0
 _2016-10_13_
 
 * Update: compileSdkVersion to API version 24
-* Update: minSdkVersion is now API version 9 (min supported version of Android Support Library
+* Update: minSdkVersion is now API version 9 (min supported version of Android Support Library)
 
 ## Version 1.2.0
 
