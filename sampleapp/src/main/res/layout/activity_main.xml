@@ -18,4 +18,9 @@
             android:layout_marginTop="10dp"
             android:id="@+id/button_mvp"
             android:text="@string/mvp_example"/>
+
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:id="@+id/button_wifi"
+            android:text="@string/wifi_example"/>
 </LinearLayout>
