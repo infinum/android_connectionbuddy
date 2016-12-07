@@ -1,15 +1,15 @@
 Changelog
 =========
 
-## Version 1.3.0 
-_2016-10_13
+## Version 1.3.0
+_2016-10_13_
 
 * Update: compileSdkVersion to API version 24
 * Update: minSdkVersion is now API version 9 (min supported version of Android Support Library
 
 ## Version 1.2.0
 
-_2016-09-30
+_2016-09-30_
 
 * Update: Library is now backported to API level 8.
 
