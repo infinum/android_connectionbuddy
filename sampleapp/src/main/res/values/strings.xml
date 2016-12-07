@@ -3,5 +3,13 @@
     <string name="simple_example">Simple example</string>
     <string name="manual_configuration">Manual configuration</string>
     <string name="mvp_example">MVP example</string>
-    <string name="test_network_request">Test network reques</string>
+    <string name="wifi_example">WiFi connectivity example</string>
+    <string name="test_network_request">Test network request</string>
+    <string name="network_ssid">Network SSID</string>
+    <string name="network_password">Network password</string>
+    <string name="connect">Connect</string>
+    <string name="change_wifi_state_rationale">We need Locations permission in order to connect to given network ssid.</string>
+    <string name="connected_to_wifi">Connected to WiFi!</string>
+    <string name="wifi_connection_error">WiFi connection error!</string>
+    <string name="wifi_not_found">WiFi with given network SSID and password was not found!</string>
 </resources>
