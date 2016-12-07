@@ -4,7 +4,6 @@ import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.support.v4.util.LruCache;
 
 /**
  * Created by Željko Plesac on 09/10/15.
@@ -22,9 +21,7 @@ public class ConnectionBuddyConfiguration {
 
     private ConnectivityStrength minimumSignalStrength;
 
-    private int cacheSize;
-
-    private LruCache<String, Boolean> inMemoryCache;
+    private ConnectionBuddyCache networkEventsCache;
 
     private boolean notifyImmediately;
 
@@ -37,11 +34,14 @@ public class ConnectionBuddyConfiguration {
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
         this.registeredForWiFiChanges = builder.registerForWiFiChanges;
         this.minimumSignalStrength = builder.minimumSignalStrength;
-        this.cacheSize = builder.cacheSize;
-        this.inMemoryCache = new LruCache<>(cacheSize);
         this.notifyImmediately = builder.notifyImmediately;
         this.notifyOnlyReliableEvents = builder.notifyOnlyReliableEvents;
-        this.connectivityManager =  (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        this.connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (builder.cache != null) {
+            builder.cache = new LruConnectionBuddyCache();
+        }
+        this.networkEventsCache = builder.cache;
     }
 
     public Context getContext() {
@@ -60,12 +60,8 @@ public class ConnectionBuddyConfiguration {
         return minimumSignalStrength;
     }
 
-    public int getCacheSize() {
-        return cacheSize;
-    }
-
-    public LruCache<String, Boolean> getInMemoryCache() {
-        return inMemoryCache;
+    public ConnectionBuddyCache getNetworkEventsCache() {
+        return networkEventsCache;
     }
 
     public boolean isNotifyImmediately() {
@@ -83,17 +79,6 @@ public class ConnectionBuddyConfiguration {
     public static class Builder {
 
         private Context context;
-
-        private final int kbSize = 1024;
-
-        private final int memoryPart = 10;
-
-        /**
-         * Get max available VM memory, exceeding this amount will throw an
-         * OutOfMemory exception. Stored in kilobytes as LruCache takes an
-         * int in its constructor.
-         */
-        private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
 
         /**
          * Boolean value which defines should we register for WiFi network changes.
@@ -121,16 +106,16 @@ public class ConnectionBuddyConfiguration {
         private boolean notifyImmediately = true;
 
         /**
+         * Cache which is used for storing network events.
+         */
+        private ConnectionBuddyCache cache;
+
+        /**
          * Boolean value which defines do we want to use reliable network events. This means that if we have active internet connection,
          * it will try to execute test network request to determine if user is capable of any network operation.
          * Default is set to false.
          */
         private boolean notifyOnlyReliableEvents = false;
-
-        /**
-         * Use 1/10th of the available memory for this memory cache.
-         */
-        private int cacheSize = maxMemory / memoryPart;
 
         public Builder(Context context) {
             this.context = context.getApplicationContext();
@@ -151,11 +136,6 @@ public class ConnectionBuddyConfiguration {
             return this;
         }
 
-        public Builder setCacheSize(int size) {
-            this.cacheSize = size;
-            return this;
-        }
-
         public Builder setNotifyImmediately(boolean shouldNotify) {
             this.notifyImmediately = shouldNotify;
             return this;
@@ -166,6 +146,10 @@ public class ConnectionBuddyConfiguration {
             return this;
         }
 
+        public Builder setNetworkEventsCache(ConnectionBuddyCache cache) {
+            this.cache = cache;
+            return this;
+        }
 
         public ConnectionBuddyConfiguration build() {
             return new ConnectionBuddyConfiguration(this);
