@@ -37,32 +37,97 @@ android {
 repositories {
     mavenCentral()
 }
-def siteUrl = 'https://github.com/zplesac/android_connectionbuddy'      // Homepage URL of the library
-def gitUrl = 'https://github.com/zplesac/android_connectionbuddy.git'   // Git repository URL
-group = "com.zplesac"                                        // Maven Group ID for the artifact
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'android-connectionbuddy'
+
+    publishedGroupId = 'com.zplesac'
+    libraryName = 'android-connectionbuddy'
+    artifact = 'connectionbuddy'     // Has to be same as your library module name
+
+    libraryDescription = 'One RecyclerView to rule them all.'
+
+    // Your github repo link
+    siteUrl = 'https://github.com/zplesac/android_connectionbuddy'
+    gitUrl = 'https://github.com/zplesac/android_connectionbuddy.git'
+
+    libraryVersion = '1.4.0'
+
+    developerId = 'zplesac'
+    developerName = 'Zeljko Plesac'
+    developerEmail = 'zeljko.plesac@gmail.com'
+
+    licenseName = 'Apache-2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0'
+    allLicenses = ["Apache-2.0"]
+}
+
+group = publishedGroupId
+version = libraryVersion
+
+bintray {
+
+    if (project.rootProject.file('local.properties').exists()) {
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+        user = properties.getProperty("bintray.user")
+        key = properties.getProperty("bintray.apikey")
+
+        configurations = ['archives']
+        pkg {
+            repo = bintrayRepo
+            name = bintrayName
+            desc = libraryDescription
+            websiteUrl = siteUrl
+            vcsUrl = gitUrl
+            licenses = ["Apache-2.0"]
+            publish = true
+            publicDownloadNumbers = true
+            dryRun = false
+            version {
+                name = libraryVersion
+                desc = libraryDescription
+                released = new Date()
+                gpg {
+                    sign = true //Determines whether to GPG sign the files. The default is false
+                    passphrase = properties.getProperty("bintray.gpg.password")
+                    //Optional. The passphrase for GPG signing'
+                }
+            }
+        }
+    }
+
+}
+
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters
         pom {
             project {
                 packaging 'aar'
+                groupId publishedGroupId
+                artifactId artifact
 
                 // Add your description here
-                name 'Utility library for handling connectivity change events.'
+                name libraryName
+                description libraryDescription
                 url siteUrl
 
                 // Set your license
                 licenses {
                     license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name licenseName
+                        url licenseUrl
                     }
                 }
                 developers {
                     developer {
-                        id 'zplesac'
-                        name 'Zeljko Plesac'
-                        email 'zeljko.plesac@gmail.com'
+                        id developerId
+                        name developerName
+                        email developerEmail
                     }
                 }
                 scm {
@@ -75,45 +140,12 @@ install {
         }
     }
 }
+
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
 }
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
+
 artifacts {
-    archives javadocJar
     archives sourcesJar
-}
-// This is the library version used when deploying the artifact
-version = "1.4.0"
-bintray {
-    if (project.rootProject.file('local.properties').exists()) {
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        user = properties.getProperty("bintray.user")
-        key = properties.getProperty("bintray.apikey")
-
-        configurations = ['archives']
-        pkg {
-            repo = "maven"
-            name = "android-connectionbuddy"
-            websiteUrl = siteUrl
-            vcsUrl = gitUrl
-            licenses = ["Apache-2.0"]
-            publish = true
-        }
-
-    }
-}
-tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-    options.addStringOption('charSet', 'UTF-8')
 }
