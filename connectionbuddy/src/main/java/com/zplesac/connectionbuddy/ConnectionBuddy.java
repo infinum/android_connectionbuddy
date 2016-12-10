@@ -204,9 +204,10 @@ public class ConnectionBuddy {
                 handleActiveInternetConnection(event, listener);
             }
         } else {
-            listener.onConnectionChange(new ConnectivityEvent(new ConnectivityState(ConnectivityState.DISCONNECTED),
+            listener.onConnectionChange(new ConnectivityEvent(
+                    new ConnectivityState(ConnectivityState.DISCONNECTED),
                     new ConnectivityType(ConnectivityType.NONE),
-                    ConnectivityStrength.UNDEFINED));
+                    new ConnectivityStrength(ConnectivityStrength.UNDEFINED)));
         }
     }
 
@@ -217,13 +218,13 @@ public class ConnectionBuddy {
      * @param listener ConnectivityChangeListener which will receive ConnectivityEvent.
      */
     private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
-        // check if signal strength is bellow minimum defined strength
-        if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
-            return;
-        } else if (event.getType().getValue() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
-            listener.onConnectionChange(event);
-        } else if (event.getType().getValue() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
-            listener.onConnectionChange(event);
+        // handle only if signal strength is above or equal minimum defined strength
+        if (event.getStrength().getValue() >= configuration.getMinimumSignalStrength().getValue()) {
+            if (event.getType().getValue() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
+                listener.onConnectionChange(event);
+            } else if (event.getType().getValue() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
+                listener.onConnectionChange(event);
+            }
         }
     }
 
@@ -375,7 +376,7 @@ public class ConnectionBuddy {
                 return getMobileConnectionStrength(networkInfo);
             }
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
         }
     }
 
@@ -392,16 +393,16 @@ public class ConnectionBuddy {
 
             switch (level) {
                 case 0:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case 1:
-                    return ConnectivityStrength.GOOD;
+                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case 2:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 default:
-                    return ConnectivityStrength.UNDEFINED;
+                    return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
             }
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
         }
     }
 
@@ -412,40 +413,40 @@ public class ConnectionBuddy {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
             switch (info.getSubtype()) {
                 case TelephonyManager.NETWORK_TYPE_1xRTT:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_CDMA:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EDGE:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                    return ConnectivityStrength.GOOD;
+                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                    return ConnectivityStrength.GOOD;
+                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_GPRS:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSDPA:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPA:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSUPA:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_UMTS:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EHRPD:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_IDEN:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_LTE:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 default:
-                    return ConnectivityStrength.UNDEFINED;
+                    return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
             }
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
         }
     }
 

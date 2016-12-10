@@ -95,9 +95,9 @@ public class ConnectionBuddyConfiguration {
 
         /**
          * Define minimum signal strength for which we should call callback listener.
-         * Default is set to ConnectivityStrength.POOR.
+         * Default is set to ConnectivityStrength.UNDEFINED.
          */
-        private ConnectivityStrength minimumSignalStrength = ConnectivityStrength.POOR;
+        private ConnectivityStrength minimumSignalStrength = new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
 
         /**
          * Boolean value which defines do we want to notify the listener about current network connection state
