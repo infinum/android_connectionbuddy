@@ -183,7 +183,7 @@ public class ConnectionBuddy {
      */
     public void notifyConnectionChange(boolean hasConnection, final ConnectivityChangeListener listener) {
         if (hasConnection) {
-            final ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(),
+            final ConnectivityEvent event = new ConnectivityEvent(new ConnectivityState(ConnectivityState.CONNECTED), getNetworkType(),
                     getSignalStrength());
 
             if (configuration.isNotifyOnlyReliableEvents()) {
@@ -204,8 +204,8 @@ public class ConnectionBuddy {
                 handleActiveInternetConnection(event, listener);
             }
         } else {
-            listener.onConnectionChange(new ConnectivityEvent(ConnectivityState.DISCONNECTED, new ConnectivityType(
-                    ConnectivityType.NONE),
+            listener.onConnectionChange(new ConnectivityEvent(new ConnectivityState(ConnectivityState.DISCONNECTED),
+                    new ConnectivityType(ConnectivityType.NONE),
                     ConnectivityStrength.UNDEFINED));
         }
     }
