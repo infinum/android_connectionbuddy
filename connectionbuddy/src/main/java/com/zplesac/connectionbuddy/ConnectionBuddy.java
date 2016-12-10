@@ -7,7 +7,6 @@ import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import com.zplesac.connectionbuddy.models.ConnectivityType;
-import com.zplesac.connectionbuddy.receivers.NetworkChangeReceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -51,21 +50,17 @@ public class ConnectionBuddy {
 
     private static final String HEADER_VALUE_CONNECTION = "close";
 
-    private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
-
-    private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
-
     private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
 
     private static final int CONNECTION_TIMEOUT = 1500;
 
-    private static Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
+    private static volatile ConnectionBuddy instance;
+
+    private Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
 
     private WifiScanResultReceiver wifiScanResultReceiver;
 
     private WifiConnectionStateChangedReceiver wifiConnectionStateChangedReceiver;
-
-    private static volatile ConnectionBuddy instance;
 
     private ConnectionBuddyConfiguration configuration;
 
@@ -145,8 +140,8 @@ public class ConnectionBuddy {
         }
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_CONNECTIVITY_CHANGE);
-        filter.addAction(ACTION_WIFI_STATE_CHANGE);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 
         NetworkChangeReceiver receiver = new NetworkChangeReceiver(object, listener);
 

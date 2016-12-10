@@ -39,9 +39,10 @@ public class ConnectionBuddyConfiguration {
         this.connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (builder.cache != null) {
-            builder.cache = new LruConnectionBuddyCache();
+            this.networkEventsCache = builder.cache;
+        } else {
+            this.networkEventsCache = new LruConnectionBuddyCache();
         }
-        this.networkEventsCache = builder.cache;
     }
 
     public Context getContext() {

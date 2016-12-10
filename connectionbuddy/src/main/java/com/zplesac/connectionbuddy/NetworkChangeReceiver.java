@@ -1,8 +1,7 @@
-package com.zplesac.connectionbuddy.receivers;
+package com.zplesac.connectionbuddy;
 
-import com.zplesac.connectionbuddy.ConnectionBuddy;
-import com.zplesac.connectionbuddy.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,7 @@ import android.content.Intent;
 /**
  * Broadcast receiver that listens to network connectivity changes.
  */
-public class NetworkChangeReceiver extends BroadcastReceiver {
+class NetworkChangeReceiver extends BroadcastReceiver {
 
     private Object object;
 
