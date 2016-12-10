@@ -204,7 +204,8 @@ public class ConnectionBuddy {
                 handleActiveInternetConnection(event, listener);
             }
         } else {
-            listener.onConnectionChange(new ConnectivityEvent(ConnectivityState.DISCONNECTED, ConnectivityType.NONE,
+            listener.onConnectionChange(new ConnectivityEvent(ConnectivityState.DISCONNECTED, new ConnectivityType(
+                    ConnectivityType.NONE),
                     ConnectivityStrength.UNDEFINED));
         }
     }
@@ -219,9 +220,9 @@ public class ConnectionBuddy {
         // check if signal strength is bellow minimum defined strength
         if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
             return;
-        } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
+        } else if (event.getType().getValue() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
             listener.onConnectionChange(event);
-        } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
+        } else if (event.getType().getValue() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
             listener.onConnectionChange(event);
         }
     }
@@ -344,14 +345,14 @@ public class ConnectionBuddy {
         if (networkInfo != null && networkInfo.isConnected()) {
             switch (networkInfo.getType()) {
                 case ConnectivityManager.TYPE_WIFI:
-                    return ConnectivityType.WIFI;
+                    return new ConnectivityType(ConnectivityType.WIFI);
                 case ConnectivityManager.TYPE_MOBILE:
-                    return ConnectivityType.MOBILE;
+                    return new ConnectivityType(ConnectivityType.MOBILE);
                 default:
-                    return ConnectivityType.UNDEFINED;
+                    return new ConnectivityType(ConnectivityType.UNDEFINED);
             }
         } else {
-            return ConnectivityType.NONE;
+            return new ConnectivityType(ConnectivityType.NONE);
         }
     }
 
