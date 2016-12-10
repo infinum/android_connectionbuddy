@@ -1,6 +1,5 @@
 package com.zplesac.connectionbuddy;
 
-import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
 import com.zplesac.connectionbuddy.interfaces.WifiConnectivityListener;
@@ -20,9 +19,11 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.telephony.TelephonyManager;
 
@@ -127,16 +128,17 @@ public class ConnectionBuddy {
      */
     public void registerForConnectivityEvents(Object object, boolean notifyImmediately, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection();
+        ConnectionBuddyCache cache = configuration.getNetworkEventsCache();
 
-        if (ConnectionBuddyCache.isLastNetworkStateStored(object)
-                && ConnectionBuddyCache.getLastNetworkState(object) != hasConnection) {
-            ConnectionBuddyCache.setLastNetworkState(object, hasConnection);
+        if (cache.isLastNetworkStateStored(object)
+                && cache.getLastNetworkState(object) != hasConnection) {
+            cache.setLastNetworkState(object, hasConnection);
 
             if (notifyImmediately) {
                 notifyConnectionChange(hasConnection, listener);
             }
-        } else if (!ConnectionBuddyCache.isLastNetworkStateStored(object)) {
-            ConnectionBuddyCache.setLastNetworkState(object, hasConnection);
+        } else if (!cache.isLastNetworkStateStored(object)) {
+            cache.setLastNetworkState(object, hasConnection);
             if (notifyImmediately) {
                 notifyConnectionChange(hasConnection, listener);
             }
@@ -153,6 +155,29 @@ public class ConnectionBuddy {
         }
 
         configuration.getContext().registerReceiver(receiver, filter);
+    }
+
+    /**
+     * Clears network events cache. Has to be called in onCreate() lifecycle methods for activities and fragments, so that we always reset
+     * the previous connection state.
+     *
+     * @param object Activity or fragment, which is registered for connectivity state changes.
+     */
+    public void clearNetworkCache(Object object) {
+        configuration.getNetworkEventsCache().clearLastNetworkState(object);
+    }
+
+    /**
+     * Clears network events cache. Has to be called in onCreate() lifecycle methods for activities and fragments, so that we always reset
+     * the previous connection state.
+     *
+     * @param object             Activity or fragment, which is registered for connectivity state changes.
+     * @param savedInstanceState Activity or fragments bundle.
+     */
+    public void clearNetworkCache(Object object, @Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            configuration.getNetworkEventsCache().clearLastNetworkState(object);
+        }
     }
 
     /**

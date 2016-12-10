@@ -1,7 +1,6 @@
 package com.zplesac.connectionbuddy.activities;
 
 import com.zplesac.connectionbuddy.ConnectionBuddy;
-import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 
@@ -17,10 +16,7 @@ public class ConnectionBuddyActivity extends Activity implements ConnectivityCha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            ConnectionBuddyCache.clearLastNetworkState(this);
-        }
+        ConnectionBuddy.getInstance().clearNetworkCache(this, savedInstanceState);
     }
 
     @Override
