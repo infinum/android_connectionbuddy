@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -63,6 +65,9 @@ public class ConnectionBuddy {
     private WifiConnectionStateChangedReceiver wifiConnectionStateChangedReceiver;
 
     private ConnectionBuddyConfiguration configuration;
+
+    private ExecutorService executor;
+
 
     protected ConnectionBuddy() {
         // empty constructor
@@ -287,8 +292,11 @@ public class ConnectionBuddy {
      * @param listener Callback listener.
      */
     private void testNetworkRequest(final NetworkRequestCheckListener listener) {
-        // Send this to background thread
-        Thread bgThread = new Thread() {
+        if (executor == null) {
+            executor = Executors.newFixedThreadPool(getConfiguration().getTestNetworkRequestExecutorSize());
+        }
+
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -324,11 +332,7 @@ public class ConnectionBuddy {
                     });
                 }
             }
-        };
-
-        // by default, the new thread inherits the priority of the thread that started it
-        bgThread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        bgThread.start();
+        });
     }
 
     /**

@@ -13,6 +13,8 @@ public class ConnectionBuddyConfiguration {
 
     public static final int SIGNAL_STRENGTH_NUMBER_OF_LEVELS = 3;
 
+    public static final int DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE = 4;
+
     private Context context;
 
     private boolean registeredForWiFiChanges;
@@ -29,6 +31,8 @@ public class ConnectionBuddyConfiguration {
 
     private boolean notifyOnlyReliableEvents;
 
+    private int testNetworkRequestExecutorSize;
+
     private ConnectionBuddyConfiguration(Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
@@ -37,6 +41,7 @@ public class ConnectionBuddyConfiguration {
         this.notifyImmediately = builder.notifyImmediately;
         this.notifyOnlyReliableEvents = builder.notifyOnlyReliableEvents;
         this.connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        this.testNetworkRequestExecutorSize = builder.testNetworkRequestExecutorSize;
 
         if (builder.cache != null) {
             this.networkEventsCache = builder.cache;
@@ -75,6 +80,10 @@ public class ConnectionBuddyConfiguration {
 
     public boolean isNotifyOnlyReliableEvents() {
         return notifyOnlyReliableEvents;
+    }
+
+    public int getTestNetworkRequestExecutorSize() {
+        return testNetworkRequestExecutorSize;
     }
 
     public static class Builder {
@@ -118,6 +127,11 @@ public class ConnectionBuddyConfiguration {
          */
         private boolean notifyOnlyReliableEvents = false;
 
+        /**
+         * Default network request executor service size.
+         */
+        private int testNetworkRequestExecutorSize = DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE;
+
         public Builder(Context context) {
             this.context = context.getApplicationContext();
         }
@@ -149,6 +163,11 @@ public class ConnectionBuddyConfiguration {
 
         public Builder setNetworkEventsCache(ConnectionBuddyCache cache) {
             this.cache = cache;
+            return this;
+        }
+
+        public Builder setTestNetworkRequestExecutorSize(int testNetworkRequestExecutorSize) {
+            this.testNetworkRequestExecutorSize = testNetworkRequestExecutorSize;
             return this;
         }
 
