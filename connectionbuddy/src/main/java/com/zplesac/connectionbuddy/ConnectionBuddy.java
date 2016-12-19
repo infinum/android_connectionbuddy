@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
@@ -24,6 +25,8 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
 import java.io.IOException;
@@ -474,8 +477,9 @@ public class ConnectionBuddy {
      * @param networkPassword WifiConfiguration network password.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound) {
-        connectToWifiConfiguration(networkSsid, networkPassword, disconnectIfNotFound, null);
+    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound)
+            throws SecurityException {
+        connectToWifiConfiguration(context, networkSsid, networkPassword, disconnectIfNotFound, null);
     }
 
     /**
@@ -489,20 +493,27 @@ public class ConnectionBuddy {
      * @param listener        Callback listener.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound,
-            WifiConnectivityListener listener) {
+    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound,
+            WifiConnectivityListener listener) throws SecurityException {
+        // Check if permissions have been granted
+        if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION permissions have not been granted by the user.");
+        } else {
+            WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
+                    .getSystemService(Context.WIFI_SERVICE);
+            if (!wifiManager.isWifiEnabled()) {
+                wifiManager.setWifiEnabled(true);
+            }
 
-        WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
-                .getSystemService(Context.WIFI_SERVICE);
-        if (!wifiManager.isWifiEnabled()) {
-            wifiManager.setWifiEnabled(true);
+            // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
+            wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
+            configuration.getContext()
+                    .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            wifiManager.startScan();
         }
-
-        // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
-        wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
-        configuration.getContext()
-                .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        wifiManager.startScan();
     }
 
     /**
