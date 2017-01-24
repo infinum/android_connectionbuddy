@@ -1,8 +1,6 @@
 package com.zplesac.connectionbuddy.sampleapp.activities;
 
-
 import com.zplesac.connectionbuddy.ConnectionBuddy;
-import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
@@ -32,7 +30,7 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
         setContentView(R.layout.activity_mvp);
 
         if (savedInstanceState != null) {
-            ConnectionBuddyCache.clearLastNetworkState(this);
+            ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache().clearLastNetworkState(this);
         }
 
         tvTitle = (TextView) findViewById(R.id.tv_title);

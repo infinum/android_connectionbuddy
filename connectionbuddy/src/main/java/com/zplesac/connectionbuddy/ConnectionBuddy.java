@@ -1,6 +1,5 @@
 package com.zplesac.connectionbuddy;
 
-import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectionbuddy.interfaces.NetworkRequestCheckListener;
 import com.zplesac.connectionbuddy.interfaces.WifiConnectivityListener;
@@ -8,22 +7,26 @@ import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import com.zplesac.connectionbuddy.models.ConnectivityType;
-import com.zplesac.connectionbuddy.receivers.NetworkChangeReceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
 import java.io.IOException;
@@ -33,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -50,23 +55,22 @@ public class ConnectionBuddy {
 
     private static final String HEADER_VALUE_CONNECTION = "close";
 
-    private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
-
-    private static final String ACTION_WIFI_STATE_CHANGE = "android.net.wifi.WIFI_STATE_CHANGED";
-
     private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
 
     private static final int CONNECTION_TIMEOUT = 1500;
 
-    private static Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
+    private static volatile ConnectionBuddy instance;
+
+    private Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
 
     private WifiScanResultReceiver wifiScanResultReceiver;
 
     private WifiConnectionStateChangedReceiver wifiConnectionStateChangedReceiver;
 
-    private static volatile ConnectionBuddy instance;
-
     private ConnectionBuddyConfiguration configuration;
+
+    private ExecutorService executor;
+
 
     protected ConnectionBuddy() {
         // empty constructor
@@ -127,24 +131,25 @@ public class ConnectionBuddy {
      */
     public void registerForConnectivityEvents(Object object, boolean notifyImmediately, ConnectivityChangeListener listener) {
         boolean hasConnection = hasNetworkConnection();
+        ConnectionBuddyCache cache = configuration.getNetworkEventsCache();
 
-        if (ConnectionBuddyCache.isLastNetworkStateStored(object)
-                && ConnectionBuddyCache.getLastNetworkState(object) != hasConnection) {
-            ConnectionBuddyCache.setLastNetworkState(object, hasConnection);
+        if (cache.isLastNetworkStateStored(object)
+                && cache.getLastNetworkState(object) != hasConnection) {
+            cache.setLastNetworkState(object, hasConnection);
 
             if (notifyImmediately) {
                 notifyConnectionChange(hasConnection, listener);
             }
-        } else if (!ConnectionBuddyCache.isLastNetworkStateStored(object)) {
-            ConnectionBuddyCache.setLastNetworkState(object, hasConnection);
+        } else if (!cache.isLastNetworkStateStored(object)) {
+            cache.setLastNetworkState(object, hasConnection);
             if (notifyImmediately) {
                 notifyConnectionChange(hasConnection, listener);
             }
         }
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_CONNECTIVITY_CHANGE);
-        filter.addAction(ACTION_WIFI_STATE_CHANGE);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 
         NetworkChangeReceiver receiver = new NetworkChangeReceiver(object, listener);
 
@@ -156,6 +161,29 @@ public class ConnectionBuddy {
     }
 
     /**
+     * Clears network events cache. Has to be called in onCreate() lifecycle methods for activities and fragments, so that we always reset
+     * the previous connection state.
+     *
+     * @param object Activity or fragment, which is registered for connectivity state changes.
+     */
+    public void clearNetworkCache(Object object) {
+        configuration.getNetworkEventsCache().clearLastNetworkState(object);
+    }
+
+    /**
+     * Clears network events cache. Has to be called in onCreate() lifecycle methods for activities and fragments, so that we always reset
+     * the previous connection state.
+     *
+     * @param object             Activity or fragment, which is registered for connectivity state changes.
+     * @param savedInstanceState Activity or fragments bundle.
+     */
+    public void clearNetworkCache(Object object, @Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            configuration.getNetworkEventsCache().clearLastNetworkState(object);
+        }
+    }
+
+    /**
      * Notify the current state of connection to provided interface listener.
      *
      * @param hasConnection Current state of internet connection.
@@ -163,7 +191,7 @@ public class ConnectionBuddy {
      */
     public void notifyConnectionChange(boolean hasConnection, final ConnectivityChangeListener listener) {
         if (hasConnection) {
-            final ConnectivityEvent event = new ConnectivityEvent(ConnectivityState.CONNECTED, getNetworkType(),
+            final ConnectivityEvent event = new ConnectivityEvent(new ConnectivityState(ConnectivityState.CONNECTED), getNetworkType(),
                     getSignalStrength());
 
             if (configuration.isNotifyOnlyReliableEvents()) {
@@ -184,8 +212,10 @@ public class ConnectionBuddy {
                 handleActiveInternetConnection(event, listener);
             }
         } else {
-            listener.onConnectionChange(new ConnectivityEvent(ConnectivityState.DISCONNECTED, ConnectivityType.NONE,
-                    ConnectivityStrength.UNDEFINED));
+            listener.onConnectionChange(new ConnectivityEvent(
+                    new ConnectivityState(ConnectivityState.DISCONNECTED),
+                    new ConnectivityType(ConnectivityType.NONE),
+                    new ConnectivityStrength(ConnectivityStrength.UNDEFINED)));
         }
     }
 
@@ -196,13 +226,13 @@ public class ConnectionBuddy {
      * @param listener ConnectivityChangeListener which will receive ConnectivityEvent.
      */
     private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
-        // check if signal strength is bellow minimum defined strength
-        if (event.getStrength().ordinal() < configuration.getMinimumSignalStrength().ordinal()) {
-            return;
-        } else if (event.getType() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
-            listener.onConnectionChange(event);
-        } else if (event.getType() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
-            listener.onConnectionChange(event);
+        // handle only if signal strength is above or equal minimum defined strength
+        if (event.getStrength().getValue() >= configuration.getMinimumSignalStrength().getValue()) {
+            if (event.getType().getValue() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
+                listener.onConnectionChange(event);
+            } else if (event.getType().getValue() == ConnectivityType.WIFI && configuration.isRegisteredForWiFiChanges()) {
+                listener.onConnectionChange(event);
+            }
         }
     }
 
@@ -265,8 +295,11 @@ public class ConnectionBuddy {
      * @param listener Callback listener.
      */
     private void testNetworkRequest(final NetworkRequestCheckListener listener) {
-        // Send this to background thread
-        Thread bgThread = new Thread() {
+        if (executor == null) {
+            executor = Executors.newFixedThreadPool(getConfiguration().getTestNetworkRequestExecutorSize());
+        }
+
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -302,11 +335,7 @@ public class ConnectionBuddy {
                     });
                 }
             }
-        };
-
-        // by default, the new thread inherits the priority of the thread that started it
-        bgThread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        bgThread.start();
+        });
     }
 
     /**
@@ -324,14 +353,14 @@ public class ConnectionBuddy {
         if (networkInfo != null && networkInfo.isConnected()) {
             switch (networkInfo.getType()) {
                 case ConnectivityManager.TYPE_WIFI:
-                    return ConnectivityType.WIFI;
+                    return new ConnectivityType(ConnectivityType.WIFI);
                 case ConnectivityManager.TYPE_MOBILE:
-                    return ConnectivityType.MOBILE;
+                    return new ConnectivityType(ConnectivityType.MOBILE);
                 default:
-                    return ConnectivityType.UNDEFINED;
+                    return new ConnectivityType(ConnectivityType.UNDEFINED);
             }
         } else {
-            return ConnectivityType.NONE;
+            return new ConnectivityType(ConnectivityType.NONE);
         }
     }
 
@@ -354,7 +383,7 @@ public class ConnectionBuddy {
                 return getMobileConnectionStrength(networkInfo);
             }
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
         }
     }
 
@@ -371,16 +400,16 @@ public class ConnectionBuddy {
 
             switch (level) {
                 case 0:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case 1:
-                    return ConnectivityStrength.GOOD;
+                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case 2:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 default:
-                    return ConnectivityStrength.UNDEFINED;
+                    return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
             }
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
         }
     }
 
@@ -391,40 +420,40 @@ public class ConnectionBuddy {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
             switch (info.getSubtype()) {
                 case TelephonyManager.NETWORK_TYPE_1xRTT:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_CDMA:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EDGE:
-                    return ConnectivityStrength.POOR;
+                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                    return ConnectivityStrength.GOOD;
+                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                    return ConnectivityStrength.GOOD;
+                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_GPRS:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSDPA:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPA:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSUPA:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_UMTS:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EHRPD:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_IDEN:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_LTE:
-                    return ConnectivityStrength.EXCELLENT;
+                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 default:
-                    return ConnectivityStrength.UNDEFINED;
+                    return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
             }
         } else {
-            return ConnectivityStrength.UNDEFINED;
+            return new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
         }
     }
 
@@ -448,8 +477,9 @@ public class ConnectionBuddy {
      * @param networkPassword WifiConfiguration network password.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound) {
-        connectToWifiConfiguration(networkSsid, networkPassword, disconnectIfNotFound, null);
+    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound)
+            throws SecurityException {
+        connectToWifiConfiguration(context, networkSsid, networkPassword, disconnectIfNotFound, null);
     }
 
     /**
@@ -463,20 +493,27 @@ public class ConnectionBuddy {
      * @param listener        Callback listener.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(String networkSsid, String networkPassword, boolean disconnectIfNotFound,
-            WifiConnectivityListener listener) {
+    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound,
+            WifiConnectivityListener listener) throws SecurityException {
+        // Check if permissions have been granted
+        if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION permissions have not been granted by the user.");
+        } else {
+            WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
+                    .getSystemService(Context.WIFI_SERVICE);
+            if (!wifiManager.isWifiEnabled()) {
+                wifiManager.setWifiEnabled(true);
+            }
 
-        WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
-                .getSystemService(Context.WIFI_SERVICE);
-        if (!wifiManager.isWifiEnabled()) {
-            wifiManager.setWifiEnabled(true);
+            // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
+            wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
+            configuration.getContext()
+                    .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            wifiManager.startScan();
         }
-
-        // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
-        wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
-        configuration.getContext()
-                .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        wifiManager.startScan();
     }
 
     /**

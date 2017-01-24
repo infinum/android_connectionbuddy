@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/zplesac/android_connectionbuddy.svg?branch=development)](https://travis-ci.org/zplesac/android_connectionbuddy)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![JCenter](https://img.shields.io/badge/JCenter-1.4.0-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
-[![Method count](https://img.shields.io/badge/Methods count-188-e91e63.svg)](http://www.methodscount.com/?lib=com.zplesac%3Aconnectionbuddy%3A1.4.0)
+[![JCenter](https://img.shields.io/badge/JCenter-2.0.0-beta1-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
+[![Method count](https://img.shields.io/badge/Methods count-188-e91e63.svg)](http://www.methodscount.com/?lib=com.zplesac%3Aconnectionbuddy%3A2.0.0-beta1)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20ConnectionBuddy-green.svg?style=true)](https://android-arsenal.com/details/1/2788)
 
 
@@ -135,7 +135,9 @@ As of version 1.2.0, ConnectionBuddy can be used with your apps on devices all t
 
 ## Changelog
 
-Changelog is available [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)  
+Changelog is available in the [releases tab](https://github.com/zplesac/android_connectionbuddy/releases).
+
+For versions prior to 2.0.0, [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)
 
 ## Contributing
 

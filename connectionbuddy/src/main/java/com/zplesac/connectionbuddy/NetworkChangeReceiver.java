@@ -1,10 +1,5 @@
-package com.zplesac.connectionbuddy.receivers;
+package com.zplesac.connectionbuddy;
 
-/**
- * Created by Željko Plesac on 06/10/14.
- */
-import com.zplesac.connectionbuddy.ConnectionBuddy;
-import com.zplesac.connectionbuddy.cache.ConnectionBuddyCache;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 
 import android.content.BroadcastReceiver;
@@ -15,7 +10,7 @@ import android.content.Intent;
 /**
  * Broadcast receiver that listens to network connectivity changes.
  */
-public class NetworkChangeReceiver extends BroadcastReceiver {
+class NetworkChangeReceiver extends BroadcastReceiver {
 
     private Object object;
 
@@ -32,12 +27,13 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         boolean hasConnectivity = ConnectionBuddy.getInstance().hasNetworkConnection();
+        ConnectionBuddyCache cache = ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache();
 
-        if (hasConnectivity && ConnectionBuddyCache.getLastNetworkState(object) != hasConnectivity) {
-            ConnectionBuddyCache.setLastNetworkState(object, hasConnectivity);
+        if (hasConnectivity && cache.getLastNetworkState(object) != hasConnectivity) {
+            cache.setLastNetworkState(object, hasConnectivity);
             ConnectionBuddy.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
-        } else if (!hasConnectivity && ConnectionBuddyCache.getLastNetworkState(object) != hasConnectivity) {
-            ConnectionBuddyCache.setLastNetworkState(object, hasConnectivity);
+        } else if (!hasConnectivity && cache.getLastNetworkState(object) != hasConnectivity) {
+            cache.setLastNetworkState(object, hasConnectivity);
             ConnectionBuddy.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
         }
     }
