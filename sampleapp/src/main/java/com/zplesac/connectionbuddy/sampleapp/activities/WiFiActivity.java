@@ -8,6 +8,7 @@ import android.Manifest;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +21,8 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by Željko Plesac on 15/11/16.
  */
 public class WiFiActivity extends AppCompatActivity implements WifiConnectivityListener {
+
+    private static final String TAG = "WiFiActivity";
 
     private static final int RC_LOCATION = 147;
 
@@ -55,12 +58,16 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
     }
 
     @AfterPermissionGranted(RC_LOCATION)
-    @SuppressWarnings("MissingPermission")
     private void connectToWifi() {
         String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         if (EasyPermissions.hasPermissions(this, perms)) {
-            ConnectionBuddy.getInstance()
-                    .connectToWifiConfiguration(etSsid.getText().toString(), etPassword.getText().toString(), true, WiFiActivity.this);
+            try {
+                ConnectionBuddy.getInstance()
+                        .connectToWifiConfiguration(this, etSsid.getText().toString(), etPassword.getText().toString(), true,
+                                WiFiActivity.this);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
         } else {
             // Do not have permissions, request them now
             EasyPermissions.requestPermissions(this, getString(R.string.change_wifi_state_rationale),

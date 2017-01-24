@@ -135,7 +135,9 @@ As of version 1.2.0, ConnectionBuddy can be used with your apps on devices all t
 
 ## Changelog
 
-Changelog is available [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)  
+Changelog is available in the [releases tab](https://github.com/zplesac/android_connectionbuddy/releases).
+
+For versions prior to 2.0.0, [here.](https://github.com/zplesac/android_connectionbuddy/blob/master/CHANGELOG.md)
 
 ## Contributing
 
