@@ -16,7 +16,7 @@ class NetworkChangeReceiver extends BroadcastReceiver {
 
     private ConnectivityChangeListener mCallback;
 
-    public NetworkChangeReceiver(Object object, ConnectivityChangeListener mCallback) {
+    NetworkChangeReceiver(Object object, ConnectivityChangeListener mCallback) {
         this.object = object;
         this.mCallback = mCallback;
     }
