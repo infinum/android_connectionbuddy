@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 15
-        versionName "2.0.0-beta1"
+        versionCode 16
+        versionName "2.0.1"
     }
     buildTypes {
         release {
@@ -52,7 +52,7 @@ ext {
     siteUrl = 'https://github.com/zplesac/android_connectionbuddy'
     gitUrl = 'https://github.com/zplesac/android_connectionbuddy.git'
 
-    libraryVersion = '2.0.0-beta1'
+    libraryVersion = '2.0.1'
 
     developerId = 'zplesac'
     developerName = 'Zeljko Plesac'
