@@ -129,34 +129,42 @@ public class ConnectionBuddy {
      * @param listener          Callback listener.
      */
     public void registerForConnectivityEvents(Object object, boolean notifyImmediately, ConnectivityChangeListener listener) {
-        boolean hasConnection = hasNetworkConnection();
-        ConnectionBuddyCache cache = configuration.getNetworkEventsCache();
+        if (!isAlreadyRegistered(object)) {
 
-        if (cache.isLastNetworkStateStored(object)
-            && cache.getLastNetworkState(object) != hasConnection) {
-            cache.setLastNetworkState(object, hasConnection);
+            boolean hasConnection = hasNetworkConnection();
+            ConnectionBuddyCache cache = configuration.getNetworkEventsCache();
 
-            if (notifyImmediately) {
-                notifyConnectionChange(hasConnection, listener);
+            if (cache.isLastNetworkStateStored(object)
+                && cache.getLastNetworkState(object) != hasConnection) {
+                cache.setLastNetworkState(object, hasConnection);
+
+                if (notifyImmediately) {
+                    notifyConnectionChange(hasConnection, listener);
+                }
+            } else if (!cache.isLastNetworkStateStored(object)) {
+                cache.setLastNetworkState(object, hasConnection);
+                if (notifyImmediately) {
+                    notifyConnectionChange(hasConnection, listener);
+                }
             }
-        } else if (!cache.isLastNetworkStateStored(object)) {
-            cache.setLastNetworkState(object, hasConnection);
-            if (notifyImmediately) {
-                notifyConnectionChange(hasConnection, listener);
-            }
-        }
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 
-        NetworkChangeReceiver receiver = new NetworkChangeReceiver(object, listener);
+            NetworkChangeReceiver receiver = new NetworkChangeReceiver(object, listener);
 
-        if (!networkReceiversHashMap.containsKey(object.toString())) {
             networkReceiversHashMap.put(object.toString(), receiver);
+            configuration.getContext().registerReceiver(receiver, filter);
         }
+    }
 
-        configuration.getContext().registerReceiver(receiver, filter);
+    /**
+     * @param object Activity or fragment, which is registered for connectivity state changes.
+     * @return true if the object is already registered to a network change receiver
+     */
+    private boolean isAlreadyRegistered(Object object) {
+        return networkReceiversHashMap.containsKey(object.toString());
     }
 
     /**
