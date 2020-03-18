@@ -4,20 +4,17 @@ import android.support.v4.util.LruCache;
 
 class LruConnectionBuddyCache implements ConnectionBuddyCache {
 
-    private final int kbSize = 1024;
-
-    private final int memoryPart = 10;
-
-    /**
-     * Get max available VM memory, exceeding this amount will throw an
-     * OutOfMemory exception. Stored in kilobytes as LruCache takes an
-     * int in its constructor.
-     */
-    private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
-
     private LruCache<String, Boolean> cache;
 
     LruConnectionBuddyCache() {
+        int kbSize = 1024;
+        int memoryPart = 10;
+
+        // Get max available VM memory, exceeding this amount will throw an
+        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+        // int in its constructor.
+        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
+
         // Use 1/10th of the available memory for this memory cache.
         this.cache = new LruCache<>(maxMemory / memoryPart);
     }
