@@ -29,12 +29,12 @@ class NetworkChangeReceiver extends BroadcastReceiver {
         boolean hasConnectivity = ConnectionBuddy.getInstance().hasNetworkConnection();
         ConnectionBuddyCache cache = ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache();
 
-        if (hasConnectivity && cache.getLastNetworkState(object) != hasConnectivity) {
-            cache.setLastNetworkState(object, hasConnectivity);
-            ConnectionBuddy.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
-        } else if (!hasConnectivity && cache.getLastNetworkState(object) != hasConnectivity) {
-            cache.setLastNetworkState(object, hasConnectivity);
-            ConnectionBuddy.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
+        if (hasConnectivity && !cache.getLastNetworkState(object)) {
+            cache.setLastNetworkState(object, true);
+            ConnectionBuddy.getInstance().notifyConnectionChange(true, mCallback);
+        } else if (!hasConnectivity && cache.getLastNetworkState(object)) {
+            cache.setLastNetworkState(object, false);
+            ConnectionBuddy.getInstance().notifyConnectionChange(false, mCallback);
         }
     }
 }
