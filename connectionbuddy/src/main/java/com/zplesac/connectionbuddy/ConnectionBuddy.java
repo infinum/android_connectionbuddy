@@ -45,6 +45,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 /**
  * Created by Željko Plesac on 06/10/14.
  */
+@SuppressWarnings("WeakerAccess")
 public class ConnectionBuddy {
 
     private static final String HEADER_KEY_USER_AGENT = "User-Agent";
