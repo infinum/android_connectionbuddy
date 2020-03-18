@@ -22,7 +22,12 @@ class LruConnectionBuddyCache implements ConnectionBuddyCache {
     @Override
     public boolean getLastNetworkState(Object object) {
         if (isLastNetworkStateStored(object)) {
-            return cache.get(object.toString());
+            Boolean state = cache.get(object.toString());
+            if (state != null) {
+                return state;
+            } else {
+                return false;
+            }
         }
 
         return true;
