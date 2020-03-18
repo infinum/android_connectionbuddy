@@ -599,7 +599,7 @@ public class ConnectionBuddy {
         }
     }
 
-    private class WifiConnectionStateChangedReceiver extends BroadcastReceiver {
+    private static class WifiConnectionStateChangedReceiver extends BroadcastReceiver {
 
         private WifiConnectivityListener listener;
 
