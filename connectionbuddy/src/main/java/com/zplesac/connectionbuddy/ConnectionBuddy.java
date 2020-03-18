@@ -426,33 +426,21 @@ public class ConnectionBuddy {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
             switch (info.getSubtype()) {
                 case TelephonyManager.NETWORK_TYPE_1xRTT:
-                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_CDMA:
-                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EDGE:
                     return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_EVDO_A:
                     return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_GPRS:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSDPA:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPA:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSUPA:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_UMTS:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EHRPD:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_IDEN:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_LTE:
                     return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 default:
