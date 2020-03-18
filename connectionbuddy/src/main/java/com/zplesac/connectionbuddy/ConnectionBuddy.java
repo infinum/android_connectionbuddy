@@ -490,7 +490,7 @@ public class ConnectionBuddy {
 
     /**
      * Connects to the WiFi configuration with given {@param networkSsid} as network configuration's SSID and {@param networkPassword} as
-     * network configurations's password and optionaly notifies about the result if {@param listener} has defined value.
+     * network configurations's password and optionally notifies about the result if {@param listener} has defined value.
      * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION} and {@link android.Manifest.permission#ACCESS_FINE_LOCATION} permissions
      * are required in order to initiate new access point scan.
      *
