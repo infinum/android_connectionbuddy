@@ -262,8 +262,6 @@ public class ConnectionBuddy {
             configuration.getContext().unregisterReceiver(wifiConnectionStateChangedReceiver);
             wifiConnectionStateChangedReceiver = null;
         }
-
-        networkChangeReceiver = null;
     }
 
     /**
