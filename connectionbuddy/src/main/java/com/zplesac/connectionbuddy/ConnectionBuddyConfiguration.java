@@ -2,8 +2,10 @@ package com.zplesac.connectionbuddy;
 
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,12 +16,15 @@ import androidx.annotation.Nullable;
  */
 public class ConnectionBuddyConfiguration {
 
+    private static final String CONNECTIVITY_MANAGER_NULL_ERROR = "ConnectivityManager is null.";
+    private static final String WIFI_MANAGER_NULL_ERROR = "WifiManager is null.";
+
     public static final int SIGNAL_STRENGTH_NUMBER_OF_LEVELS = 3;
 
     public static final int DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE = 4;
 
     @NonNull
-    private Context context;
+    private Context applicationContext;
 
     private boolean registeredForWiFiChanges;
 
@@ -33,22 +38,39 @@ public class ConnectionBuddyConfiguration {
 
     private boolean notifyImmediately;
 
-    @Nullable
-    private ConnectivityManager connectivityManager;
-
     private boolean notifyOnlyReliableEvents;
 
     private int testNetworkRequestExecutorSize;
 
+    @NonNull
+    private ConnectivityManager connectivityManager;
+
+    @NonNull
+    private WifiManager wifiManager;
+
     private ConnectionBuddyConfiguration(@NonNull Builder builder) {
-        this.context = builder.context;
+        this.applicationContext = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
         this.registeredForWiFiChanges = builder.registerForWiFiChanges;
         this.minimumSignalStrength = builder.minimumSignalStrength;
         this.notifyImmediately = builder.notifyImmediately;
         this.notifyOnlyReliableEvents = builder.notifyOnlyReliableEvents;
-        this.connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         this.testNetworkRequestExecutorSize = builder.testNetworkRequestExecutorSize;
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) {
+            throw new IllegalStateException(CONNECTIVITY_MANAGER_NULL_ERROR);
+        }
+
+        // Lint does not recognize 'applicationContext' is an application context and triggers a warning.
+        @SuppressLint("WifiManagerPotentialLeak")
+        WifiManager wifiManager = (WifiManager) applicationContext.getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager == null) {
+            throw new IllegalStateException(WIFI_MANAGER_NULL_ERROR);
+        }
+
+        this.connectivityManager = connectivityManager;
+        this.wifiManager = wifiManager;
 
         if (builder.cache != null) {
             this.networkEventsCache = builder.cache;
@@ -57,9 +79,12 @@ public class ConnectionBuddyConfiguration {
         }
     }
 
+    /**
+     * Returns the application context.
+     */
     @NonNull
     public Context getContext() {
-        return context;
+        return applicationContext;
     }
 
     public boolean isRegisteredForWiFiChanges() {
@@ -84,17 +109,22 @@ public class ConnectionBuddyConfiguration {
         return notifyImmediately;
     }
 
-    @Nullable
-    public ConnectivityManager getConnectivityManager() {
-        return connectivityManager;
-    }
-
     public boolean isNotifyOnlyReliableEvents() {
         return notifyOnlyReliableEvents;
     }
 
     public int getTestNetworkRequestExecutorSize() {
         return testNetworkRequestExecutorSize;
+    }
+
+    @NonNull
+    public ConnectivityManager getConnectivityManager() {
+        return connectivityManager;
+    }
+
+    @NonNull
+    public WifiManager getWifiManager() {
+        return wifiManager;
     }
 
     public static class Builder {
