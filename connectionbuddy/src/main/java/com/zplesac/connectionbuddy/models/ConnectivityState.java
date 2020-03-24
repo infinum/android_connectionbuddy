@@ -3,6 +3,7 @@ package com.zplesac.connectionbuddy.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -43,20 +44,23 @@ public class ConnectivityState implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(this.value);
     }
 
-    protected ConnectivityState(Parcel in) {
+    protected ConnectivityState(@NonNull Parcel in) {
         this.value = in.readInt();
     }
 
     public static final Creator<ConnectivityState> CREATOR = new Creator<ConnectivityState>() {
+
+        @NonNull
         @Override
-        public ConnectivityState createFromParcel(Parcel source) {
+        public ConnectivityState createFromParcel(@NonNull Parcel source) {
             return new ConnectivityState(source);
         }
 
+        @NonNull
         @Override
         public ConnectivityState[] newArray(int size) {
             return new ConnectivityState[size];
