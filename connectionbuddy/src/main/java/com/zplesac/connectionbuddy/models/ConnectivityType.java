@@ -3,6 +3,7 @@ package com.zplesac.connectionbuddy.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -48,20 +49,23 @@ public class ConnectivityType implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(this.value);
     }
 
-    protected ConnectivityType(Parcel in) {
+    protected ConnectivityType(@NonNull Parcel in) {
         this.value = in.readInt();
     }
 
     public static final Creator<ConnectivityType> CREATOR = new Creator<ConnectivityType>() {
+
+        @NonNull
         @Override
-        public ConnectivityType createFromParcel(Parcel source) {
+        public ConnectivityType createFromParcel(@NonNull Parcel source) {
             return new ConnectivityType(source);
         }
 
+        @NonNull
         @Override
         public ConnectivityType[] newArray(int size) {
             return new ConnectivityType[size];
