@@ -5,6 +5,9 @@ import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Created by Željko Plesac on 09/10/15.
  * Configuration class for ConnectionBuddy instance. Use this to customize the library behaviour.
@@ -15,25 +18,29 @@ public class ConnectionBuddyConfiguration {
 
     public static final int DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE = 4;
 
+    @NonNull
     private Context context;
 
     private boolean registeredForWiFiChanges;
 
     private boolean registeredForMobileNetworkChanges;
 
+    @NonNull
     private ConnectivityStrength minimumSignalStrength;
 
+    @NonNull
     private ConnectionBuddyCache networkEventsCache;
 
     private boolean notifyImmediately;
 
+    @Nullable
     private ConnectivityManager connectivityManager;
 
     private boolean notifyOnlyReliableEvents;
 
     private int testNetworkRequestExecutorSize;
 
-    private ConnectionBuddyConfiguration(Builder builder) {
+    private ConnectionBuddyConfiguration(@NonNull Builder builder) {
         this.context = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
         this.registeredForWiFiChanges = builder.registerForWiFiChanges;
@@ -50,6 +57,7 @@ public class ConnectionBuddyConfiguration {
         }
     }
 
+    @NonNull
     public Context getContext() {
         return context;
     }
@@ -62,10 +70,12 @@ public class ConnectionBuddyConfiguration {
         return registeredForMobileNetworkChanges;
     }
 
+    @NonNull
     public ConnectivityStrength getMinimumSignalStrength() {
         return minimumSignalStrength;
     }
 
+    @NonNull
     public ConnectionBuddyCache getNetworkEventsCache() {
         return networkEventsCache;
     }
@@ -74,6 +84,7 @@ public class ConnectionBuddyConfiguration {
         return notifyImmediately;
     }
 
+    @Nullable
     public ConnectivityManager getConnectivityManager() {
         return connectivityManager;
     }
@@ -88,6 +99,7 @@ public class ConnectionBuddyConfiguration {
 
     public static class Builder {
 
+        @NonNull
         private Context context;
 
         /**
@@ -106,6 +118,7 @@ public class ConnectionBuddyConfiguration {
          * Define minimum signal strength for which we should call callback listener.
          * Default is set to ConnectivityStrength.UNDEFINED.
          */
+        @NonNull
         private ConnectivityStrength minimumSignalStrength = new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
 
         /**
@@ -118,6 +131,7 @@ public class ConnectionBuddyConfiguration {
         /**
          * Cache which is used for storing network events.
          */
+        @Nullable
         private ConnectionBuddyCache cache;
 
         /**
@@ -132,45 +146,53 @@ public class ConnectionBuddyConfiguration {
          */
         private int testNetworkRequestExecutorSize = DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE;
 
-        public Builder(Context context) {
+        public Builder(@NonNull Context context) {
             this.context = context.getApplicationContext();
         }
 
+        @NonNull
         public Builder registerForWiFiChanges(boolean shouldRegister) {
             this.registerForWiFiChanges = shouldRegister;
             return this;
         }
 
+        @NonNull
         public Builder registerForMobileNetworkChanges(boolean shouldRegister) {
             this.registerForMobileNetworkChanges = shouldRegister;
             return this;
         }
 
+        @NonNull
         public Builder setMinimumSignalStrength(ConnectivityStrength minimumSignalStrength) {
             this.minimumSignalStrength = minimumSignalStrength;
             return this;
         }
 
+        @NonNull
         public Builder setNotifyImmediately(boolean shouldNotify) {
             this.notifyImmediately = shouldNotify;
             return this;
         }
 
+        @NonNull
         public Builder notifyOnlyReliableEvents(boolean shouldNotify) {
             this.notifyOnlyReliableEvents = shouldNotify;
             return this;
         }
 
+        @NonNull
         public Builder setNetworkEventsCache(ConnectionBuddyCache cache) {
             this.cache = cache;
             return this;
         }
 
+        @NonNull
         public Builder setTestNetworkRequestExecutorSize(int testNetworkRequestExecutorSize) {
             this.testNetworkRequestExecutorSize = testNetworkRequestExecutorSize;
             return this;
         }
 
+        @NonNull
         public ConnectionBuddyConfiguration build() {
             return new ConnectionBuddyConfiguration(this);
         }
