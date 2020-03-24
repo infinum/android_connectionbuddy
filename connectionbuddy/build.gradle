@@ -20,11 +20,6 @@ android {
         }
     }
 
-    dependencies {
-        implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-        implementation 'androidx.annotation:annotation:1.1.0'
-    }
-
     lintOptions {
         // if true, stop the gradle build if errors are found
         abortOnError true
@@ -144,6 +139,11 @@ install {
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
+}
+
+dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
 }
 
 artifacts {
