@@ -15,13 +15,13 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
 
     defaultConfig {
         applicationId "com.zplesac.connectionbuddy.sampleapp"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
     }
@@ -44,9 +44,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:support-annotations:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation "com.android.support:support-v4:28.0.0"
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.dagger:dagger:2.0'
     implementation 'pub.devrel:easypermissions:0.2.1'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.0'

@@ -1,6 +1,6 @@
 package com.zplesac.connectionbuddy;
 
-import android.support.v4.util.LruCache;
+import androidx.collection.LruCache;
 
 class LruConnectionBuddyCache implements ConnectionBuddyCache {
 

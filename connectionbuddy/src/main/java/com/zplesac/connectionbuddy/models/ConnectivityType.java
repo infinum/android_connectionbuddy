@@ -2,7 +2,7 @@ package com.zplesac.connectionbuddy.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
