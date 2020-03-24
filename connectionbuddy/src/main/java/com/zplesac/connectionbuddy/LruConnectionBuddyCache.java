@@ -1,9 +1,11 @@
 package com.zplesac.connectionbuddy;
 
+import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
 
 class LruConnectionBuddyCache implements ConnectionBuddyCache {
 
+    @NonNull
     private LruCache<String, Boolean> cache;
 
     LruConnectionBuddyCache() {
@@ -20,7 +22,7 @@ class LruConnectionBuddyCache implements ConnectionBuddyCache {
     }
 
     @Override
-    public boolean getLastNetworkState(Object object) {
+    public boolean getLastNetworkState(@NonNull Object object) {
         if (isLastNetworkStateStored(object)) {
             Boolean state = cache.get(object.toString());
             if (state != null) {
@@ -34,17 +36,17 @@ class LruConnectionBuddyCache implements ConnectionBuddyCache {
     }
 
     @Override
-    public void setLastNetworkState(Object object, boolean isActive) {
+    public void setLastNetworkState(@NonNull Object object, boolean isActive) {
         cache.put(object.toString(), isActive);
     }
 
     @Override
-    public void clearLastNetworkState(Object object) {
+    public void clearLastNetworkState(@NonNull Object object) {
         cache.remove(object.toString());
     }
 
     @Override
-    public boolean isLastNetworkStateStored(Object object) {
+    public boolean isLastNetworkStateStored(@NonNull Object object) {
         return cache.snapshot().containsKey(object.toString());
     }
 }
