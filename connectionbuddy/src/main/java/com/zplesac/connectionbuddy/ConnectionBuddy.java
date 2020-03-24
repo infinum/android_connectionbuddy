@@ -198,8 +198,11 @@ public class ConnectionBuddy {
      */
     public void notifyConnectionChange(boolean hasConnection, final ConnectivityChangeListener listener) {
         if (hasConnection) {
-            final ConnectivityEvent event = new ConnectivityEvent(new ConnectivityState(ConnectivityState.CONNECTED), getNetworkType(),
-                getSignalStrength());
+            final ConnectivityEvent event = new ConnectivityEvent(
+                new ConnectivityState(ConnectivityState.CONNECTED),
+                getNetworkType(),
+                getSignalStrength()
+            );
 
             if (configuration.isNotifyOnlyReliableEvents()) {
                 testNetworkRequest(new NetworkRequestCheckListener() {
@@ -222,7 +225,8 @@ public class ConnectionBuddy {
             listener.onConnectionChange(new ConnectivityEvent(
                 new ConnectivityState(ConnectivityState.DISCONNECTED),
                 new ConnectivityType(ConnectivityType.NONE),
-                new ConnectivityStrength(ConnectivityStrength.UNDEFINED)));
+                new ConnectivityStrength(ConnectivityStrength.UNDEFINED)
+            ));
         }
     }
 
@@ -400,8 +404,10 @@ public class ConnectionBuddy {
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 
         if (wifiInfo != null) {
-            int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(),
-                ConnectionBuddyConfiguration.SIGNAL_STRENGTH_NUMBER_OF_LEVELS);
+            int level = WifiManager.calculateSignalLevel(
+                wifiInfo.getRssi(),
+                ConnectionBuddyConfiguration.SIGNAL_STRENGTH_NUMBER_OF_LEVELS
+            );
 
             switch (level) {
                 case 0:
@@ -486,8 +492,13 @@ public class ConnectionBuddy {
      * @param listener        Callback listener.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound,
-        WifiConnectivityListener listener) throws SecurityException {
+    public void connectToWifiConfiguration(
+        Context context,
+        String networkSsid,
+        String networkPassword,
+        boolean disconnectIfNotFound,
+        WifiConnectivityListener listener
+    ) throws SecurityException {
         // Check if permissions have been granted
         if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
@@ -524,8 +535,13 @@ public class ConnectionBuddy {
 
         private boolean disconnectIfNotFound;
 
-        WifiScanResultReceiver(WifiManager wifiManager, String networkSsid,
-            String networkPassword, boolean disconnectIfNotFound, WifiConnectivityListener listener) {
+        WifiScanResultReceiver(
+            WifiManager wifiManager,
+            String networkSsid,
+            String networkPassword,
+            boolean disconnectIfNotFound,
+            WifiConnectivityListener listener
+        ) {
             this.wifiManager = wifiManager;
             this.listener = listener;
             this.networkSsid = networkSsid;
@@ -556,12 +572,20 @@ public class ConnectionBuddy {
                             networkId = wifiConfiguration.networkId;
                         }
 
-                        wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(networkSsid, wifiManager,
-                            disconnectIfNotFound, listener);
-                        configuration.getContext()
-                            .registerReceiver(wifiConnectionStateChangedReceiver,
-                                new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+                        wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(
+                            networkSsid,
+                            wifiManager,
+                            disconnectIfNotFound,
+                            listener
+                        );
+
+                        configuration.getContext().registerReceiver(
+                            wifiConnectionStateChangedReceiver,
+                            new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+                        );
+
                         wifiManager.enableNetwork(networkId, true);
+
                         return;
                     }
                 }
@@ -594,8 +618,12 @@ public class ConnectionBuddy {
 
         private boolean disconnectIfNotFound;
 
-        WifiConnectionStateChangedReceiver(String networkSsid, @NonNull WifiManager wifiManager, boolean disconnectIfNotFound,
-            WifiConnectivityListener listener) {
+        WifiConnectionStateChangedReceiver(
+            String networkSsid,
+            @NonNull WifiManager wifiManager,
+            boolean disconnectIfNotFound,
+            WifiConnectivityListener listener
+        ) {
             this.listener = listener;
             this.networkSsid = networkSsid;
             this.wifiManager = wifiManager;
