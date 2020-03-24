@@ -501,7 +501,6 @@ public class ConnectionBuddy {
                 wifiManager.setWifiEnabled(true);
             }
 
-            // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
             wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
             configuration.getContext()
                 .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -557,7 +556,6 @@ public class ConnectionBuddy {
                             networkId = wifiConfiguration.networkId;
                         }
 
-                        // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
                         wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(networkSsid, wifiManager,
                             disconnectIfNotFound, listener);
                         configuration.getContext()
