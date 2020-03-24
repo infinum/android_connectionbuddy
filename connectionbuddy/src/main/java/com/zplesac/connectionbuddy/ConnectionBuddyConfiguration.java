@@ -193,7 +193,7 @@ public class ConnectionBuddyConfiguration {
         }
 
         @NonNull
-        public Builder setMinimumSignalStrength(ConnectivityStrength minimumSignalStrength) {
+        public Builder setMinimumSignalStrength(@NonNull ConnectivityStrength minimumSignalStrength) {
             this.minimumSignalStrength = minimumSignalStrength;
             return this;
         }
