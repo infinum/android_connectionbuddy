@@ -631,10 +631,7 @@ public class ConnectionBuddy {
                         WifiConfiguration wifiConfiguration = checkIfWifiAlreadyConfigured(wifiManager.getConfiguredNetworks());
 
                         if (wifiConfiguration == null) {
-                            wifiConfiguration = new WifiConfiguration();
-                            wifiConfiguration.SSID = "\"" + networkSsid + "\"";
-                            wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
-                            networkId = wifiManager.addNetwork(wifiConfiguration);
+                            networkId = wifiManager.addNetwork(createWifiConfiguration(scanResult, networkPassword));
                         } else {
                             networkId = wifiConfiguration.networkId;
                         }
@@ -673,6 +670,81 @@ public class ConnectionBuddy {
                 }
             }
             return null;
+        }
+
+        @NonNull
+        private WifiConfiguration createWifiConfiguration(@NonNull ScanResult scanResult, @NonNull String preSharedKey) {
+            // See https://stackoverflow.com/a/53749271/1597897.
+
+            String[] capabilities = scanResult.capabilities.substring(1, scanResult.capabilities.indexOf(']') - 1).split("-");
+
+            String auth = "";
+            String keyManagement = "";
+            String pairwiseCipher = "";
+
+            if (capabilities.length > 0) {
+                auth = capabilities[0];
+            }
+
+            if (capabilities.length > 1) {
+                keyManagement = capabilities[1];
+            }
+
+            if (capabilities.length > 2) {
+                pairwiseCipher = capabilities[2];
+            }
+
+            WifiConfiguration config = new WifiConfiguration();
+            config.SSID = quoted(scanResult.SSID);
+            config.BSSID = scanResult.BSSID;
+
+            if (auth.contains("WPA") || auth.contains("WPA2")) {
+                config.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                config.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            }
+
+            if (auth.contains("EAP")) {
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.LEAP);
+            } else if (auth.contains("WPA") || auth.contains("WPA2")) {
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            } else if (auth.contains("WEP")) {
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+            }
+
+            if (keyManagement.contains("IEEE802.1X")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.IEEE8021X);
+            } else if (auth.contains("WPA") && keyManagement.contains("EAP")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_EAP);
+            } else if (auth.contains("WPA") && keyManagement.contains("PSK")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            } else if (auth.contains("WPA2") && keyManagement.contains("PSK")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            }
+
+            if (pairwiseCipher.contains("CCMP") || pairwiseCipher.contains("TKIP")) {
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            }
+
+            if (!preSharedKey.isEmpty()) {
+                if (auth.contains("WEP")) {
+                    if (preSharedKey.matches("\\p{XDigit}+")) {
+                        config.wepKeys[0] = preSharedKey;
+                    } else {
+                        config.wepKeys[0] = quoted(preSharedKey);
+                    }
+                    config.wepTxKeyIndex = 0;
+                } else {
+                    config.preSharedKey = quoted(preSharedKey);
+                }
+            }
+
+            return config;
+        }
+
+        @NonNull
+        private String quoted(@NonNull String s) {
+            return "\"" + s + "\"";
         }
     }
 
