@@ -6,11 +6,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
+import android.net.NetworkSpecifier;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSpecifier;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,6 +42,7 @@ import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -56,6 +63,8 @@ public class ConnectionBuddy {
     private static final String HEADER_VALUE_CONNECTION = "close";
     private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
     private static final int CONNECTION_TIMEOUT = 1500;
+
+    private static final int WIFI_CONNECTION_TIMEOUT_MS = 10_000;
 
     private static volatile ConnectionBuddy instance;
 
@@ -554,6 +563,11 @@ public class ConnectionBuddy {
             throw new IllegalStateException(NOT_INITIALIZED_ERROR);
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            connectToWifiUsingNetworkSpecifier(networkSsid, networkPassword, listener);
+            return;
+        }
+
         // Check if permissions have been granted
         if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
             || ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -578,6 +592,29 @@ public class ConnectionBuddy {
 
             configuration.getWifiManager().startScan();
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void connectToWifiUsingNetworkSpecifier(
+        @NonNull String ssid,
+        @NonNull String preSharedKey,
+        @Nullable WifiConnectivityListener listener
+    ) {
+        if (configuration == null) {
+            throw new IllegalStateException(NOT_INITIALIZED_ERROR);
+        }
+
+        NetworkSpecifier specifier = new WifiNetworkSpecifier.Builder()
+            .setSsid(ssid)
+            .setWpa2Passphrase(preSharedKey)
+            .build();
+
+        NetworkRequest request = new NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .setNetworkSpecifier(specifier)
+            .build();
+
+        configuration.getConnectivityManager().requestNetwork(request, new WifiNetworkCallback(listener), WIFI_CONNECTION_TIMEOUT_MS);
     }
 
     /**
@@ -817,6 +854,33 @@ public class ConnectionBuddy {
             if (disconnectIfNotFound) {
                 wifiManager.disconnect();
             }
+            if (listener != null) {
+                listener.onNotFound();
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static class WifiNetworkCallback extends ConnectivityManager.NetworkCallback {
+
+        @Nullable
+        private final WifiConnectivityListener listener;
+
+        public WifiNetworkCallback(@Nullable WifiConnectivityListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            super.onAvailable(network);
+            if (listener != null) {
+                listener.onConnected();
+            }
+        }
+
+        @Override
+        public void onUnavailable() {
+            super.onUnavailable();
             if (listener != null) {
                 listener.onNotFound();
             }
