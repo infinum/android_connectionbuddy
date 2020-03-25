@@ -627,7 +627,6 @@ public class ConnectionBuddy {
             if (wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
                 for (ScanResult scanResult : wifiManager.getScanResults()) {
                     if (scanResult.SSID != null && scanResult.SSID.equals(networkSsid)) {
-
                         int networkId;
                         WifiConfiguration wifiConfiguration = checkIfWifiAlreadyConfigured(wifiManager.getConfiguredNetworks());
 
@@ -637,8 +636,6 @@ public class ConnectionBuddy {
                             wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
                             networkId = wifiManager.addNetwork(wifiConfiguration);
                         } else {
-                            // Set new password
-                            wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
                             networkId = wifiConfiguration.networkId;
                         }
 
