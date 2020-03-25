@@ -64,7 +64,7 @@ public class ConnectionBuddy {
     private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
     private static final int CONNECTION_TIMEOUT = 1500;
 
-    private static final int WIFI_CONNECTION_TIMEOUT_MS = 10_000;
+    private static final int WIFI_CONNECTION_TIMEOUT_MS = 15_000;
 
     private static volatile ConnectionBuddy instance;
 
