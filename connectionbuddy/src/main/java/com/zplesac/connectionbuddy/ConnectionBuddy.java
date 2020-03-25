@@ -692,6 +692,8 @@ public class ConnectionBuddy {
 
         private boolean disconnectIfNotFound;
 
+        private boolean startedConnecting = false;
+
         WifiConnectionStateChangedReceiver(
             @NonNull String networkSsid,
             @NonNull WifiManager wifiManager,
@@ -706,26 +708,49 @@ public class ConnectionBuddy {
 
         @Override
         public void onReceive(@NonNull Context context, Intent intent) {
-            // unregister receiver, so that we are only notified once about the results
-            context.unregisterReceiver(this);
-
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             if (networkInfo == null) {
                 return;
             }
 
-            if (networkInfo.isConnected() && wifiManager.getConnectionInfo().getSSID().replace("\"", "").equals(networkSsid)) {
-                if (listener != null) {
-                    listener.onConnected();
-                }
-            } else {
-                if (disconnectIfNotFound) {
-                    wifiManager.disconnect();
-                }
+            String ssid = wifiManager.getConnectionInfo().getSSID().replace("\"", "");
 
-                if (listener != null) {
-                    listener.onNotFound();
+            if (!startedConnecting) {
+                if (networkInfo.getState() == NetworkInfo.State.CONNECTING) {
+                    if (ssid.equals(networkSsid)) {
+                        startedConnecting = true;
+                    } else {
+                        onFailure(context);
+                    }
                 }
+                return;
+            }
+
+            if (networkInfo.getState() == NetworkInfo.State.CONNECTING) {
+                return;
+            }
+
+            if (networkInfo.getState() == NetworkInfo.State.CONNECTED && ssid.equals(networkSsid)) {
+                onSuccess(context);
+            } else {
+                onFailure(context);
+            }
+        }
+
+        private void onSuccess(Context context) {
+            context.unregisterReceiver(this);
+            if (listener != null) {
+                listener.onConnected();
+            }
+        }
+
+        private void onFailure(Context context) {
+            context.unregisterReceiver(this);
+            if (disconnectIfNotFound) {
+                wifiManager.disconnect();
+            }
+            if (listener != null) {
+                listener.onNotFound();
             }
         }
     }
