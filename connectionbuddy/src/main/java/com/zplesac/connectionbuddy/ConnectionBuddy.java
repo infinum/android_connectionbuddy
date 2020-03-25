@@ -528,8 +528,7 @@ public class ConnectionBuddy {
         @NonNull String networkSsid,
         @NonNull String networkPassword,
         boolean disconnectIfNotFound
-    )
-        throws SecurityException {
+    ) throws SecurityException {
         connectToWifiConfiguration(context, networkSsid, networkPassword, disconnectIfNotFound, null);
     }
 
