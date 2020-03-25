@@ -614,7 +614,11 @@ public class ConnectionBuddy {
             .setNetworkSpecifier(specifier)
             .build();
 
-        configuration.getConnectivityManager().requestNetwork(request, new WifiNetworkCallback(listener), WIFI_CONNECTION_TIMEOUT_MS);
+        configuration.getConnectivityManager().requestNetwork(
+            request,
+            new WifiNetworkCallback(configuration.getConnectivityManager(), listener),
+            WIFI_CONNECTION_TIMEOUT_MS
+        );
     }
 
     /**
@@ -860,22 +864,34 @@ public class ConnectionBuddy {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private static class WifiNetworkCallback extends ConnectivityManager.NetworkCallback {
+
+        @NonNull
+        private final ConnectivityManager connectivityManager;
 
         @Nullable
         private final WifiConnectivityListener listener;
 
-        public WifiNetworkCallback(@Nullable WifiConnectivityListener listener) {
+        public WifiNetworkCallback(@NonNull ConnectivityManager connectivityManager, @Nullable WifiConnectivityListener listener) {
+            this.connectivityManager = connectivityManager;
             this.listener = listener;
         }
 
         @Override
         public void onAvailable(@NonNull Network network) {
             super.onAvailable(network);
+            connectivityManager.bindProcessToNetwork(network);
             if (listener != null) {
                 listener.onConnected();
             }
+        }
+
+        @Override
+        public void onLost(@NonNull Network network) {
+            super.onLost(network);
+            connectivityManager.unregisterNetworkCallback(this);
+            connectivityManager.bindProcessToNetwork(null);
         }
 
         @Override
