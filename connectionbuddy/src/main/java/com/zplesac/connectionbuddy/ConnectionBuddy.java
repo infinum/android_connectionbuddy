@@ -673,7 +673,11 @@ public class ConnectionBuddy {
                         if (wifiConfiguration == null) {
                             networkId = wifiManager.addNetwork(createWifiConfiguration(scanResult, networkPassword));
                         } else {
-                            networkId = wifiConfiguration.networkId;
+                            wifiConfiguration.preSharedKey = networkPassword;
+                            networkId = wifiManager.updateNetwork(wifiConfiguration);
+                            if (networkId == -1) {
+                                networkId = wifiConfiguration.networkId;
+                            }
                         }
 
                         wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(
