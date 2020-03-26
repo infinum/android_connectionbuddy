@@ -877,7 +877,7 @@ public class ConnectionBuddy {
         @Nullable
         private final WifiConnectivityListener listener;
 
-        public WifiNetworkCallback(@NonNull ConnectivityManager connectivityManager, @Nullable WifiConnectivityListener listener) {
+        WifiNetworkCallback(@NonNull ConnectivityManager connectivityManager, @Nullable WifiConnectivityListener listener) {
             this.connectivityManager = connectivityManager;
             this.listener = listener;
         }
