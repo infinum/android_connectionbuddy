@@ -39,6 +39,26 @@ public class ConnectivityEvent implements Parcelable {
         this.strength = strength;
     }
 
+    protected ConnectivityEvent(@NonNull Parcel in) {
+        ConnectivityState state = in.readParcelable(ConnectivityState.class.getClassLoader());
+        ConnectivityType type = in.readParcelable(ConnectivityType.class.getClassLoader());
+        ConnectivityStrength strength = in.readParcelable(ConnectivityStrength.class.getClassLoader());
+
+        if (state == null || type == null || strength == null) {
+            throw new IllegalStateException("Some of the read Parcelable objects were null.");
+        }
+
+        this.state = state;
+        this.type = type;
+        this.strength = strength;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format("ConnectivityEvent(state=%s, type=%s, strength=%s)", state, type, strength);
+    }
+
     @NonNull
     public ConnectivityState getState() {
         return state;
@@ -76,20 +96,6 @@ public class ConnectivityEvent implements Parcelable {
         dest.writeParcelable(this.state, flags);
         dest.writeParcelable(this.type, flags);
         dest.writeParcelable(this.strength, flags);
-    }
-
-    protected ConnectivityEvent(@NonNull Parcel in) {
-        ConnectivityState state = in.readParcelable(ConnectivityState.class.getClassLoader());
-        ConnectivityType type = in.readParcelable(ConnectivityType.class.getClassLoader());
-        ConnectivityStrength strength = in.readParcelable(ConnectivityStrength.class.getClassLoader());
-
-        if (state == null || type == null || strength == null) {
-            throw new IllegalStateException("Some of the read Parcelable objects were null.");
-        }
-
-        this.state = state;
-        this.type = type;
-        this.strength = strength;
     }
 
     public static final Creator<ConnectivityEvent> CREATOR = new Creator<ConnectivityEvent>() {
