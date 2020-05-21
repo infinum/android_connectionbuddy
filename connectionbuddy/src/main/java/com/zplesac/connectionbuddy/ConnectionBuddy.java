@@ -83,10 +83,6 @@ public class ConnectionBuddy {
     @Nullable
     private ExecutorService executor;
 
-    protected ConnectionBuddy() {
-        // empty constructor
-    }
-
     /**
      * Get current library instance.
      *
@@ -101,6 +97,10 @@ public class ConnectionBuddy {
             }
         }
         return instance;
+    }
+
+    protected ConnectionBuddy() {
+        // empty constructor
     }
 
     /**
