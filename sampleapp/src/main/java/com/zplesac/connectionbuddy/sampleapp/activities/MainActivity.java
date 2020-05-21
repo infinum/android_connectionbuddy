@@ -12,6 +12,7 @@ import android.widget.Button;
 /**
  * Created by Željko Plesac on 08/09/15.
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class MainActivity extends Activity {
 
     private Button buttonSimpleExample;

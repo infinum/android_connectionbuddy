@@ -16,6 +16,7 @@ import android.widget.Toast;
 /**
  * Created by Željko Plesac on 08/09/15.
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class ManualConfigurationActivity extends Activity implements ConnectivityChangeListener {
 
     private TextView tvTitle;

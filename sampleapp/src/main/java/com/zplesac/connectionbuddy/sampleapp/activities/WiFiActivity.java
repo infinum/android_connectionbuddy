@@ -22,6 +22,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 /**
  * Created by Željko Plesac on 15/11/16.
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class WiFiActivity extends AppCompatActivity implements WifiConnectivityListener {
 
     private static final String TAG = "WiFiActivity";
