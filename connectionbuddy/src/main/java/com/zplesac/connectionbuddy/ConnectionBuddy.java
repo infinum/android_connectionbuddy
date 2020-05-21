@@ -63,7 +63,7 @@ public class ConnectionBuddy {
     private static final String HEADER_VALUE_USER_AGENT = "Android";
     private static final String HEADER_KEY_CONNECTION = "Connection";
     private static final String HEADER_VALUE_CONNECTION = "close";
-    private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
+    private static final String NETWORK_CHECK_URL = "https://clients3.google.com/generate_204";
     private static final int CONNECTION_TIMEOUT = 1500;
 
     private static final int WIFI_CONNECTION_TIMEOUT_MS = 15_000;
