@@ -55,7 +55,7 @@ public class MVPActivity extends Activity implements MVPView {
 
     @Override
     public void onConnectionChangeEvent(ConnectivityEvent event) {
-        tvTitle.setText("Connection status: " + event.getState());
-        tvConnectionType.setText("Connection type: " + event.getType());
+        tvTitle.setText(String.format(getString(R.string.connection_status), event.getState()));
+        tvConnectionType.setText(String.format(getString(R.string.connection_type), event.getType()));
     }
 }

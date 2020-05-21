@@ -3,6 +3,8 @@
     <string name="simple_example">Simple example</string>
     <string name="manual_configuration">Manual configuration</string>
     <string name="mvp_example">MVP example</string>
+    <string name="connection_status">Connection status: %s</string>
+    <string name="connection_type">Connection type: %s</string>
     <string name="wifi_example">WiFi connectivity example</string>
     <string name="test_network_request">Test network request</string>
     <string name="network_ssid">Network SSID</string>
