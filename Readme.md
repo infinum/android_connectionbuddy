@@ -97,6 +97,7 @@ ConnectivityEvent also holds some additional information:
 * [ConnectivityType](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityType.java) enum, which defines the network connection type currently available on the user's device
 * [ConnectivityStrength](https://github.com/zplesac/android_connectionbuddy/blob/master/connectionbuddy/src/main/java/com/zplesac/connectionbuddy/models/ConnectivityStrength.java) enum, which describes signal strength of the network connection.
 
+A default `ConnectivityEvent` has a `DISCONNECTED` state, `NONE` type, and `UNDEFINED` strength.
 
 ## ConnectionBuddy configuration
 
@@ -131,6 +132,8 @@ A more detailed example can be found [here](https://github.com/zplesac/android_c
 ## Backward compatibility
 
 As of version 1.2.0, ConnectionBuddy can be used with your apps on devices all the way back to Android 2.3 (API 10). It should also work on devices with API 8-9, but that's not tested.
+
+Since 2.0.1, `minSdkVersion` is 19.
 
 ## Changelog
 
