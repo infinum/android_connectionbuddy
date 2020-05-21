@@ -15,11 +15,8 @@ import android.widget.Button;
 public class MainActivity extends Activity {
 
     private Button buttonSimpleExample;
-
     private Button buttonMVPExample;
-
     private Button buttonManualConfiguration;
-
     private Button buttonWifiExample;
 
     @Override
@@ -27,10 +24,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buttonMVPExample = (Button) findViewById(R.id.button_mvp);
-        buttonSimpleExample = (Button) findViewById(R.id.button_simple);
-        buttonManualConfiguration = (Button) findViewById(R.id.button_manual_configuration);
-        buttonWifiExample = (Button) findViewById(R.id.button_wifi);
+        buttonMVPExample = findViewById(R.id.button_mvp);
+        buttonSimpleExample = findViewById(R.id.button_simple);
+        buttonManualConfiguration = findViewById(R.id.button_manual_configuration);
+        buttonWifiExample = findViewById(R.id.button_wifi);
 
         buttonManualConfiguration.setOnClickListener(new View.OnClickListener() {
             @Override

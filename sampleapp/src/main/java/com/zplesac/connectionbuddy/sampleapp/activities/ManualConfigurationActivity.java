@@ -19,9 +19,7 @@ import android.widget.Toast;
 public class ManualConfigurationActivity extends Activity implements ConnectivityChangeListener {
 
     private TextView tvTitle;
-
     private TextView tvConnectionType;
-
     private Button buttonTestNetworkRequest;
 
     @Override
@@ -33,9 +31,9 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
             ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache().clearLastNetworkState(this);
         }
 
-        tvTitle = (TextView) findViewById(R.id.tv_title);
-        tvConnectionType = (TextView) findViewById(R.id.tv_connection_type);
-        buttonTestNetworkRequest = (Button) findViewById(R.id.button_test_network_request);
+        tvTitle = findViewById(R.id.tv_title);
+        tvConnectionType = findViewById(R.id.tv_connection_type);
+        buttonTestNetworkRequest = findViewById(R.id.button_test_network_request);
 
         buttonTestNetworkRequest.setVisibility(View.VISIBLE);
         buttonTestNetworkRequest.setOnClickListener(testNetworkRequestButtonClickListener);

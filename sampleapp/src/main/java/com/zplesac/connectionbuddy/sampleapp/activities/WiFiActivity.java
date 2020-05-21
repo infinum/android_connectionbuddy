@@ -6,6 +6,8 @@ import com.zplesac.connectionbuddy.sampleapp.R;
 
 import android.Manifest;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,9 +29,7 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
     private static final int RC_LOCATION = 147;
 
     private EditText etSsid;
-
     private EditText etPassword;
-
     private Button buttonConnect;
 
     @Override
@@ -37,9 +37,9 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wi_fi);
 
-        etSsid = (EditText) findViewById(R.id.et_ssid);
-        etPassword = (EditText) findViewById(R.id.et_password);
-        buttonConnect = (Button) findViewById(R.id.button_connect);
+        etSsid = findViewById(R.id.et_ssid);
+        etPassword = findViewById(R.id.et_password);
+        buttonConnect = findViewById(R.id.button_connect);
 
         buttonConnect.setOnClickListener(new View.OnClickListener() {
             @Override

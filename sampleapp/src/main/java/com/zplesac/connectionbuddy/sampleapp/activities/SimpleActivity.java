@@ -13,16 +13,14 @@ import android.widget.TextView;
 public class SimpleActivity extends ConnectionBuddyActivity{
 
     private TextView tvTitle;
-
     private TextView tvConnectionType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mvp);
-
-        tvTitle = (TextView) findViewById(R.id.tv_title);
-        tvConnectionType = (TextView) findViewById(R.id.tv_connection_type);
+        tvTitle = findViewById(R.id.tv_title);
+        tvConnectionType = findViewById(R.id.tv_connection_type);
     }
 
     @Override
