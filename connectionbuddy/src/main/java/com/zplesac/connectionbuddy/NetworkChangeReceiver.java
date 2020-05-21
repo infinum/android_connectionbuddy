@@ -13,8 +13,6 @@ import androidx.annotation.NonNull;
  */
 class NetworkChangeReceiver extends BroadcastReceiver {
 
-    private static final String NOT_INITIALIZED_ERROR = "ConnectionBuddy not initialized.";
-
     @NonNull
     private Object object;
 
@@ -31,10 +29,6 @@ class NetworkChangeReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (ConnectionBuddy.getInstance().getConfiguration() == null) {
-            throw new IllegalStateException(NOT_INITIALIZED_ERROR);
-        }
-
         boolean hasConnectivity = ConnectionBuddy.getInstance().hasNetworkConnection();
         ConnectionBuddyCache cache = ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache();
 

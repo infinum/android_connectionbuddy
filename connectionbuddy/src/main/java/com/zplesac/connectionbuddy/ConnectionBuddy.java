@@ -102,7 +102,7 @@ public class ConnectionBuddy {
     }
 
     @Contract("null -> fail")
-    public static void assertNotNull(ConnectionBuddyConfiguration configuration) {
+    private static void assertNotNull(ConnectionBuddyConfiguration configuration) {
         if (configuration == null) {
             throw new IllegalStateException(NOT_INITIALIZED_ERROR);
         }
@@ -123,8 +123,9 @@ public class ConnectionBuddy {
         }
     }
 
-    @Nullable
+    @NonNull
     public ConnectionBuddyConfiguration getConfiguration() {
+        assertNotNull(configuration);
         return configuration;
     }
 
