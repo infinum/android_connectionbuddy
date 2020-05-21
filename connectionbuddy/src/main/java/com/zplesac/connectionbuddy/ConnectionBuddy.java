@@ -100,7 +100,7 @@ public class ConnectionBuddy {
     }
 
     protected ConnectionBuddy() {
-        // empty constructor
+        // Empty constructor.
     }
 
     /**
