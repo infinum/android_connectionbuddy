@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by Željko Plesac on 08/09/15.
  */
@@ -55,7 +57,7 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
     }
 
     @Override
-    public void onConnectionChange(ConnectivityEvent event) {
+    public void onConnectionChange(@NonNull ConnectivityEvent event) {
         tvTitle.setText(String.format(getString(R.string.connection_status), event.getState()));
         tvConnectionType.setText(String.format(getString(R.string.connection_type), event.getType()));
     }

@@ -7,6 +7,8 @@ import com.zplesac.connectionbuddy.sampleapp.R;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by Željko Plesac on 21/02/16.
  */
@@ -24,7 +26,7 @@ public class SimpleActivity extends ConnectionBuddyActivity{
     }
 
     @Override
-    public void onConnectionChange(ConnectivityEvent event) {
+    public void onConnectionChange(@NonNull ConnectivityEvent event) {
         tvTitle.setText(String.format(getString(R.string.connection_status), event.getState()));
         tvConnectionType.setText(String.format(getString(R.string.connection_type), event.getType()));
     }
