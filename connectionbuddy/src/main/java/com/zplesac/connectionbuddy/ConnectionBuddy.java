@@ -110,10 +110,7 @@ public class ConnectionBuddy {
      *
      * @param configuration ConnectionBuddy configuration which is used in instance.
      */
-    public synchronized void init(ConnectionBuddyConfiguration configuration) {
-        if (configuration == null) {
-            throw new IllegalArgumentException();
-        }
+    public synchronized void init(@NonNull ConnectionBuddyConfiguration configuration) {
         if (this.configuration == null) {
             this.configuration = configuration;
         }
