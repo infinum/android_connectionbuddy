@@ -101,6 +101,13 @@ public class ConnectionBuddy {
         return instance;
     }
 
+    @Contract("null -> fail")
+    public static void assertNotNull(ConnectionBuddyConfiguration configuration) {
+        if (configuration == null) {
+            throw new IllegalStateException(NOT_INITIALIZED_ERROR);
+        }
+    }
+
     protected ConnectionBuddy() {
         // Empty constructor.
     }
@@ -119,13 +126,6 @@ public class ConnectionBuddy {
     @Nullable
     public ConnectionBuddyConfiguration getConfiguration() {
         return configuration;
-    }
-
-    @Contract("null -> fail")
-    private void assertNotNull(ConnectionBuddyConfiguration configuration) {
-        if (configuration == null) {
-            throw new IllegalStateException(NOT_INITIALIZED_ERROR);
-        }
     }
 
     /**
