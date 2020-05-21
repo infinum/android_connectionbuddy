@@ -8,6 +8,8 @@ import com.zplesac.connectionbuddy.sampleapp.mvp.views.MVPView;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+
 public class MVPPresenterImpl implements MVPPresenter, ConnectivityChangeListener {
 
     private MVPView view;
@@ -38,7 +40,7 @@ public class MVPPresenterImpl implements MVPPresenter, ConnectivityChangeListene
     }
 
     @Override
-    public void onConnectionChange(ConnectivityEvent event) {
+    public void onConnectionChange(@NonNull ConnectivityEvent event) {
         view.onConnectionChangeEvent(event);
     }
 }
