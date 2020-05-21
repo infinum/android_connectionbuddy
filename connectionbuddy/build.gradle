@@ -144,6 +144,7 @@ task sourcesJar(type: Jar) {
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.annotation:annotation:1.1.0'
+    compileOnly 'org.jetbrains:annotations:19.0.0'
 }
 
 artifacts {
