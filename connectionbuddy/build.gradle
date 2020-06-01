@@ -3,13 +3,13 @@ apply plugin: 'maven'
 apply from: '../config/quality.gradle'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.2'
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 28
         versionCode 16
         versionName "2.0.1"
     }
@@ -29,6 +29,7 @@ android {
         showAll true
     }
 }
+
 repositories {
     mavenCentral()
 }
