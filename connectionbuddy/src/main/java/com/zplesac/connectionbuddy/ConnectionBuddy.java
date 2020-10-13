@@ -33,8 +33,9 @@ import com.zplesac.connectionbuddy.models.ConnectivityType;
 import org.jetbrains.annotations.Contract;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,14 +59,10 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class ConnectionBuddy {
 
     private static final String NOT_INITIALIZED_ERROR = "ConnectionBuddy not initialized.";
+    private static final String NETWORK_CHECK_URL_GOOGLE_DNS = "8.8.8.8";
 
-    private static final String HEADER_KEY_USER_AGENT = "User-Agent";
-    private static final String HEADER_VALUE_USER_AGENT = "Android";
-    private static final String HEADER_KEY_CONNECTION = "Connection";
-    private static final String HEADER_VALUE_CONNECTION = "close";
-    private static final String NETWORK_CHECK_URL = "https://clients3.google.com/generate_204";
+    private static final int DNS_PORT = 53;
     private static final int CONNECTION_TIMEOUT = 1500;
-
     private static final int WIFI_CONNECTION_TIMEOUT_MS = 15_000;
 
     private static volatile ConnectionBuddy instance;
@@ -339,29 +336,16 @@ public class ConnectionBuddy {
             @Override
             public void run() {
                 try {
-                    HttpURLConnection httpURLConnection = (HttpURLConnection)
-                        (new URL(NETWORK_CHECK_URL).openConnection());
-                    httpURLConnection.setRequestProperty(HEADER_KEY_USER_AGENT, HEADER_VALUE_USER_AGENT);
-                    httpURLConnection.setRequestProperty(HEADER_KEY_CONNECTION, HEADER_VALUE_CONNECTION);
-                    httpURLConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-                    httpURLConnection.connect();
-
-                    if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT
-                        && httpURLConnection.getContentLength() == 0) {
-                        callbackExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onResponseObtained();
-                            }
-                        });
-                    } else {
-                        callbackExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onNoResponse();
-                            }
-                        });
-                    }
+                    Socket socket = new Socket();
+                    SocketAddress socketAddress = new InetSocketAddress(NETWORK_CHECK_URL_GOOGLE_DNS, DNS_PORT);
+                    socket.connect(socketAddress, CONNECTION_TIMEOUT);
+                    socket.close();
+                    callbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onResponseObtained();
+                        }
+                    });
                 } catch (IOException e) {
                     callbackExecutor.execute(new Runnable() {
                         @Override
