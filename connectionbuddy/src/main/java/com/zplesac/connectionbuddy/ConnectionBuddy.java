@@ -6,19 +6,20 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
+import android.net.NetworkSpecifier;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSpecifier;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
@@ -28,6 +29,8 @@ import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 import com.zplesac.connectionbuddy.models.ConnectivityType;
+
+import org.jetbrains.annotations.Contract;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -39,6 +42,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -47,33 +57,33 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
  */
 public class ConnectionBuddy {
 
+    private static final String NOT_INITIALIZED_ERROR = "ConnectionBuddy not initialized.";
+
     private static final String HEADER_KEY_USER_AGENT = "User-Agent";
-
     private static final String HEADER_VALUE_USER_AGENT = "Android";
-
     private static final String HEADER_KEY_CONNECTION = "Connection";
-
     private static final String HEADER_VALUE_CONNECTION = "close";
-
-    private static final String NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
-
+    private static final String NETWORK_CHECK_URL = "https://clients3.google.com/generate_204";
     private static final int CONNECTION_TIMEOUT = 1500;
+
+    private static final int WIFI_CONNECTION_TIMEOUT_MS = 15_000;
 
     private static volatile ConnectionBuddy instance;
 
+    @NonNull
     private Map<String, NetworkChangeReceiver> networkReceiversHashMap = new HashMap<>();
 
+    @Nullable
     private WifiScanResultReceiver wifiScanResultReceiver;
 
+    @Nullable
     private WifiConnectionStateChangedReceiver wifiConnectionStateChangedReceiver;
 
+    @Nullable
     private ConnectionBuddyConfiguration configuration;
 
+    @Nullable
     private ExecutorService executor;
-
-    protected ConnectionBuddy() {
-        // empty constructor
-    }
 
     /**
      * Get current library instance.
@@ -91,21 +101,31 @@ public class ConnectionBuddy {
         return instance;
     }
 
+    @Contract("null -> fail")
+    private static void assertNotNull(ConnectionBuddyConfiguration configuration) {
+        if (configuration == null) {
+            throw new IllegalStateException(NOT_INITIALIZED_ERROR);
+        }
+    }
+
+    protected ConnectionBuddy() {
+        // Empty constructor.
+    }
+
     /**
      * Initialize this instance with provided configuration.
      *
      * @param configuration ConnectionBuddy configuration which is used in instance.
      */
-    public synchronized void init(ConnectionBuddyConfiguration configuration) {
-        if (configuration == null) {
-            throw new IllegalArgumentException();
-        }
+    public synchronized void init(@NonNull ConnectionBuddyConfiguration configuration) {
         if (this.configuration == null) {
             this.configuration = configuration;
         }
     }
 
+    @NonNull
     public ConnectionBuddyConfiguration getConfiguration() {
+        assertNotNull(configuration);
         return configuration;
     }
 
@@ -117,7 +137,8 @@ public class ConnectionBuddy {
      * @param object   Object which is registered to network change receiver.
      * @param listener Callback listener.
      */
-    public void registerForConnectivityEvents(Object object, ConnectivityChangeListener listener) {
+    public void registerForConnectivityEvents(@NonNull Object object, @NonNull ConnectivityChangeListener listener) {
+        assertNotNull(configuration);
         registerForConnectivityEvents(object, configuration.isNotifyImmediately(), listener);
     }
 
@@ -128,16 +149,18 @@ public class ConnectionBuddy {
      * @param notifyImmediately Indicates should we immediately notify the callback about current network connection state.
      * @param listener          Callback listener.
      */
-    public void registerForConnectivityEvents(Object object, boolean notifyImmediately, ConnectivityChangeListener listener) {
+    public void registerForConnectivityEvents(
+        @NonNull Object object,
+        boolean notifyImmediately,
+        @NonNull ConnectivityChangeListener listener
+    ) {
+        assertNotNull(configuration);
         if (!isAlreadyRegistered(object)) {
-
             boolean hasConnection = hasNetworkConnection();
             ConnectionBuddyCache cache = configuration.getNetworkEventsCache();
 
-            if (cache.isLastNetworkStateStored(object)
-                && cache.getLastNetworkState(object) != hasConnection) {
+            if (cache.isLastNetworkStateStored(object) && cache.getLastNetworkState(object) != hasConnection) {
                 cache.setLastNetworkState(object, hasConnection);
-
                 if (notifyImmediately) {
                     notifyConnectionChange(hasConnection, listener);
                 }
@@ -163,7 +186,7 @@ public class ConnectionBuddy {
      * @param object Activity or fragment, which is registered for connectivity state changes.
      * @return true if the object is already registered to a network change receiver
      */
-    private boolean isAlreadyRegistered(Object object) {
+    private boolean isAlreadyRegistered(@NonNull Object object) {
         return networkReceiversHashMap.containsKey(object.toString());
     }
 
@@ -173,7 +196,8 @@ public class ConnectionBuddy {
      *
      * @param object Activity or fragment, which is registered for connectivity state changes.
      */
-    public void clearNetworkCache(Object object) {
+    public void clearNetworkCache(@NonNull Object object) {
+        assertNotNull(configuration);
         configuration.getNetworkEventsCache().clearLastNetworkState(object);
     }
 
@@ -184,7 +208,8 @@ public class ConnectionBuddy {
      * @param object             Activity or fragment, which is registered for connectivity state changes.
      * @param savedInstanceState Activity or fragments bundle.
      */
-    public void clearNetworkCache(Object object, @Nullable Bundle savedInstanceState) {
+    public void clearNetworkCache(@NonNull Object object, @Nullable Bundle savedInstanceState) {
+        assertNotNull(configuration);
         if (savedInstanceState != null) {
             configuration.getNetworkEventsCache().clearLastNetworkState(object);
         }
@@ -196,10 +221,14 @@ public class ConnectionBuddy {
      * @param hasConnection Current state of internet connection.
      * @param listener      Interface listener which has to be notified about current internet connection state.
      */
-    public void notifyConnectionChange(boolean hasConnection, final ConnectivityChangeListener listener) {
+    public void notifyConnectionChange(boolean hasConnection, @NonNull final ConnectivityChangeListener listener) {
+        assertNotNull(configuration);
         if (hasConnection) {
-            final ConnectivityEvent event = new ConnectivityEvent(new ConnectivityState(ConnectivityState.CONNECTED), getNetworkType(),
-                getSignalStrength());
+            final ConnectivityEvent event = new ConnectivityEvent(
+                new ConnectivityState(ConnectivityState.CONNECTED),
+                getNetworkType(),
+                getSignalStrength()
+            );
 
             if (configuration.isNotifyOnlyReliableEvents()) {
                 testNetworkRequest(new NetworkRequestCheckListener() {
@@ -222,7 +251,8 @@ public class ConnectionBuddy {
             listener.onConnectionChange(new ConnectivityEvent(
                 new ConnectivityState(ConnectivityState.DISCONNECTED),
                 new ConnectivityType(ConnectivityType.NONE),
-                new ConnectivityStrength(ConnectivityStrength.UNDEFINED)));
+                new ConnectivityStrength(ConnectivityStrength.UNDEFINED)
+            ));
         }
     }
 
@@ -232,7 +262,8 @@ public class ConnectionBuddy {
      * @param event    ConnectivityEvent which will be posted to listener.
      * @param listener ConnectivityChangeListener which will receive ConnectivityEvent.
      */
-    private void handleActiveInternetConnection(ConnectivityEvent event, ConnectivityChangeListener listener) {
+    private void handleActiveInternetConnection(@NonNull ConnectivityEvent event, @NonNull ConnectivityChangeListener listener) {
+        assertNotNull(configuration);
         // handle only if signal strength is above or equal minimum defined strength
         if (event.getStrength().getValue() >= configuration.getMinimumSignalStrength().getValue()) {
             if (event.getType().getValue() == ConnectivityType.MOBILE && configuration.isRegisteredForMobileNetworkChanges()) {
@@ -248,7 +279,9 @@ public class ConnectionBuddy {
      *
      * @param object Object which we want to unregister from connectivity changes.
      */
-    public void unregisterFromConnectivityEvents(Object object) {
+    public void unregisterFromConnectivityEvents(@NonNull Object object) {
+        assertNotNull(configuration);
+
         NetworkChangeReceiver networkChangeReceiver = networkReceiversHashMap.get(object.toString());
         configuration.getContext().unregisterReceiver(networkChangeReceiver);
         networkReceiversHashMap.remove(object.toString());
@@ -262,8 +295,6 @@ public class ConnectionBuddy {
             configuration.getContext().unregisterReceiver(wifiConnectionStateChangedReceiver);
             wifiConnectionStateChangedReceiver = null;
         }
-
-        networkChangeReceiver = null;
     }
 
     /**
@@ -272,12 +303,8 @@ public class ConnectionBuddy {
      * @return True if we have active network connection, false otherwise.
      */
     public boolean hasNetworkConnection() {
-        if (configuration.getConnectivityManager() == null) {
-            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
-        }
-
+        assertNotNull(configuration);
         NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
-
         return networkInfo != null && networkInfo.isConnected();
     }
 
@@ -287,7 +314,7 @@ public class ConnectionBuddy {
      *
      * @param listener Callback listener.
      */
-    public void hasNetworkConnection(NetworkRequestCheckListener listener) {
+    public void hasNetworkConnection(@NonNull NetworkRequestCheckListener listener) {
         if (hasNetworkConnection()) {
             testNetworkRequest(listener);
         } else {
@@ -301,9 +328,11 @@ public class ConnectionBuddy {
      *
      * @param listener Callback listener.
      */
-    private void testNetworkRequest(final NetworkRequestCheckListener listener) {
+    private void testNetworkRequest(@NonNull final NetworkRequestCheckListener listener) {
+        assertNotNull(configuration);
+
         if (executor == null) {
-            executor = Executors.newFixedThreadPool(getConfiguration().getTestNetworkRequestExecutorSize());
+            executor = Executors.newFixedThreadPool(configuration.getTestNetworkRequestExecutorSize());
         }
 
         executor.execute(new Runnable() {
@@ -350,13 +379,10 @@ public class ConnectionBuddy {
      *
      * @return ConnectivityType which is available on current device.
      */
+    @NonNull
     public ConnectivityType getNetworkType() {
-        if (configuration.getConnectivityManager() == null) {
-            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
-        }
-
+        assertNotNull(configuration);
         NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
-
         if (networkInfo != null && networkInfo.isConnected()) {
             switch (networkInfo.getType()) {
                 case ConnectivityManager.TYPE_WIFI:
@@ -376,13 +402,10 @@ public class ConnectionBuddy {
      *
      * @return ConnectivityStrength object for current network connection.
      */
+    @NonNull
     public ConnectivityStrength getSignalStrength() {
-        if (configuration.getConnectivityManager() == null) {
-            throw new IllegalStateException("Connectivity manager is null, library was not properly initialized!");
-        }
-
+        assertNotNull(configuration);
         NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
-
         if (networkInfo != null && networkInfo.isConnected()) {
             if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                 return getWifiStrength();
@@ -397,13 +420,15 @@ public class ConnectionBuddy {
     /**
      * Get WiFi signal strength.
      */
+    @NonNull
     private ConnectivityStrength getWifiStrength() {
-        WifiManager wifiManager = (WifiManager) configuration.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-
+        assertNotNull(configuration);
+        WifiInfo wifiInfo = configuration.getWifiManager().getConnectionInfo();
         if (wifiInfo != null) {
-            int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(),
-                ConnectionBuddyConfiguration.SIGNAL_STRENGTH_NUMBER_OF_LEVELS);
+            int level = WifiManager.calculateSignalLevel(
+                wifiInfo.getRssi(),
+                ConnectionBuddyConfiguration.SIGNAL_STRENGTH_NUMBER_OF_LEVELS
+            );
 
             switch (level) {
                 case 0:
@@ -423,37 +448,26 @@ public class ConnectionBuddy {
     /**
      * Get mobile network signal strength.
      */
-    private ConnectivityStrength getMobileConnectionStrength(NetworkInfo info) {
+    @NonNull
+    private ConnectivityStrength getMobileConnectionStrength(@Nullable NetworkInfo info) {
         if (info != null && info.getType() == ConnectivityManager.TYPE_MOBILE) {
             switch (info.getSubtype()) {
                 case TelephonyManager.NETWORK_TYPE_1xRTT:
-                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_CDMA:
-                    return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EDGE:
                     return new ConnectivityStrength(ConnectivityStrength.POOR);
                 case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                    return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_EVDO_A:
                     return new ConnectivityStrength(ConnectivityStrength.GOOD);
                 case TelephonyManager.NETWORK_TYPE_GPRS:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSDPA:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPA:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSUPA:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_UMTS:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EHRPD:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_IDEN:
-                    return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 case TelephonyManager.NETWORK_TYPE_LTE:
                     return new ConnectivityStrength(ConnectivityStrength.EXCELLENT);
                 default:
@@ -470,7 +484,8 @@ public class ConnectionBuddy {
      * @return boolean variable, which describes if user is in roaming.
      */
     public boolean isOnRoaming() {
-        NetworkInfo networkInfo = getConfiguration().getConnectivityManager().getActiveNetworkInfo();
+        assertNotNull(configuration);
+        NetworkInfo networkInfo = configuration.getConnectivityManager().getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isRoaming();
     }
 
@@ -484,14 +499,18 @@ public class ConnectionBuddy {
      * @param networkPassword WifiConfiguration network password.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound)
-        throws SecurityException {
+    public void connectToWifiConfiguration(
+        @NonNull Context context,
+        @NonNull String networkSsid,
+        @NonNull String networkPassword,
+        boolean disconnectIfNotFound
+    ) throws SecurityException {
         connectToWifiConfiguration(context, networkSsid, networkPassword, disconnectIfNotFound, null);
     }
 
     /**
      * Connects to the WiFi configuration with given {@param networkSsid} as network configuration's SSID and {@param networkPassword} as
-     * network configurations's password and optionaly notifies about the result if {@param listener} has defined value.
+     * network configurations's password and optionally notifies about the result if {@param listener} has defined value.
      * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION} and {@link android.Manifest.permission#ACCESS_FINE_LOCATION} permissions
      * are required in order to initiate new access point scan.
      *
@@ -500,27 +519,68 @@ public class ConnectionBuddy {
      * @param listener        Callback listener.
      */
     @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    public void connectToWifiConfiguration(Context context, String networkSsid, String networkPassword, boolean disconnectIfNotFound,
-        WifiConnectivityListener listener) throws SecurityException {
+    public void connectToWifiConfiguration(
+        @NonNull Context context,
+        @NonNull String networkSsid,
+        @NonNull String networkPassword,
+        boolean disconnectIfNotFound,
+        @Nullable WifiConnectivityListener listener
+    ) throws SecurityException {
+        assertNotNull(configuration);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            connectToWifiUsingNetworkSpecifier(networkSsid, networkPassword, listener);
+            return;
+        }
+
         // Check if permissions have been granted
-        if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-            || ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION permissions have not been granted by the user.");
         } else {
-            WifiManager wifiManager = (WifiManager) getConfiguration().getContext().getApplicationContext()
-                .getSystemService(Context.WIFI_SERVICE);
-            if (!wifiManager.isWifiEnabled()) {
-                wifiManager.setWifiEnabled(true);
+            if (!configuration.getWifiManager().isWifiEnabled()) {
+                configuration.getWifiManager().setWifiEnabled(true);
             }
 
-            // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
-            wifiScanResultReceiver = new WifiScanResultReceiver(wifiManager, networkSsid, networkPassword, disconnectIfNotFound, listener);
-            configuration.getContext()
-                .registerReceiver(wifiScanResultReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-            wifiManager.startScan();
+            wifiScanResultReceiver = new WifiScanResultReceiver(
+                configuration.getWifiManager(),
+                networkSsid,
+                networkPassword,
+                disconnectIfNotFound,
+                listener
+            );
+
+            configuration.getContext().registerReceiver(
+                wifiScanResultReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+            );
+
+            configuration.getWifiManager().startScan();
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void connectToWifiUsingNetworkSpecifier(
+        @NonNull String ssid,
+        @NonNull String preSharedKey,
+        @Nullable WifiConnectivityListener listener
+    ) {
+        assertNotNull(configuration);
+
+        NetworkSpecifier specifier = new WifiNetworkSpecifier.Builder()
+            .setSsid(ssid)
+            .setWpa2Passphrase(preSharedKey)
+            .build();
+
+        NetworkRequest request = new NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .setNetworkSpecifier(specifier)
+            .build();
+
+        configuration.getConnectivityManager().requestNetwork(
+            request,
+            new WifiNetworkCallback(configuration.getConnectivityManager(), listener),
+            WIFI_CONNECTION_TIMEOUT_MS
+        );
     }
 
     /**
@@ -529,18 +589,27 @@ public class ConnectionBuddy {
      */
     private class WifiScanResultReceiver extends BroadcastReceiver {
 
+        @NonNull
         private WifiManager wifiManager;
 
+        @Nullable
         private WifiConnectivityListener listener;
 
+        @NonNull
         private String networkSsid;
 
+        @NonNull
         private String networkPassword;
 
         private boolean disconnectIfNotFound;
 
-        WifiScanResultReceiver(WifiManager wifiManager, String networkSsid,
-            String networkPassword, boolean disconnectIfNotFound, WifiConnectivityListener listener) {
+        WifiScanResultReceiver(
+            @NonNull WifiManager wifiManager,
+            @NonNull String networkSsid,
+            @NonNull String networkPassword,
+            boolean disconnectIfNotFound,
+            @Nullable WifiConnectivityListener listener
+        ) {
             this.wifiManager = wifiManager;
             this.listener = listener;
             this.networkSsid = networkSsid;
@@ -549,35 +618,42 @@ public class ConnectionBuddy {
         }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(@NonNull Context context, Intent intent) {
+            assertNotNull(configuration);
+
             // unregister receiver, so that we are only notified once about the results
             context.unregisterReceiver(this);
 
-            if (wifiManager != null && wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
+            if (wifiManager.getScanResults() != null && wifiManager.getScanResults().size() > 0) {
                 for (ScanResult scanResult : wifiManager.getScanResults()) {
                     if (scanResult.SSID != null && scanResult.SSID.equals(networkSsid)) {
-
                         int networkId;
                         WifiConfiguration wifiConfiguration = checkIfWifiAlreadyConfigured(wifiManager.getConfiguredNetworks());
 
                         if (wifiConfiguration == null) {
-                            wifiConfiguration = new WifiConfiguration();
-                            wifiConfiguration.SSID = "\"" + networkSsid + "\"";
-                            wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
-                            networkId = wifiManager.addNetwork(wifiConfiguration);
+                            networkId = wifiManager.addNetwork(createWifiConfiguration(scanResult, networkPassword));
                         } else {
-                            // Set new password
-                            wifiConfiguration.preSharedKey = "\"" + networkPassword + "\"";
-                            networkId = wifiConfiguration.networkId;
+                            wifiConfiguration.preSharedKey = networkPassword;
+                            networkId = wifiManager.updateNetwork(wifiConfiguration);
+                            if (networkId == -1) {
+                                networkId = wifiConfiguration.networkId;
+                            }
                         }
 
-                        // there is no wifi configuration with given data in list of configured networks. Initialize scan for access points.
-                        wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(networkSsid, wifiManager,
-                            disconnectIfNotFound, listener);
-                        configuration.getContext()
-                            .registerReceiver(wifiConnectionStateChangedReceiver,
-                                new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+                        wifiConnectionStateChangedReceiver = new WifiConnectionStateChangedReceiver(
+                            networkSsid,
+                            wifiManager,
+                            disconnectIfNotFound,
+                            listener
+                        );
+
+                        configuration.getContext().registerReceiver(
+                            wifiConnectionStateChangedReceiver,
+                            new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+                        );
+
                         wifiManager.enableNetwork(networkId, true);
+
                         return;
                     }
                 }
@@ -588,7 +664,8 @@ public class ConnectionBuddy {
             }
         }
 
-        private WifiConfiguration checkIfWifiAlreadyConfigured(List<WifiConfiguration> wifiConfigurationList) {
+        @Nullable
+        private WifiConfiguration checkIfWifiAlreadyConfigured(@Nullable List<WifiConfiguration> wifiConfigurationList) {
             if (wifiConfigurationList != null && !wifiConfigurationList.isEmpty()) {
                 for (WifiConfiguration configuration : wifiConfigurationList) {
                     if (configuration.SSID != null && configuration.SSID.equals("\"" + networkSsid + "\"")) {
@@ -598,20 +675,104 @@ public class ConnectionBuddy {
             }
             return null;
         }
+
+        @NonNull
+        private WifiConfiguration createWifiConfiguration(@NonNull ScanResult scanResult, @NonNull String preSharedKey) {
+            // See https://stackoverflow.com/a/53749271/1597897.
+
+            String[] capabilities = scanResult.capabilities.substring(1, scanResult.capabilities.indexOf(']') - 1).split("-");
+
+            String auth = "";
+            String keyManagement = "";
+            String pairwiseCipher = "";
+
+            if (capabilities.length > 0) {
+                auth = capabilities[0];
+            }
+
+            if (capabilities.length > 1) {
+                keyManagement = capabilities[1];
+            }
+
+            if (capabilities.length > 2) {
+                pairwiseCipher = capabilities[2];
+            }
+
+            WifiConfiguration config = new WifiConfiguration();
+            config.SSID = quoted(scanResult.SSID);
+            config.BSSID = scanResult.BSSID;
+
+            if (auth.contains("WPA") || auth.contains("WPA2")) {
+                config.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                config.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            }
+
+            if (auth.contains("EAP")) {
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.LEAP);
+            } else if (auth.contains("WPA") || auth.contains("WPA2")) {
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            } else if (auth.contains("WEP")) {
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+            }
+
+            if (keyManagement.contains("IEEE802.1X")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.IEEE8021X);
+            } else if (auth.contains("WPA") && keyManagement.contains("EAP")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_EAP);
+            } else if (auth.contains("WPA") && keyManagement.contains("PSK")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            } else if (auth.contains("WPA2") && keyManagement.contains("PSK")) {
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            }
+
+            if (pairwiseCipher.contains("CCMP") || pairwiseCipher.contains("TKIP")) {
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            }
+
+            if (!preSharedKey.isEmpty()) {
+                if (auth.contains("WEP")) {
+                    if (preSharedKey.matches("\\p{XDigit}+")) {
+                        config.wepKeys[0] = preSharedKey;
+                    } else {
+                        config.wepKeys[0] = quoted(preSharedKey);
+                    }
+                    config.wepTxKeyIndex = 0;
+                } else {
+                    config.preSharedKey = quoted(preSharedKey);
+                }
+            }
+
+            return config;
+        }
+
+        @NonNull
+        private String quoted(@NonNull String s) {
+            return "\"" + s + "\"";
+        }
     }
 
-    private class WifiConnectionStateChangedReceiver extends BroadcastReceiver {
+    private static class WifiConnectionStateChangedReceiver extends BroadcastReceiver {
 
+        @Nullable
         private WifiConnectivityListener listener;
 
+        @NonNull
         private String networkSsid;
 
+        @NonNull
         private WifiManager wifiManager;
 
         private boolean disconnectIfNotFound;
 
-        WifiConnectionStateChangedReceiver(String networkSsid, @NonNull WifiManager wifiManager, boolean disconnectIfNotFound,
-            WifiConnectivityListener listener) {
+        private boolean startedConnecting = false;
+
+        WifiConnectionStateChangedReceiver(
+            @NonNull String networkSsid,
+            @NonNull WifiManager wifiManager,
+            boolean disconnectIfNotFound,
+            @Nullable WifiConnectivityListener listener
+        ) {
             this.listener = listener;
             this.networkSsid = networkSsid;
             this.wifiManager = wifiManager;
@@ -619,22 +780,89 @@ public class ConnectionBuddy {
         }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            // unregister receiver, so that we are only notified once about the results
-            context.unregisterReceiver(this);
-
+        public void onReceive(@NonNull Context context, Intent intent) {
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            if (networkInfo == null) {
+                return;
+            }
 
-            if (listener != null) {
-                if (networkInfo.isConnected() && wifiManager.getConnectionInfo().getSSID().replace("\"", "").equals(networkSsid)) {
-                    listener.onConnected();
-                } else {
-                    if (disconnectIfNotFound) {
-                        wifiManager.disconnect();
+            String ssid = wifiManager.getConnectionInfo().getSSID().replace("\"", "");
+
+            if (!startedConnecting) {
+                if (networkInfo.getState() == NetworkInfo.State.CONNECTING) {
+                    if (ssid.equals(networkSsid)) {
+                        startedConnecting = true;
+                    } else {
+                        onFailure(context);
                     }
-
-                    listener.onNotFound();
                 }
+                return;
+            }
+
+            if (networkInfo.getState() == NetworkInfo.State.CONNECTING) {
+                return;
+            }
+
+            if (networkInfo.getState() == NetworkInfo.State.CONNECTED && ssid.equals(networkSsid)) {
+                onSuccess(context);
+            } else {
+                onFailure(context);
+            }
+        }
+
+        private void onSuccess(Context context) {
+            context.unregisterReceiver(this);
+            if (listener != null) {
+                listener.onConnected();
+            }
+        }
+
+        private void onFailure(Context context) {
+            context.unregisterReceiver(this);
+            if (disconnectIfNotFound) {
+                wifiManager.disconnect();
+            }
+            if (listener != null) {
+                listener.onNotFound();
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private static class WifiNetworkCallback extends ConnectivityManager.NetworkCallback {
+
+        @NonNull
+        private final ConnectivityManager connectivityManager;
+
+        @Nullable
+        private final WifiConnectivityListener listener;
+
+        WifiNetworkCallback(@NonNull ConnectivityManager connectivityManager, @Nullable WifiConnectivityListener listener) {
+            this.connectivityManager = connectivityManager;
+            this.listener = listener;
+        }
+
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            super.onAvailable(network);
+            connectivityManager.bindProcessToNetwork(network);
+            if (listener != null) {
+                listener.onConnected();
+            }
+        }
+
+        @Override
+        public void onLost(@NonNull Network network) {
+            super.onLost(network);
+            connectivityManager.unregisterNetworkCallback(this);
+            connectivityManager.bindProcessToNetwork(null);
+        }
+
+        @Override
+        public void onUnavailable() {
+            super.onUnavailable();
+            if (listener != null) {
+                listener.onNotFound();
             }
         }
     }
@@ -642,12 +870,14 @@ public class ConnectionBuddy {
     /**
      * Callback executor,  which will post the runnable on main thread.
      */
+    @NonNull
     private Executor callbackExecutor = new Executor() {
 
+        @NonNull
         Handler mainHandler = new Handler(Looper.getMainLooper());
 
         @Override
-        public void execute(Runnable command) {
+        public void execute(@NonNull Runnable command) {
             mainHandler.post(command);
         }
     };

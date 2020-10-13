@@ -2,8 +2,13 @@ package com.zplesac.connectionbuddy;
 
 import com.zplesac.connectionbuddy.models.ConnectivityStrength;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Created by Željko Plesac on 09/10/15.
@@ -11,37 +16,61 @@ import android.net.ConnectivityManager;
  */
 public class ConnectionBuddyConfiguration {
 
+    private static final String CONNECTIVITY_MANAGER_NULL_ERROR = "ConnectivityManager is null.";
+    private static final String WIFI_MANAGER_NULL_ERROR = "WifiManager is null.";
+
     public static final int SIGNAL_STRENGTH_NUMBER_OF_LEVELS = 3;
 
     public static final int DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE = 4;
 
-    private Context context;
+    @NonNull
+    private Context applicationContext;
 
     private boolean registeredForWiFiChanges;
 
     private boolean registeredForMobileNetworkChanges;
 
+    @NonNull
     private ConnectivityStrength minimumSignalStrength;
 
+    @NonNull
     private ConnectionBuddyCache networkEventsCache;
 
     private boolean notifyImmediately;
-
-    private ConnectivityManager connectivityManager;
 
     private boolean notifyOnlyReliableEvents;
 
     private int testNetworkRequestExecutorSize;
 
-    private ConnectionBuddyConfiguration(Builder builder) {
-        this.context = builder.context;
+    @NonNull
+    private ConnectivityManager connectivityManager;
+
+    @NonNull
+    private WifiManager wifiManager;
+
+    private ConnectionBuddyConfiguration(@NonNull Builder builder) {
+        this.applicationContext = builder.context;
         this.registeredForMobileNetworkChanges = builder.registerForMobileNetworkChanges;
         this.registeredForWiFiChanges = builder.registerForWiFiChanges;
         this.minimumSignalStrength = builder.minimumSignalStrength;
         this.notifyImmediately = builder.notifyImmediately;
         this.notifyOnlyReliableEvents = builder.notifyOnlyReliableEvents;
-        this.connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         this.testNetworkRequestExecutorSize = builder.testNetworkRequestExecutorSize;
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) {
+            throw new IllegalStateException(CONNECTIVITY_MANAGER_NULL_ERROR);
+        }
+
+        // Lint does not recognize 'applicationContext' is an application context and triggers a warning.
+        @SuppressLint("WifiManagerPotentialLeak")
+        WifiManager wifiManager = (WifiManager) applicationContext.getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager == null) {
+            throw new IllegalStateException(WIFI_MANAGER_NULL_ERROR);
+        }
+
+        this.connectivityManager = connectivityManager;
+        this.wifiManager = wifiManager;
 
         if (builder.cache != null) {
             this.networkEventsCache = builder.cache;
@@ -50,8 +79,12 @@ public class ConnectionBuddyConfiguration {
         }
     }
 
+    /**
+     * Returns the application context.
+     */
+    @NonNull
     public Context getContext() {
-        return context;
+        return applicationContext;
     }
 
     public boolean isRegisteredForWiFiChanges() {
@@ -62,20 +95,18 @@ public class ConnectionBuddyConfiguration {
         return registeredForMobileNetworkChanges;
     }
 
+    @NonNull
     public ConnectivityStrength getMinimumSignalStrength() {
         return minimumSignalStrength;
     }
 
+    @NonNull
     public ConnectionBuddyCache getNetworkEventsCache() {
         return networkEventsCache;
     }
 
     public boolean isNotifyImmediately() {
         return notifyImmediately;
-    }
-
-    public ConnectivityManager getConnectivityManager() {
-        return connectivityManager;
     }
 
     public boolean isNotifyOnlyReliableEvents() {
@@ -86,8 +117,19 @@ public class ConnectionBuddyConfiguration {
         return testNetworkRequestExecutorSize;
     }
 
+    @NonNull
+    public ConnectivityManager getConnectivityManager() {
+        return connectivityManager;
+    }
+
+    @NonNull
+    public WifiManager getWifiManager() {
+        return wifiManager;
+    }
+
     public static class Builder {
 
+        @NonNull
         private Context context;
 
         /**
@@ -106,6 +148,7 @@ public class ConnectionBuddyConfiguration {
          * Define minimum signal strength for which we should call callback listener.
          * Default is set to ConnectivityStrength.UNDEFINED.
          */
+        @NonNull
         private ConnectivityStrength minimumSignalStrength = new ConnectivityStrength(ConnectivityStrength.UNDEFINED);
 
         /**
@@ -118,6 +161,7 @@ public class ConnectionBuddyConfiguration {
         /**
          * Cache which is used for storing network events.
          */
+        @Nullable
         private ConnectionBuddyCache cache;
 
         /**
@@ -132,45 +176,53 @@ public class ConnectionBuddyConfiguration {
          */
         private int testNetworkRequestExecutorSize = DEFAULT_NETWORK_EXECUTOR_THREAD_SIZE;
 
-        public Builder(Context context) {
+        public Builder(@NonNull Context context) {
             this.context = context.getApplicationContext();
         }
 
+        @NonNull
         public Builder registerForWiFiChanges(boolean shouldRegister) {
             this.registerForWiFiChanges = shouldRegister;
             return this;
         }
 
+        @NonNull
         public Builder registerForMobileNetworkChanges(boolean shouldRegister) {
             this.registerForMobileNetworkChanges = shouldRegister;
             return this;
         }
 
-        public Builder setMinimumSignalStrength(ConnectivityStrength minimumSignalStrength) {
+        @NonNull
+        public Builder setMinimumSignalStrength(@NonNull ConnectivityStrength minimumSignalStrength) {
             this.minimumSignalStrength = minimumSignalStrength;
             return this;
         }
 
+        @NonNull
         public Builder setNotifyImmediately(boolean shouldNotify) {
             this.notifyImmediately = shouldNotify;
             return this;
         }
 
+        @NonNull
         public Builder notifyOnlyReliableEvents(boolean shouldNotify) {
             this.notifyOnlyReliableEvents = shouldNotify;
             return this;
         }
 
+        @NonNull
         public Builder setNetworkEventsCache(ConnectionBuddyCache cache) {
             this.cache = cache;
             return this;
         }
 
+        @NonNull
         public Builder setTestNetworkRequestExecutorSize(int testNetworkRequestExecutorSize) {
             this.testNetworkRequestExecutorSize = testNetworkRequestExecutorSize;
             return this;
         }
 
+        @NonNull
         public ConnectionBuddyConfiguration build() {
             return new ConnectionBuddyConfiguration(this);
         }

@@ -19,7 +19,6 @@ android:
       - '.+'
 script:
    - ./gradlew assembleDebug -PdisablePreDex
-   - ./gradlew checkstyle findbugs pmd -PdisablePreDex
 
 cache:
   directories:

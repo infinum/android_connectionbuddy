@@ -3,6 +3,8 @@ package com.zplesac.connectionbuddy.interfaces;
 
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by Željko Plesac on 01/09/15.
  */
@@ -13,5 +15,5 @@ public interface ConnectivityChangeListener {
      *
      * @param event ConnectivityEvent which holds all data about network connection state.
      */
-    void onConnectionChange(ConnectivityEvent event);
+    void onConnectionChange(@NonNull ConnectivityEvent event);
 }

@@ -6,9 +6,11 @@ import com.zplesac.connectionbuddy.sampleapp.R;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +22,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 /**
  * Created by Željko Plesac on 15/11/16.
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class WiFiActivity extends AppCompatActivity implements WifiConnectivityListener {
 
     private static final String TAG = "WiFiActivity";
@@ -27,9 +30,7 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
     private static final int RC_LOCATION = 147;
 
     private EditText etSsid;
-
     private EditText etPassword;
-
     private Button buttonConnect;
 
     @Override
@@ -37,9 +38,9 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wi_fi);
 
-        etSsid = (EditText) findViewById(R.id.et_ssid);
-        etPassword = (EditText) findViewById(R.id.et_password);
-        buttonConnect = (Button) findViewById(R.id.button_connect);
+        etSsid = findViewById(R.id.et_ssid);
+        etPassword = findViewById(R.id.et_password);
+        buttonConnect = findViewById(R.id.button_connect);
 
         buttonConnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,7 +51,7 @@ public class WiFiActivity extends AppCompatActivity implements WifiConnectivityL
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // Forward results to EasyPermissions

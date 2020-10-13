@@ -13,15 +13,16 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by Željko Plesac on 08/09/15.
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class ManualConfigurationActivity extends Activity implements ConnectivityChangeListener {
 
     private TextView tvTitle;
-
     private TextView tvConnectionType;
-
     private Button buttonTestNetworkRequest;
 
     @Override
@@ -33,9 +34,9 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
             ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache().clearLastNetworkState(this);
         }
 
-        tvTitle = (TextView) findViewById(R.id.tv_title);
-        tvConnectionType = (TextView) findViewById(R.id.tv_connection_type);
-        buttonTestNetworkRequest = (Button) findViewById(R.id.button_test_network_request);
+        tvTitle = findViewById(R.id.tv_title);
+        tvConnectionType = findViewById(R.id.tv_connection_type);
+        buttonTestNetworkRequest = findViewById(R.id.button_test_network_request);
 
         buttonTestNetworkRequest.setVisibility(View.VISIBLE);
         buttonTestNetworkRequest.setOnClickListener(testNetworkRequestButtonClickListener);
@@ -56,9 +57,9 @@ public class ManualConfigurationActivity extends Activity implements Connectivit
     }
 
     @Override
-    public void onConnectionChange(ConnectivityEvent event) {
-        tvTitle.setText("Connection status: " + event.getState());
-        tvConnectionType.setText("Connection type: " + event.getType());
+    public void onConnectionChange(@NonNull ConnectivityEvent event) {
+        tvTitle.setText(String.format(getString(R.string.connection_status), event.getState()));
+        tvConnectionType.setText(String.format(getString(R.string.connection_type), event.getType()));
     }
 
     private View.OnClickListener testNetworkRequestButtonClickListener = new View.OnClickListener() {

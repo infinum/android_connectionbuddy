@@ -3,9 +3,9 @@ apply plugin: 'maven'
 apply from: '../config/quality.gradle'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 19
@@ -20,11 +20,6 @@ android {
         }
     }
 
-    dependencies {
-        implementation "com.android.support:support-v4:28.0.0"
-        implementation 'com.android.support:support-annotations:28.0.0'
-    }
-
     lintOptions {
         // if true, stop the gradle build if errors are found
         abortOnError true
@@ -34,6 +29,7 @@ android {
         showAll true
     }
 }
+
 repositories {
     mavenCentral()
 }
@@ -144,6 +140,12 @@ install {
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
+}
+
+dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    compileOnly 'org.jetbrains:annotations:19.0.0'
 }
 
 artifacts {

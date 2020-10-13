@@ -20,7 +20,6 @@ import javax.inject.Inject;
 public class MVPActivity extends Activity implements MVPView {
 
     private TextView tvTitle;
-
     private TextView tvConnectionType;
 
     @Inject
@@ -38,8 +37,8 @@ public class MVPActivity extends Activity implements MVPView {
 
     @Override
     public void initUI() {
-        tvTitle = (TextView) findViewById(R.id.tv_title);
-        tvConnectionType = (TextView) findViewById(R.id.tv_connection_type);
+        tvTitle = findViewById(R.id.tv_title);
+        tvConnectionType = findViewById(R.id.tv_connection_type);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class MVPActivity extends Activity implements MVPView {
 
     @Override
     public void onConnectionChangeEvent(ConnectivityEvent event) {
-        tvTitle.setText("Connection status: " + event.getState());
-        tvConnectionType.setText("Connection type: " + event.getType());
+        tvTitle.setText(String.format(getString(R.string.connection_status), event.getState()));
+        tvConnectionType.setText(String.format(getString(R.string.connection_type), event.getType()));
     }
 }

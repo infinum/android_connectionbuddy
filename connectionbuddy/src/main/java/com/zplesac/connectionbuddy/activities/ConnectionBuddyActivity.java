@@ -7,6 +7,9 @@ import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Created by Željko Plesac on 21/02/16.
  * Base activity for handling connectivity change events.
@@ -14,7 +17,7 @@ import android.os.Bundle;
 public class ConnectionBuddyActivity extends Activity implements ConnectivityChangeListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ConnectionBuddy.getInstance().clearNetworkCache(this, savedInstanceState);
     }
@@ -41,7 +44,6 @@ public class ConnectionBuddyActivity extends Activity implements ConnectivityCha
      * @param event ConnectivityEvent which holds all data about network connection state.
      */
     @Override
-    public void onConnectionChange(ConnectivityEvent event) {
-
+    public void onConnectionChange(@NonNull ConnectivityEvent event) {
     }
 }

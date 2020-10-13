@@ -1,48 +1,52 @@
 package com.zplesac.connectionbuddy;
 
-import android.support.v4.util.LruCache;
+import androidx.annotation.NonNull;
+import androidx.collection.LruCache;
 
 class LruConnectionBuddyCache implements ConnectionBuddyCache {
 
-    private final int kbSize = 1024;
+    private static final int KB_SIZE = 1024;
+    private static final int MEMORY_PART = 10;
 
-    private final int memoryPart = 10;
-
-    /**
-     * Get max available VM memory, exceeding this amount will throw an
-     * OutOfMemory exception. Stored in kilobytes as LruCache takes an
-     * int in its constructor.
-     */
-    private final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / kbSize);
-
+    @NonNull
     private LruCache<String, Boolean> cache;
 
     LruConnectionBuddyCache() {
+        // Get max available VM memory, exceeding this amount will throw an
+        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+        // int in its constructor.
+        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / KB_SIZE);
+
         // Use 1/10th of the available memory for this memory cache.
-        this.cache = new LruCache<>(maxMemory / memoryPart);
+        this.cache = new LruCache<>(maxMemory / MEMORY_PART);
     }
 
     @Override
-    public boolean getLastNetworkState(Object object) {
+    public boolean getLastNetworkState(@NonNull Object object) {
         if (isLastNetworkStateStored(object)) {
-            return cache.get(object.toString());
+            Boolean state = cache.get(object.toString());
+            if (state != null) {
+                return state;
+            } else {
+                return false;
+            }
         }
 
         return true;
     }
 
     @Override
-    public void setLastNetworkState(Object object, boolean isActive) {
+    public void setLastNetworkState(@NonNull Object object, boolean isActive) {
         cache.put(object.toString(), isActive);
     }
 
     @Override
-    public void clearLastNetworkState(Object object) {
+    public void clearLastNetworkState(@NonNull Object object) {
         cache.remove(object.toString());
     }
 
     @Override
-    public boolean isLastNetworkStateStored(Object object) {
+    public boolean isLastNetworkStateStored(@NonNull Object object) {
         return cache.snapshot().containsKey(object.toString());
     }
 }

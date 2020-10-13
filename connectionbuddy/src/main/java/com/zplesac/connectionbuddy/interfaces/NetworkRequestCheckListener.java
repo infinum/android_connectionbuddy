@@ -8,5 +8,4 @@ public interface NetworkRequestCheckListener {
     void onResponseObtained();
 
     void onNoResponse();
-
 }

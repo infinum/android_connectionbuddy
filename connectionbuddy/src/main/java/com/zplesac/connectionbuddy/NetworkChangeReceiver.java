@@ -6,17 +6,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 
 /**
  * Broadcast receiver that listens to network connectivity changes.
  */
 class NetworkChangeReceiver extends BroadcastReceiver {
 
+    @NonNull
     private Object object;
 
+    @NonNull
     private ConnectivityChangeListener mCallback;
 
-    NetworkChangeReceiver(Object object, ConnectivityChangeListener mCallback) {
+    NetworkChangeReceiver(@NonNull Object object, @NonNull ConnectivityChangeListener mCallback) {
         this.object = object;
         this.mCallback = mCallback;
     }
@@ -29,12 +32,12 @@ class NetworkChangeReceiver extends BroadcastReceiver {
         boolean hasConnectivity = ConnectionBuddy.getInstance().hasNetworkConnection();
         ConnectionBuddyCache cache = ConnectionBuddy.getInstance().getConfiguration().getNetworkEventsCache();
 
-        if (hasConnectivity && cache.getLastNetworkState(object) != hasConnectivity) {
-            cache.setLastNetworkState(object, hasConnectivity);
-            ConnectionBuddy.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
-        } else if (!hasConnectivity && cache.getLastNetworkState(object) != hasConnectivity) {
-            cache.setLastNetworkState(object, hasConnectivity);
-            ConnectionBuddy.getInstance().notifyConnectionChange(hasConnectivity, mCallback);
+        if (hasConnectivity && !cache.getLastNetworkState(object)) {
+            cache.setLastNetworkState(object, true);
+            ConnectionBuddy.getInstance().notifyConnectionChange(true, mCallback);
+        } else if (!hasConnectivity && cache.getLastNetworkState(object)) {
+            cache.setLastNetworkState(object, false);
+            ConnectionBuddy.getInstance().notifyConnectionChange(false, mCallback);
         }
     }
 }
