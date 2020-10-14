@@ -320,8 +320,8 @@ public class ConnectionBuddy {
     }
 
     /**
-     * Try to perform test network request to NETWORK_CHECK_URL. This way, we can determine if use is in fact capable of performing
-     * any network operations when he has active internet connection.
+     * Try to perform test network request to NETWORK_CHECK_URL_GOOGLE_DNS. The request is executed on a separate non-UI thread.
+     * This way, we can determine if use is in fact capable of performing any network operations when he has active internet connection.
      *
      * @param listener Callback listener.
      */
