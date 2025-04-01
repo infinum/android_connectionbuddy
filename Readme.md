@@ -1,3 +1,6 @@
+# Deprecated
+This library is no longer supported and will not receive any more updates.
+
 [![Build Status](https://travis-ci.org/zplesac/android_connectionbuddy.svg?branch=development)](https://travis-ci.org/zplesac/android_connectionbuddy)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![JCenter](https://img.shields.io/badge/JCenter-2.0.1-red.svg?style=flat)](https://bintray.com/zplesac/maven/android-connectionbuddy/view)
